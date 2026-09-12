@@ -44,6 +44,22 @@ if (!is_array($list)) {
 $wide = isset($list['wide']) && is_array($list['wide']) ? $list['wide'] : [];
 $long = isset($list['long']) && is_array($list['long']) ? $list['long'] : [];
 
+/**
+ * 防线：排除 iro_gallery/img/封面
+ *
+ * 该目录属主是 root:root（当初用宝塔在线解压 封面.zip 生成的），FTP 与 PHP 都没有权限删除/改名；
+ * 里面是**转换前的原图**与一套嵌套副本（实测 1000 个文件、909 MB，均值 611 KB、最大 12.9 MB）。
+ * 一旦被抽中，用户要为一个封面下十几兆，属于最坏情况。
+ * 索引已重建为不含它；这里再加一道 —— 即使后台重新点「初始化索引」把它扫回来，本端点也不会发出去。
+ */
+$strip_originals = static function (array $paths): array {
+    return array_values(array_filter($paths, static function ($p) {
+        return strpos((string) $p, '/封面/') === false;
+    }));
+};
+$wide = $strip_originals($wide);
+$long = $strip_originals($long);
+
 $kind = isset($_GET['img']) ? strtolower((string) $_GET['img']) : '';
 
 if ($kind === 'w' && $wide) {
