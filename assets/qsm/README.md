@@ -14,7 +14,7 @@ Quiz And Survey Master（Text Domain `quiz-master-next`，版本 11.2.6）的**�
 | `lang/quiz-master-next-zh_CN.po` | 翻译源文件（可编辑，权威） | — |
 | `lang/quiz-master-next-zh_CN.mo` | 编译产物（WP 用） | `wp-content/languages/plugins/` |
 | `lang/quiz-master-next-zh_CN.l10n.php` | WP 6.5+ 加速格式 | `wp-content/languages/plugins/` |
-| `workbench/index.html` | 协作翻译工作台（单文件，双击即用） | — |
+| `workbench/index.html` | 协作翻译工作台（单文件，双击即用） | **线上：`i18n.yibianhui.cn/index.html`** |
 | `tools/qsm-master.json` | 全量条目（原文 / 中文 / 引用位置 / 标记） | — |
 | `tools/draft/*.txt` | 中文草稿（`序号\|译文`，可再回填） | — |
 | `tools/qsm_build.py` | `.po` → `.mo` / `.l10n.php` 编译器（无 gettext 依赖） | — |
@@ -135,6 +135,33 @@ ftp_put_mkdir.py ybh-qsm-clean.php                       wp-content/mu-plugins/y
 `qsm_workbench.py` 生成工作台 / `ftp_put_mkdir.py` 上传+字节回读 / `qsm_final_verify.js` 验收）。
 
 **注意**：站点启用了 LSCache；语言包与 mu-plugin 变更后若前台无变化，先刷缓存再判断。
+
+## 6.5 协作翻译工作台（线上站点）
+
+**线上地址：<https://i18n.yibianhui.cn/>** —— 独立静态站（宝塔站点目录 `/www/wwwroot/i18n.yibianhui.cn/`），
+非 WordPress 站点，纯静态单文件，无后端、无数据库。
+
+| 项 | 说明 |
+|---|---|
+| 部署方式 | FTP 覆盖 `i18n.yibianhui.cn/index.html`（用 `_probe_dir/ftp_put_any.py <本地> i18n.yibianhui.cn/index.html`） |
+| 站点根 | `/www/wwwroot/i18n.yibianhui.cn/`（FTP 根 = `/www/wwwroot/`） |
+| 已有文件 | `index.html`（工作台）、`robots.txt`（`Disallow: /`）、原宝塔默认页已备份 |
+| 访问控制 | 页面自带 `<meta robots="noindex,nofollow">` + `robots.txt` 全站禁收录；**无登录门槛**（靠域名不公开传播） |
+| 进度存储 | **纯浏览器 localStorage**（键 `ybh-qsm-i18n-v1`）—— 换设备/清缓存即丢，故要求伙伴导出 JSON 回收 |
+| 导出通道 | JSON（回填用）/ `.po`（直接可用）/ CSV（Excel 留档） |
+| 配色 | 浅色主题（与 IDE 及站点一致）；含术语表与「怎么用」说明区块 |
+
+**改工作台的正确姿势**：不要直接改 `workbench/index.html`（它是产物），
+改 `tools/qsm_workbench.py` 后重跑生成器再上传，否则下次生成会覆盖掉手改内容：
+
+```bash
+python tools/qsm_workbench.py                       # 生成到 _probe_dir/qsm-i18n/workbench/
+cp _probe_dir/qsm-i18n/workbench/index.html tools/../workbench/index.html
+python _probe_dir/ftp_put_any.py <上面的 index.html> i18n.yibianhui.cn/index.html
+```
+
+**验收脚本**：`_probe_dir/i18n_verify.js`（功能 21 项）与 `_probe_dir/i18n_responsive.js`
+（5 档视口溢出检测）；需 `NODE_PATH=<node workspace>/node_modules` 且用 `channel: 'msedge'`。
 
 ## 7. 停机开关
 
