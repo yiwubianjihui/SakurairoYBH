@@ -46,6 +46,8 @@ HTML = r'''<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='46' font-size='36' text-anchor='middle' fill='%23ffffff' font-family='Segoe UI,Microsoft YaHei,sans-serif'%3E%E8%AF%91%3C/text%3E%3C/svg%3E">
 <title>QSM 汉化工作台 · Quiz And Survey Master 11.2.6</title>
 <style>
 :root{
@@ -111,12 +113,40 @@ main{padding:0 20px 80px;max-width:1500px;margin:0 auto}
 .pager span{color:var(--tx2);font-size:13px}
 .gloss{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
 .gloss summary{cursor:pointer;font-weight:600;font-size:13.5px}
+.gloss.guide{background:linear-gradient(180deg,#f7f9ff,#fff);border-color:#d8e2f7}
+.guide-body{font-size:13.5px;color:var(--tx)}
+.guide-body p{margin:9px 0}
+.guide-body ol{margin:6px 0 6px 4px;padding-left:18px}
+.guide-body li{margin:3px 0}
+.guide-body code{background:#eef2f7;padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:#334}
+.guide-body .warn{background:var(--warn-soft);border-left:3px solid var(--warn);padding:8px 11px;border-radius:0 6px 6px 0;color:#7a4b00}
+.guide-body .note{background:#f4f6fa;border-left:3px solid var(--tx3);padding:8px 11px;border-radius:0 6px 6px 0;color:var(--tx2)}
 .gloss table{margin-top:10px;border-collapse:collapse;width:100%;font-size:13px}
 .gloss td{border-bottom:1px solid var(--line2);padding:5px 8px}
 .gloss td:first-child{color:var(--tx3);font-family:ui-monospace,Consolas,monospace;width:38%}
+.foot{margin-top:26px;padding:14px 4px 0;border-top:1px solid var(--line);color:var(--tx3);font-size:12px;text-align:center;line-height:1.8}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#1f2430;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:1000px){.row{grid-template-columns:1fr}.no{padding-top:0}.right{margin-top:2px}}
+/* 窄屏（手机）：标题/副标题/统计分行，工具栏铺满，避免横向溢出 */
+@media(max-width:640px){
+  .hd{flex-wrap:wrap;gap:2px 10px;padding:10px 14px}
+  .hd h1{font-size:15px}
+  .hd .sub{order:2;flex:1 1 100%;font-size:12px}
+  .hd>.spacer{display:none}
+  .stat{order:3;flex:1 1 100%;justify-content:space-between;gap:0}
+  .stat>div{text-align:right}
+  .stat b{font-size:15px}
+  .stat span{font-size:10.5px}
+  .bar{margin:0 14px 10px}
+  .tools{padding:0 14px 12px;gap:8px}
+  .tools input[type=search]{flex:1 1 100%;width:100%;min-width:0}
+  .tools select{flex:1 1 44%;min-width:0}
+  .tools>.spacer{display:none}
+  main{padding:0 14px 60px}
+  .pager{flex-wrap:wrap;gap:6px}
+  .row{padding:10px 12px}
+}
 </style>
 </head>
 <body>
@@ -163,6 +193,28 @@ main{padding:0 20px 80px;max-width:1500px;margin:0 auto}
   </div>
 </header>
 <main>
+  <details class="gloss guide" open>
+    <summary>怎么用？（30 秒读完）</summary>
+    <div class="guide-body">
+      <p><b>这是做什么的：</b>把 WordPress 插件 <b>Quiz And Survey Master 11.2.6</b> 的后台界面翻成中文，
+      一共 <b>1699</b> 条文案。左边英文原文（附出处文件与行号），右边中文译文，<b>直接改右边的框就行</b>。</p>
+      <ol>
+        <li><b>挑着看</b>：不确定从哪下手，就在上面按「付费/推广类」「短词（易歧义）」「官方已有译文」筛选；
+            也可以直接搜英文或中文。</li>
+        <li><b>改译文</b>：点进右侧输入框改写。改过的条目会自动标蓝（已修改），<b>不用手动保存</b>。</li>
+        <li><b>确认</b>：觉得这条定稿了，点「确认」→ 变绿（已确认）。想反悔再点一次「取消确认」。</li>
+        <li><b>交给我</b>：全部看完后点右上角「<b>导出 JSON</b>」，把下载的文件发回来即可；
+            顺手点一下「导出 CSV」也行（Excel 能直接打开，方便你自己留档）。</li>
+      </ol>
+      <p class="warn"><b>三条铁律：</b>
+        ① <code>%s</code>、<code>%d</code>、<code>%1$s</code> 这类占位符<b>必须原样保留</b>，一个字符都不能少或改位置；
+        ② 短词（如 <code>Yes</code> / <code>No</code> / <code>Save</code>）要按<b>后台按钮</b>的语感译，别直译；
+        ③ 中文<b>不分单复数</b>，带「复数形式」的条目按主译文处理即可。</p>
+      <p class="note">进度<b>保存在你自己的浏览器里</b>（换电脑/换浏览器/清缓存就没了），所以别拖太久，
+      也别多人共用一个浏览器同时改。导出后你的修改才会真正汇总。译文最终由我统一校验并打包上线。</p>
+    </div>
+  </details>
+
   <div id="list"></div>
   <div class="pager" id="pager"></div>
 
@@ -186,6 +238,10 @@ main{padding:0 20px 80px;max-width:1500px;margin:0 auto}
       <tr><td>Placeholder 规则</td><td><code>%s</code>、<code>%d</code>、<code>%1$s</code> 必须原样保留；中文单复数同形</td></tr>
     </table>
   </details>
+  <div class="foot">
+    QSM 汉化工作台 · 数据源：Quiz And Survey Master <b>11.2.6</b> 源码提取（1699 条）·
+    本站仅用于内部翻译协作，译文定稿后统一打包为语言包上线 · 一键即封存 yibianhui.cn
+  </div>
 </main>
 <div class="toast" id="toast"></div>
 
@@ -283,6 +339,12 @@ document.addEventListener('input', e => {
     state[i] = Object.assign({}, state[i], {t: ta.value});
     if (!state[i].t) delete state[i].t;
     save();
+    // 即时反映行状态：原先只在 render() 时才更新行类，导致「改完不变色」
+    const row = ta.closest('.row');
+    if (row){
+      row.classList.toggle('done', isDone(i));
+      row.classList.toggle('edited', !isDone(i) && isEdited(i));
+    }
   }, 250);
 });
 document.addEventListener('click', e => {
