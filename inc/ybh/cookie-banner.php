@@ -76,7 +76,7 @@ function ybh_render_cookie_banner()
         <!-- 横幅 -->
         <div class="ybh-consent__bar" data-panel="bar">
             <div class="ybh-consent__text">
-                <strong>我们使用 Cookie</strong>
+                <strong><i class="fa-solid fa-cookie-bite" aria-hidden="true"></i>我们使用 Cookie</strong>
                 <span>必要的 Cookie 用于登录与评论；其余用于统计与推广，可由你决定是否允许。详见
                     <a href="<?php echo esc_url($policy); ?>">Cookie 政策</a>。</span>
             </div>
@@ -90,7 +90,7 @@ function ybh_render_cookie_banner()
         <!-- 自定义面板 -->
         <div class="ybh-consent__bar ybh-consent__panel" data-panel="custom" hidden>
             <div class="ybh-consent__text">
-                <strong>Cookie 偏好</strong>
+                <strong><i class="fa-solid fa-sliders" aria-hidden="true"></i>Cookie 偏好</strong>
             </div>
             <ul class="ybh-consent__list">
                 <?php foreach ($cats as $k => $c) : ?>

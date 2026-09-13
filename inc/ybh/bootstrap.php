@@ -9,6 +9,11 @@
  * - 裁剪前端 Emoji 脚本（后台保留，dashboard-emoji-fix 不受影响）
  * - 注册友链批量导入工具
  * - 1.1：展台紧凑模式 / 文章列表摘要与列数 / 导航随机文章按钮（均可在「YBH 魔改」设置区切换）
+ * - 1.2：Cookie 同意横幅（替代 WPConsent）/ 自建头像 API / 标签行与卡片精简
+ * - 1.2.6：低端设备动效降级（html.ybh-lite）
+ * - 1.2.7：中文斜体改用霞鹜文楷 / 后台美化与投稿快捷入口 / fork 署名
+ * - 1.2.8：Cookie 横幅视觉重设计 —— 对齐站点卡片语言（毛玻璃/令牌化圆角投影），
+ *          控制台展开时自动让路
  *
  * @package SakurairoYBH
  */
@@ -18,7 +23,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.2.7');
+define('YBH_VERSION', '1.2.8');
 
 /**
  * FontAwesome 本地化（双保险）：

@@ -990,121 +990,260 @@ body.ybh-exhibit-contain .card-title-wrapper {
 }
 
 /* ---------- Cookie 同意横幅（替代 WPConsent） ----------
-   配色沿用站内原先 WPConsent 的设定（深蓝底 + 白字、小号略圆角按钮），保持观感连续。
+   视觉语言对齐站点卡片：毛玻璃底 + 细亮边 + 柔和投影 + 大圆角，
+   配色与圆角全部取自 YBH 设计令牌 ⇒ 深浅色模式、低端设备降级**自动适配**
+   （令牌本身已在 body.dark / html.ybh-lite 下被重定义，此处无需重复声明）。
+
+   位置：底部居中 + 限宽，而不是贴满整屏。
+   ① 观感上是站点自己的一张卡片，不像外挂的插件条；
+   ② 让开右下角的控制台（#changskin / #moblieGoTop）—— 原先贴满全宽时
+      横幅（z-index 99999、高 84px）会把控制台（z-index 99）整个压住，
+      用户必须先处理横幅才点得开控制台；限宽后两侧留白正好避开它。
    只有一个 fixed 容器 + 两套面板，不额外请求任何外部资源。 */
 .ybh-consent {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 18px;
+  margin-inline: auto;
+  /* 920px 是实测的「单行阈值」：<900 时说明文字会折成两行（卡片 112px 高），
+     ≥920 起刚好一行（89px）。限宽同时让两侧留白避开右下角控制台。 */
+  width: min(920px, calc(100% - 28px));
   z-index: 99999;
-  font-size: 16px;
-  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.7;
+  /* 跟随 body 正文色：浅色下是 --theme-skin(#505050)，深色下由 dark.css 接管。
+     不写死颜色，两种模式都不会出现对比不足。 */
+  color: inherit;
+  /* 局部令牌：半透明描边/底色需要随深浅模式换向（深色下要描白线） */
+  --ybh-consent-line: rgba(80, 80, 80, 0.22);
+  --ybh-consent-fill: rgba(80, 80, 80, 0.06);
+  --ybh-consent-fill-hover: rgba(80, 80, 80, 0.11);
+  /* 强调色取自站点令牌本身，深浅两套各用各的 —— 不另造颜色，主题换色这里自动跟。
+     ⚠️ 深色下**不要**拿 --theme-skin-dark 当按钮底色：它由 js/app.js 按封面主色动态派生，
+     亮度被钳制在 L 45%~70%（见 app.js 的 hsl 计算），配白字在 L=70% 端对比不足、
+     配深字在 L=45% 端也不够。它在本站的用途是「深色下的强调**文字**/辉光」
+     （dark.css 里 a:hover 与 .toc:hover 的 box-shadow 都取它）。
+     所以深色下的主按钮改为「反向中性」：亮底 + 深字（#CCCCCC / #1b1c22 → 9.9:1），
+     这也正是浅色主按钮（#505050 深底白字）的自然对偶，两模式都稳。 */
+  --ybh-consent-accent: var(--theme-skin, #505050);
+  --ybh-consent-accent-ink: #fff;
+  --ybh-consent-accent-link: var(--theme-skin-dark, #294aa4);
+  /* 入场动画放在内层 __bar 上，本层只留「让路」过渡 ——
+     两者都要动 opacity/transform，分开挂才不会互相压制
+     （animation 的 fill-mode 会锁死计算值，普通声明盖不住它）。 */
+  transition: opacity var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              visibility 0s linear 0s;
 }
+body.dark .ybh-consent {
+  --ybh-consent-line: rgba(255, 255, 255, 0.20);
+  --ybh-consent-fill: rgba(255, 255, 255, 0.07);
+  --ybh-consent-fill-hover: rgba(255, 255, 255, 0.12);
+  --ybh-consent-accent: var(--dark-text-primary, #cccccc);
+  --ybh-consent-accent-ink: #1b1c22;
+  --ybh-consent-accent-link: #ffffff;
+}
+/* 右下角控制台（#changskin → .skin-menu，z-index 99）展开时主动让路。
+   它从右边往左展开（1440 视口下占 x 882..1390），任何居中的底部横幅都躲不开 ——
+   横幅 99999 会同它硬碰硬压住面板。这里用 :has() 侦测 .show：
+   面板一出现横幅就淡出并取消命中，收起后自动回来。
+   visibility 用零时长过渡 + 延迟，保证「先淡出、再不可见」，恢复时立即生效。 */
+body:has(.skin-menu.show) .ybh-consent {
+  opacity: 0;
+  transform: translateY(10px);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              visibility 0s linear var(--ybh-dur, 0.25s);
+}
+@keyframes ybh-consent-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* 关键：下面给面板写了 display:flex/block，而类选择器优先级高于 [hidden] 的属性选择器，
    会让 hidden 失效 ⇒ 横幅与「自定义」面板同时露出来。这里必须显式压回去。 */
 .ybh-consent[hidden],
 .ybh-consent [hidden] {
   display: none !important;
 }
+
+/* 卡片本体：横幅与「自定义」面板共用 */
 .ybh-consent__bar {
-  background: #04194e;
-  padding: 14px 18px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px 18px;
-  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.25);
+  gap: 14px 20px;
+  padding: 18px 22px;
+  border-radius: var(--ybh-radius-lg, 20px);
+  background: var(--ybh-glass-bg-strong, rgba(255, 255, 255, 0.94));
+  -webkit-backdrop-filter: var(--ybh-glass-blur, blur(14px) saturate(170%));
+  backdrop-filter: var(--ybh-glass-blur, blur(14px) saturate(170%));
+  border: 1px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  box-shadow: var(--ybh-shadow-2, 0 18px 44px -20px rgba(24, 32, 42, 0.32));
+  /* 入场动效挂在这里（外层留给让路过渡）：两套面板切换时也会各播一次，
+     正好给出「面板翻面」的轻提示 */
+  animation: ybh-consent-in var(--ybh-dur, 0.25s) var(--ybh-ease, ease) both;
 }
+
 .ybh-consent__text {
-  flex: 1 1 380px;
+  flex: 1 1 340px;
   min-width: 0;
-  line-height: 1.65;
 }
+/* 图标与标题同一行；图标只用现成的 FA 类，不碰 font-family */
 .ybh-consent__text strong {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 1.05em;
-  margin-bottom: 2px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-bottom: 3px;
+}
+.ybh-consent__text strong i {
+  font-size: 0.95em;
+  opacity: 0.7;
 }
 .ybh-consent__text span {
-  opacity: 0.9;
+  display: block;
+  opacity: 0.78;
   font-size: 0.9em;
 }
 .ybh-consent__text a {
-  color: #ffd76e;
+  color: inherit;
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
+.ybh-consent__text a:hover {
+  color: var(--ybh-consent-accent-link, #294aa4);
+}
+
 .ybh-consent__actions {
   flex: 0 0 auto;
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 8px;
 }
 .ybh-consent__btn {
   cursor: pointer;
+  font: inherit;
   font-size: 0.9em;
-  padding: 7px 14px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  color: #fff;
   line-height: 1.2;
+  padding: 8px 16px;
+  border-radius: var(--ybh-radius-sm, 12px);
+  border: 1px solid var(--ybh-consent-line);
+  background: var(--ybh-consent-fill);
+  color: inherit;
+  transition: transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              box-shadow var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              background-color var(--ybh-dur, 0.25s) var(--ybh-ease, ease);
+}
+/* hover 用「微抬升 + 投影」而不是改色 —— 与站点卡片的交互语言一致，
+   且低端设备 / 减动效时 --ybh-hover-lift-sm 归零，位移自动收敛 */
+.ybh-consent__btn:hover {
+  background: var(--ybh-consent-fill-hover);
+  transform: translateY(var(--ybh-hover-lift-sm, -2px));
+  box-shadow: var(--ybh-shadow-1, 0 10px 30px -16px rgba(24, 32, 42, 0.2));
 }
 .ybh-consent__btn--primary {
-  background: #fff;
-  color: #04194e;
-  border-color: #fff;
+  background: var(--ybh-consent-accent, #505050);
+  color: var(--ybh-consent-accent-ink, #fff);
+  border-color: transparent;
   font-weight: 600;
 }
-.ybh-consent__btn:hover {
-  opacity: 0.88;
+/* 主按钮 hover 不改色：浅色主题的 --theme-skin-matching 偏淡，白字压上去对比不足；
+   改为压暗一档 + 抬升，保持「强调但不刺眼」 */
+.ybh-consent__btn--primary:hover {
+  background: var(--ybh-consent-accent, #505050);
+  filter: brightness(0.92);
 }
+/* dark.css 有 `body.dark button { color: var(--dark-text-primary) }`（特指度 0,1,2），
+   会压过上面的 (0,1,0) ⇒ 深色下主按钮的深色字必须显式用更高特指度写回来。 */
+body.dark .ybh-consent .ybh-consent__btn--primary {
+  color: var(--ybh-consent-accent-ink, #1b1c22);
+}
+
+/* 「自定义」面板：三个开关 */
 .ybh-consent__panel {
   display: block;
 }
 .ybh-consent__list {
   flex: 1 1 100%;
   list-style: none;
-  margin: 4px 0 0;
+  margin: 0;
   padding: 0;
   display: grid;
   gap: 8px;
 }
+/* li 归零：主题/插件可能给 li 加外边距，这里显式收平 */
 .ybh-consent__list li {
   margin: 0;
   list-style: none;
 }
 .ybh-consent__item {
   display: flex;
-  gap: 10px;
   align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 0.95em;
+  border-radius: var(--ybh-radius-sm, 12px);
+  background: var(--ybh-consent-fill);
   cursor: pointer;
-  font-size: 0.92em;
+  transition: background-color var(--ybh-dur, 0.25s) var(--ybh-ease, ease);
 }
+.ybh-consent__item:hover {
+  background: var(--ybh-consent-fill-hover);
+}
+/* accent-color 一行搞定原生 checkbox 的勾选色，跟随主题色（深色下换深色强调色） */
 .ybh-consent__item input {
-  margin-top: 3px;
   flex: 0 0 auto;
+  margin: 3px 0 0;
+  accent-color: var(--ybh-consent-accent, #505050);
 }
-.ybh-consent__item em {
+.ybh-consent__item-text b {
+  display: block;
+  font-weight: 600;
+}
+.ybh-consent__item-text em {
   display: block;
   font-style: normal;
-  opacity: 0.78;
-  font-size: 0.92em;
+  opacity: 0.72;
+  font-size: 0.88em;
 }
 .ybh-consent__item input:disabled {
   cursor: default;
+  opacity: 0.6;
 }
 .ybh-consent-link {
   text-decoration: underline;
   cursor: pointer;
 }
+
 @media (max-width: 640px) {
+  .ybh-consent {
+    bottom: 10px;
+    width: calc(100% - 16px);
+    font-size: 14px;
+  }
   .ybh-consent__bar {
-    padding: 12px 14px;
+    padding: 14px 15px;
+    gap: 12px;
   }
   .ybh-consent__actions {
-    width: 100%;
+    flex: 1 1 100%;
     justify-content: flex-end;
+  }
+}
+
+/* 减动效偏好下取消入场位移（低端设备已由令牌自动收敛时长，这里覆盖动画本身） */
+@media (prefers-reduced-motion: reduce) {
+  .ybh-consent__bar {
+    animation: none;
+  }
+  .ybh-consent__btn:hover {
+    transform: none;
   }
 }
 
