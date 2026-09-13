@@ -2254,7 +2254,12 @@ function iro_get_description(){
     $description = '';
 
     if (is_singular() && !empty($post->post_content)) {
-        $description = trim(mb_strimwidth(preg_replace('/\s+/', ' ', strip_tags($post->post_content)), 0, 240, '…'));
+        /* YBH（T31 / v1.3.1）：先剥短代码再剥标签。
+           原文只做 strip_tags，于是 [fn]…[/fn]、[caption]…[/caption] 这类
+           短代码会原样进入 <meta name="description">，在搜索结果与分享卡片里
+           露出「[fn]注释文字[/fn]」这种残字。strip_shortcodes() 会连同内容一起
+           剥掉（[fn] 是已注册短代码），描述文本因此干净。 */
+        $description = trim(mb_strimwidth(preg_replace('/\s+/', ' ', strip_tags(strip_shortcodes($post->post_content))), 0, 240, '…'));
     }
     
     if (empty($description) && is_category()) {

@@ -61,7 +61,38 @@ $reception_background = iro_opt('reception_background');
         <?php /* YBH fork：明确写出来源 —— 本主题是 Sakurairo 的二次开发，非上游原版 */ ?>
         <a href="https://github.com/yiwubianjihui/SakurairoYBH" rel="noopener" target="_blank">Theme SakurairoYBH</a>
         <a href="https://github.com/mirai-mamori/Sakurairo" rel="noopener" target="_blank">forked from Sakurairo by Fuukei</a>
-      </div>
+      <?php
+      /*
+       * YBH · 页脚法务入口（T29 / v1.3.1）
+       *
+       * 三份文档 + 一个操作入口：隐私政策 / 用户协议 / Cookie 政策 / Cookie 设置。
+       *   · 页面按 slug 解析，**只输出已发布（publish）的页面** ——
+       *     草稿或被删掉时自动不显示，页脚永远不会出现死链；
+       *   · 「Cookie 设置」不是页面，而是重新弹出 Cookie 横幅，
+       *     与短代码 [ybh_cookie_settings] 完全同款行为（横幅脚本见
+       *     inc/ybh/cookie-banner.php 的 window.YBHConsent.open()）。
+       *   · 用 get_pages() 一次取回全部页面（WP 内部有对象缓存），
+       *     而不是为每个 slug 各查一次库。
+       */
+      $ybh_legal_items = array();
+      $ybh_pp_id       = (int) get_option('wp_page_for_privacy_policy');
+      if ($ybh_pp_id && 'publish' === get_post_status($ybh_pp_id)) {
+          $ybh_legal_items[] = '<a href="' . esc_url(get_permalink($ybh_pp_id)) . '">隐私政策</a>';
+      }
+      $ybh_wanted = array('user-agreement' => '用户协议', 'cookie-policy' => 'Cookie 政策');
+      foreach (get_pages(array('number' => 100)) as $ybh_p) {
+          if (isset($ybh_wanted[$ybh_p->post_name])) {
+              $ybh_legal_items[] = '<a href="' . esc_url(get_permalink($ybh_p->ID)) . '">'
+                  . esc_html($ybh_wanted[$ybh_p->post_name]) . '</a>';
+          }
+      }
+      $ybh_legal_items[] = '<a href="#" class="ybh-consent-link"'
+          . ' onclick="window.YBHConsent&&window.YBHConsent.open();return false;">Cookie 设置</a>';
+      ?>
+      <nav class="ybh-legal-links" aria-label="<?php esc_attr_e('Legal information', 'sakurairo'); ?>">
+        <?php echo implode('<span class="ybh-legal-sep" aria-hidden="true">·</span>', $ybh_legal_items); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+      </nav>
+      </div><!-- .theme-info -->
     </div><!-- .site-info -->
   </footer><!-- #colophon -->
   </section><!-- #section -->
@@ -140,9 +171,10 @@ $reception_background = iro_opt('reception_background');
       </div>
     <?php endif; ?>
     <?php /* YBH：紧凑模式开关 —— 缩小文章卡尺寸，让一屏显示更多文章。
-             沿用日/夜模式的 .menu-list>li 结构，选中态用 .selected。 */ ?>
+             沿用日/夜模式的 .menu-list>li 结构，选中态用 .selected。
+             T26 起该模式默认开启，点一下即关闭并记住选择。 */ ?>
     <ul class="menu-list ybh-compact-list">
-      <li class="ybh-compact-toggle" title="<?php esc_attr_e('Compact mode: smaller cards, more posts per screen', 'sakurairo'); ?>">
+      <li class="ybh-compact-toggle" title="<?php esc_attr_e('Compact mode: smaller cards, more posts per screen (on by default)', 'sakurairo'); ?>">
         <i class="fa-solid fa-table-cells-large"></i>
       </li>
     </ul>

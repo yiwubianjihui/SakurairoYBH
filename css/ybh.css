@@ -1765,34 +1765,56 @@ html.ybh-lite body .top-social a i {
   font-size: 11px;
 }
 
-/* ---------- 11.2 紧凑模式 ----------
+/* ---------- 11.2 紧凑模式（T26：增加一行内卡片数，默认启用） ----------
    目标：同样的视口高度里多放文章。
-   手段是成比例地缩小「卡片高度 / 封面上的标题面板 / 卡片间距 / 胶囊」，
-   同时保留封面可辨识的观感，不做极端压缩。 */
-html.ybh-compact body .post-list-thumb {
-  height: 232px;
-  margin: 9px 0;
-}
+   两层手段叠加：
+     ① 增列 —— 桌面由 2 列提到 3 列、窄屏由 1 列提到 2 列（下面 :has() 网格规则）；
+     ② 减高 —— 成比例缩小「卡片高度 / 封面上的标题面板 / 卡片间距 / 胶囊」。
+   卡片几何：桌面 265×200（比例 1.33），与原来 403×300 的 1.34 基本一致
+   ⇒ 封面构图观感不变，只是整体缩了一号；窄屏用 aspect-ratio 锁同一比例，
+   避免固定 px 高度在半宽卡片上把比例拉扁（实测不加会到 2.6）。
+
+   ⚠️ 与「非紧凑」模式的分工：
+     非紧凑 = 站点当前观感（桌面 2 列 / 窄屏 1 列，卡片 403×300）；
+     紧凑   = 新默认（桌面 3 列 / 窄屏 2 列，卡片 265×200）。
+   两套互不干扰：本区块所有规则都带 html.ybh-compact 前缀。 */
+
+/* ① 增列：桌面（>860px）3 列。非紧凑模式保持 2 列不变。 */
 html.ybh-compact body.ybh-postlist-2col #primary .site-main:has(> .post-list-thumb) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0 12px;
 }
-/* 标题面板：更小的内边距与字号，位置略微下移以留出封面呼吸感 */
+/* 桌面卡片高度：200px（原 300px；3 列下卡宽 265px，比例 1.33） */
+html.ybh-compact body .post-list-thumb {
+  height: 200px;
+  margin: 9px 0;
+}
+/* 标题面板：更小的内边距与字号，位置略微下移以留出封面呼吸感。
+   max-height 必须显式放宽：style.css 的 .post-title 带 max-height:34%
+   + overflow:hidden，卡片降到 200px 后面板上限仅 68px，
+   长标题会被无声裁掉下半行（窄屏 150px 时更只剩 51px）。
+   ⚠️ 下面 h3 的 font-size 在本站**不会生效**，属已知且有意接受的状态：
+   它是主题 Customizer「文章标题字号」项写出的 `16px !important`
+   （inc/decorate.php:326 → iro_opt('post_title_font_size')，内联 <style>，
+   特指度 (0,2,1) 但带 !important）。同层 !important 的作者声明优先于任何
+   普通声明 —— 特指度再高也压不过，所以下面这条 15px 会被 16px 盖掉。
+   不改成 !important：那是站长为卡片标题定的字号，紧凑模式不该篡改它。
+   若将来把该设置调小、或改走「自定义 CSS」，这里的 15px 会自动接管。 */
 html.ybh-compact body .post-list-thumb .post-title {
   padding: 8px 14px;
   bottom: 8%;
+  max-height: 72%;
 }
-/* ⚠️ 下面的 font-size 在本站**不会生效**，属已知且有意接受的状态：
-   站点「自定义 CSS」里有一条 `.post-list-thumb .post-title h3{ font-size:16px !important }`
-   （首页输出的内联 <style>，全站 19 条 !important 之一）。
-   同层 !important 的作者声明优先于任何普通声明 —— 特指度再高也压不过，
-   所以 (0,3,3) 的这条 15px 输给 (0,2,1) 的 16px。
-   不改成 !important：那是站长为卡片标题定的字号，紧凑模式不该篡改它。
-   紧凑模式的「一屏多放文章」是靠下面 .post-list-thumb 的高度 300px→232px 实现的，
-   与标题字号无关。若将来站点撤掉那条 !important，这里的 15px 会自动接管。 */
+/* 标题限 2 行并加省略号：3 列后卡宽只有 265px，长标题会顶到面板外缘。
+   （原来是整块 34% 裁切，会出现半行残字） */
 html.ybh-compact body .post-list-thumb .post-title h3 {
   font-size: 15px;
   letter-spacing: 1px;
   line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 html.ybh-compact body .post-list-thumb .post-title h3:hover {
   /* 紧凑模式下同样保持字距恒定，避免 hover 抖动 */
@@ -1815,14 +1837,35 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
 html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
   max-width: 68%;
 }
-/* 窄屏下的紧凑模式：卡片再矮一点，避免小屏上高度占比过高 */
+
+/* ② 增列 + 减高：窄屏（≤860px）由 1 列提到 2 列。
+   ≤860px 在主题里是所有模式共用的单列断点（css/ybh.css:770），
+   这里必须显式覆盖回 2 列，且只在紧凑模式下。 */
 @media (max-width: 860px) {
+  html.ybh-compact body.ybh-postlist-2col #primary .site-main:has(> .post-list-thumb) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 10px;
+  }
+  /* 用 aspect-ratio 而不是固定 px：半宽卡片宽度随视口变化（320→168px、
+     860→391px），固定高度会让比例从 2.6 一路飘到 1.1。
+     锁 4/3 与桌面 1.33 对齐，各尺寸下观感一致。 */
   html.ybh-compact body .post-list-thumb {
-    height: 210px;
-    margin: 8px 0;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    margin: 7px 0;
+  }
+  html.ybh-compact body .post-list-thumb .post-title {
+    padding: 6px 10px;
+    bottom: 6%;
   }
   html.ybh-compact body .post-list-thumb .post-title h3 {
     font-size: 14px;
+  }
+  /* 半宽卡片上「日期 + 元信息」两个胶囊会吃掉整行（实测 375px 下
+     日期 79px / 卡宽 168px，元信息只能靠省略号收口成无意义残字），
+     故窄屏只留日期；分类与热度在文章页/归档页仍可见。 */
+  html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
+    display: none;
   }
 }
 
@@ -1837,4 +1880,124 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
 }
 .skin-menu .ybh-compact-list li:not(.selected) {
   opacity: 0.55;
+}
+
+/* ============================================================
+   12. 脚注（`[fn]注释文字[/fn]`）—— T31 / v1.3.1
+   ------------------------------------------------------------
+   渲染由 inc/ybh/footnotes.php 负责，这里只管样子。
+   12.1 正文里的上标编号；12.2 文末的注释列表。
+   编辑器里的「可视化标记」样式在 css/editor-style.css（.ybh-fn-chip），
+   两者互不影响：编辑器标记不会出现在前台。
+   ============================================================ */
+
+/* ---------- 12.1 正文里的上标编号 ----------
+   做成「小圆角方块」而不是裸数字：正文行距 2 倍，裸上标容易和上一行的
+   下伸笔画糊在一起；给个浅底能让它一眼被认出来是「注释入口」。
+   色值刻意不用 --theme-skin：那条变量是取封面主色实时算出来的，
+   深色下可能变亮、浅色下可能变暗，做底色不稳（见 README 坑 #5）。 */
+.entry-content sup.ybh-fnref {
+  margin-left: 1px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 0;
+  vertical-align: super;
+}
+.entry-content sup.ybh-fnref a {
+  display: inline-block;
+  min-width: 15px;
+  padding: 0 3px;
+  border-radius: 4px;
+  color: var(--article-theme-highlight, var(--theme-skin-matching, #6a7ba8));
+  background: rgba(128, 140, 178, 0.15);
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  -webkit-transition: background-color 0.2s ease;
+}
+/* 悬停只加深底色，不改变文字颜色：.entry-content a:hover 会把颜色改成
+   --theme-skin-dark（可能很亮），在浅底上会糊掉。这里用更高特指度压住。 */
+.entry-content sup.ybh-fnref a:hover {
+  color: var(--article-theme-highlight, var(--theme-skin-matching, #6a7ba8));
+  background: rgba(128, 140, 178, 0.34);
+  text-decoration: none;
+}
+
+/* ---------- 12.2 文末注释列表 ---------- */
+.ybh-footnotes {
+  margin: 34px 0 6px;
+  padding-top: 14px;
+  /* 一条细线把它和正文分开：比 blockquote 的粗左侧线轻，观感不抢戏 */
+  border-top: 1px solid rgba(128, 140, 178, 0.28);
+}
+.ybh-footnotes .ybh-fn-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+/* 注释文字比正文小一档、行距收一点 —— 它是「补充材料」，不该和正文一样重 */
+.ybh-footnotes .ybh-fn-list {
+  margin: 0;
+  padding-left: 1.6em;
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+.ybh-footnotes .ybh-fn-item {
+  margin: 0 0 4px;
+  padding: 1px 4px;
+  border-radius: 5px;
+}
+.ybh-footnotes .ybh-fn-item::marker {
+  opacity: 0.7;
+}
+.ybh-footnotes .ybh-fn-back {
+  margin-left: 2px;
+  opacity: 0.5;
+  text-decoration: none;
+}
+.ybh-footnotes .ybh-fn-back:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+/* 点「↩」回到正文、或点上标跳下来时，用 :target 把落点标出来。
+   只改背景不做动画 —— 因此不需要为 prefers-reduced-motion / html.ybh-lite
+   再写一份「无动画」的降级（本区块自始至终没有动画依赖）。 */
+.ybh-footnotes .ybh-fn-item:target {
+  background: rgba(128, 140, 178, 0.16);
+  box-shadow: 0 0 0 3px rgba(128, 140, 178, 0.16);
+}
+/* 窄屏：注释文字再小半档，给长中文留出换行余量 */
+@media (max-width: 600px) {
+  .ybh-footnotes .ybh-fn-list {
+    font-size: 12.5px;
+  }
+}
+
+/* ============================================================
+   13. 页脚法务入口（T29 / v1.3.1）
+   ------------------------------------------------------------
+   隐私政策 · 用户协议 · Cookie 政策 · Cookie 设置
+   标记在 footer.php 的 .theme-info 里（只输出已发布的页面，无死链）。
+   刻意**不写 color**：让主题既有的 `.theme-info a`（浅灰 / 深色下 #7d7d7d）
+   继续生效，页脚整体观感一致；这里只补排版。
+   ============================================================ */
+.ybh-legal-links {
+  margin: 6px 0 -2px;
+  font-size: 12.5px;
+  line-height: 2;
+}
+.ybh-legal-links a {
+  text-decoration: none;
+  /* 单个链接不折行（「Cookie 设置」被拆成两行很难看）；
+     链接之间仍可换行 —— 窄屏靠 <span class="ybh-legal-sep"> 断行 */
+  white-space: nowrap;
+}
+.ybh-legal-links a:hover {
+  text-decoration: underline;
+}
+.ybh-legal-sep {
+  margin: 0 7px;
+  opacity: 0.35;
 }

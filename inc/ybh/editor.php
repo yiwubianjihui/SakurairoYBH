@@ -2,10 +2,12 @@
 /**
  * YBH · 经典编辑器（Classic Editor）体验配置
  *
- * 背景：区块编辑器对投稿者门槛过高。改用经典编辑器后，这里做三件事：
+ * 背景：区块编辑器对投稿者门槛过高。改用经典编辑器后，这里做四件事：
  *   1) 精简工具栏 —— 只留写作真正用得到的按钮，去掉作者用不上的东西；
  *   2) 规整「回车/粘贴/空行」的行为 —— 回车与粘贴换行都成为独立段落，空行可自由保留；
- *   3) 编辑区样式与前台一致（css/editor-style.css）—— 做到真正的所见即所得。
+ *   3) 编辑区样式与前台一致（css/editor-style.css）—— 做到真正的所见即所得；
+ *   4) 脚注按钮（`ybh_footnote`）—— 按钮本体在 js/ybh-editor.js，
+ *      渲染在 inc/ybh/footnotes.php，这里只负责「把按钮名写进工具栏数组」。
  *
  * 依赖：classic-editor 插件（已安装并激活，classic-editor-replace=classic）。
  * 注意：tinymce-advanced 插件**未激活**，因此这里的过滤器不会被它抢走。
@@ -35,6 +37,29 @@ add_filter('mce_css', function ($mce_css) {
 });
 
 /* ---------------------------------------------------------------------------
+ * 1.5) 脚注按钮：外部 TinyMCE 插件 + 编辑器内可视化
+ *
+ *   插件文件 js/ybh-editor.js 做三件事：
+ *     · 注册工具栏按钮 `ybh_footnote`（按钮名由下面 prio 999 的数组放行）；
+ *     · 载入时把 `[fn]…[/fn]` 换成可视的行内标记，保存时换回来
+ *       —— 数据库里始终只存 `[fn]…[/fn]`；
+ *     · 编号靠 css/editor-style.css 的 CSS 计数器自动生成。
+ *
+ *   ⚠️ 不要把本插件名加进 `tiny_mce_plugins`：
+ *      WP 核心（class-wp-editor.php）会把「已在 plugins 列表里的名字」
+ *      从 external_plugins 中剔掉，结果是插件既不加载、也静默不报错。
+ *      TinyMCE 自己会把 external_plugins 的名字追加进 plugins 列表（已实测）。
+ * ------------------------------------------------------------------------- */
+add_filter('mce_external_plugins', function ($plugins) {
+    $plugins['ybh_footnote'] = add_query_arg(
+        'ver',
+        YBH_VERSION,
+        get_template_directory_uri() . '/js/ybh-editor.js'
+    );
+    return $plugins;
+});
+
+/* ---------------------------------------------------------------------------
  * 2) 精简工具栏（优先级 999 = 最后执行，确保结果就是我们定义的样子）
  *    其它插件（如 ruby-markup-converter 的注音按钮）会往工具栏里塞按钮，
  *    这里显式保留 ruby，其余第三/四行一律清空。
@@ -47,6 +72,10 @@ add_filter('mce_buttons', function ($buttons) {
         'formatselect',   // 段落 / 各级标题 / 引用 / 代码
         'bold', 'italic', 'underline', 'strikethrough',
         'bullist', 'numlist', 'blockquote',
+        // YBH 脚注：按钮本体注册在 js/ybh-editor.js（mce_external_plugins），
+        // 名字必须写在这个数组里 —— 本过滤器 prio 999 会**整体替换**工具栏，
+        // 另挂一个低优先级过滤器去追加是无效的。
+        'ybh_footnote',
         'alignleft', 'aligncenter', 'alignright',
         'link', 'unlink',
         'wp_add_media',   // 插入图片/媒体

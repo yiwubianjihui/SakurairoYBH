@@ -4,17 +4,76 @@
  *
  * 注意：字体与正文段落排版**不在这里定义** —— 前台那份 css/ybh.css 已通过
  * mce_css 过滤器挂进编辑器，字体与段落规则同源，避免出现「改了一处漏了另一处」。
- * 本文件只负责编辑区外壳：可读宽度、内边距、标题/引用/列表在编辑时的观感。
+ * 本文件只负责编辑区外壳（宽度、内边距）、标题/引用/列表在编辑时的观感，
+ * 以及脚注标记 `.ybh-fn-chip` 的可视化样式（T31，v1.3.1）。
  */
 
-/* ---------- 编辑区画布：与前台正文一致的阅读宽度 ---------- */
+/* ---------- 编辑区画布：让一行装下更多文字 ----------
+   v1.3.1 起（任务清单第 8 项）：**去掉 820px 的上限**，正文随编辑器宽度铺满。
+
+   为什么原来一行只有 820px：
+     旧规则 `max-width: 820px; margin: 0 auto` 把正文限成一条 820px 的窄栏并居中。
+     编辑器 iframe 宽 1200px 时，左右各空出约 190px —— 用户说的「页边距太大、
+     一行显示不了几个字」指的就是这两块留白。
+
+   顺带核实过（别被"内边距"误导）：
+     · `wp-includes/js/tinymce/skins/wordpress/wp-content.css` 里有
+       `body.wp-autoresize { padding-left: 0 !important; padding-right: 0 !important }`
+       —— 左右内边距**本来就是 0**，不存在可压缩的左右内边距；
+     · 同一文件还有 `body { margin: 9px 10px; max-width: 100% }`，被本规则
+       以更高特指度（body#tinymce）覆盖为 margin: 0。
+   所以"减页边距"的正确做法就是解除宽度上限，而不是去调 padding。
+   下面那条 padding 带 `!important`：wp-autoresize 的 padding 是 `!important` 声明，
+   普通声明压不过；`body#tinymce`(1,0,1) 的 !important 高于 `body.wp-autoresize`(0,1,1)，
+   因此这条能生效 —— 只为了给文末留一点呼吸空间，左右仍是 0。
+
+   只动编辑器外壳；**前台正文宽度不动**（那是主题布局，不属本任务）。
+   注意：本文件与 css/ybh.css 都挂在编辑器里，且 ybh.css 声明在后，
+   所以这里不要写任何与 ybh.css 同选择器的正文排版规则（会被盖掉）。 */
 body#tinymce,
 body.mce-content-body {
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 16px 20px 64px;
+  max-width: none;
+  width: auto;
+  margin: 0;
+  padding: 1px 0 24px !important;
   background: transparent;
 }
+
+/* ---------- 脚注（[fn]…[/fn]）的编辑器内可视化 ----------
+   编辑器里脚注以 <span class="ybh-fn-chip">注释文字</span> 存在
+   （见 js/ybh-editor.js），保存时会被换回 [fn]注释文字[/fn]。
+   编号由 CSS 计数器自动生成 —— 顺序与前台渲染的「注1、注2…」一致，
+   增删脚注后不需要手工维护编号。 */
+body#tinymce,
+body.mce-content-body {
+  counter-reset: ybh-fn;
+}
+body#tinymce .ybh-fn-chip,
+body.mce-content-body .ybh-fn-chip {
+  background: rgba(122, 140, 178, 0.13);
+  border-bottom: 1px dashed rgba(122, 140, 178, 0.7);
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 0.94em;
+  /* 跨行时让底色/圆角在两行上都画出来，而不是只包住首尾 */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+body#tinymce .ybh-fn-chip::before,
+body.mce-content-body .ybh-fn-chip::before {
+  counter-increment: ybh-fn;
+  content: "注" counter(ybh-fn);
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: #5d6f9c;
+  background: rgba(122, 140, 178, 0.26);
+}
+/* 深色编辑器皮肤暂未启用（后台无 body.dark），因此不写深色分支；
+   若日后给编辑器加深色皮肤，记得在这里补一组 .ybh-fn-chip 的深色配色。 */
 
 /* ---------- 段落：无首行缩进 + 段间距（与前台 .entry-content p 对齐） ---------- */
 body#tinymce p {

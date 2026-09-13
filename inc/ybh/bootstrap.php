@@ -19,6 +19,9 @@
  *          接管 WPAvatar 的 URL 输出（get_avatar_url prio 1000）并摘除其
  *          pre_get_avatar_data 短路钩子；登录用户可在个人资料页/前台短代码
  *          自行上传头像
+ * - 1.3.1：编辑器脚注 `[fn]注释文字[/fn]`（新 footnotes.php + 工具栏按钮 +
+ *          编辑器内可视化）与编辑区不限宽；页脚补法务入口
+ *          （隐私政策 · 用户协议 · Cookie 政策 · Cookie 设置）
  *
  * @package SakurairoYBH
  */
@@ -28,7 +31,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.0');
+define('YBH_VERSION', '1.3.1');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -235,6 +238,12 @@ require_once get_template_directory() . '/inc/ybh/cookie-banner.php';
  *      两项均可在「YBH 魔改」设置区开关：ybh_admin_skin / ybh_quick_post。
  */
 require_once get_template_directory() . '/inc/ybh/admin.php';
+
+/**
+ * 8.7) 脚注（T31）：`[fn]注释文字[/fn]` → 正文上标 + 文末注释列表。
+ *      编辑器侧的可视化与按钮在 js/ybh-editor.js（由 editor.php 注册）。
+ */
+require_once get_template_directory() . '/inc/ybh/footnotes.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
@@ -446,9 +455,11 @@ function ybh_client_prefs()
     <script>
     (function () {
       var h = document.documentElement;
-      /* --- 11) 紧凑模式：必须同步应用，否则会先按大卡片渲染一帧再跳变 --- */
+      /* --- 11) 紧凑模式：必须同步应用，否则会先按大卡片渲染一帧再跳变 ---
+         T26 起默认开启：只有访客显式关过（存过 '0'）才不加类。
+         老访客存过的 '1'/'0' 都被尊重，新访客/隐身窗口首访即紧凑。 */
       try {
-        if (localStorage.getItem('ybh_compact') === '1') h.classList.add('ybh-compact');
+        if (localStorage.getItem('ybh_compact') !== '0') h.classList.add('ybh-compact');
       } catch (e) {}
 
       /* --- 10) 低端设备探测 --- */
