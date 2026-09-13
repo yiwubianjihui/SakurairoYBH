@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.2.5');
+define('YBH_VERSION', '1.2.6');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -207,10 +207,17 @@ require_once get_template_directory() . '/inc/ybh/friend-importer.php';
 require_once get_template_directory() . '/inc/ybh/editor.php';
 
 /**
- * 8) 主页标签行（文章数最多的前 20 个标签 + 「显示更多」折叠）。
+ * 8) 主页标签行（文章数最多的前 30 个标签 + 「显示更多」折叠）。
  *    渲染函数由 index.php 的 primary 组件调用。
  */
 require_once get_template_directory() . '/inc/ybh/home-tags.php';
+
+/**
+ * 8.5) 轻量 Cookie 同意横幅（替代 WPConsent）。
+ *      自建：只有一个 PHP 文件 + 内联 CSS/JS，不连任何外部服务、不额外发请求。
+ *      去 WPConsent 插件后由本文件接管。
+ */
+require_once get_template_directory() . '/inc/ybh/cookie-banner.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
@@ -250,6 +257,25 @@ function ybh_cover_api_endpoint($value)
 
     return $value;
 }
+
+/**
+ * 10) 前端 JS 的缓存键
+ *
+ *     主题用 IRO_VERSION 作 app.js 的版本参数，而那个值不随 YBH 的改动变化；
+ *     偏偏宝塔给 `.js` 配了 12 小时缓存 ⇒ 改完 app.js，访客（含自己）会在半天内
+ *     继续拿到旧文件，很难察觉。这里给 app / app-page 的 URL 追加 YBH 版本号，
+ *     版本一动 URL 就变，缓存自然失效。
+ *
+ *     配套：`js/app.js` 中自动加载下一页的延时由 `1e3*parseInt(e,10)` 改为
+ *     `1e3*parseFloat(e)`，这样后台「自动加载延时」可以填小数（如 0.5 秒）；
+ *     原来用 parseInt 会把 0.5 截断成 0（等于立刻触发）。
+ */
+add_filter('script_loader_src', function ($src, $handle) {
+    if (in_array($handle, array('app', 'app-page'), true)) {
+        $src = add_query_arg('ybh', YBH_VERSION, $src);
+    }
+    return $src;
+}, 10, 2);
 
 /**
  * 7) 上传图片自动转 WebP（GitHub issue #2）。
