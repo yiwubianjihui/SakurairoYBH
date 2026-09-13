@@ -14,6 +14,11 @@
  * - 1.2.7：中文斜体改用霞鹜文楷 / 后台美化与投稿快捷入口 / fork 署名
  * - 1.2.8：Cookie 横幅视觉重设计 —— 对齐站点卡片语言（毛玻璃/令牌化圆角投影），
  *          控制台展开时自动让路
+ * - 1.3.0：头像全线自建 —— 自有端点 ybh-avatar.php + 三级回退（用户上传 →
+ *          已抓取落盘 → 回源 Cravatar），默认图换成站点自有阿卡林剪影；
+ *          接管 WPAvatar 的 URL 输出（get_avatar_url prio 1000）并摘除其
+ *          pre_get_avatar_data 短路钩子；登录用户可在个人资料页/前台短代码
+ *          自行上传头像
  *
  * @package SakurairoYBH
  */
@@ -23,7 +28,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.2.9');
+define('YBH_VERSION', '1.3.0');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -521,3 +526,18 @@ function ybh_compact_toggle_script()
     </script>
     <?php
 }
+
+/* ---------------------------------------------------------------------------
+ * 11) 自建头像 API（T24）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 接管全站头像：`get_avatar_url` 优先级 1000 压过 WPAvatar 的 999，
+ * 无头像的邮箱一律走站点自建默认图（img/ybh-default-avatar.webp），
+ * 不再出现 WP 的 mystery 灰色小人或 Cravatar 的 `d=mm` 占位图；
+ * 注册用户可在后台资料页 / 前台短代码里自行上传。
+ *
+ * 配套端点 `ybh-avatar.php`（主题根目录，**不加载 WordPress**，照 rand-cover.php 的做法）。
+ * 细节与「为什么优先级是 1000」见 inc/ybh/avatar.php 的文件头注释。
+ */
+require_once get_template_directory() . '/inc/ybh/avatar.php';
