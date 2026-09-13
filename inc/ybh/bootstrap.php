@@ -22,6 +22,8 @@
  * - 1.3.1：编辑器脚注 `[fn]注释文字[/fn]`（新 footnotes.php + 工具栏按钮 +
  *          编辑器内可视化）与编辑区不限宽；页脚补法务入口
  *          （隐私政策 · 用户协议 · Cookie 政策 · Cookie 设置）
+ * - 1.3.2：首屏签名栏支持「标点后可选换行」——在 `、。，` 等 CJK 标点后插 `<wbr>`
+ *          （新 typography.php），窄屏不再被省略号整句截断。后台文本框保持纯文本。
  *
  * @package SakurairoYBH
  */
@@ -31,7 +33,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.1');
+define('YBH_VERSION', '1.3.2');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -244,6 +246,13 @@ require_once get_template_directory() . '/inc/ybh/admin.php';
  *      编辑器侧的可视化与按钮在 js/ybh-editor.js（由 editor.php 注册）。
  */
 require_once get_template_directory() . '/inc/ybh/footnotes.php';
+
+/**
+ * 8.8) 中文排版小工具：CJK 标点后的「可选换行点」(`<wbr>`)。
+ *      用途：首屏签名栏是 nowrap + ellipsis，窄屏只会被截断；在「、」等标点后给一个
+ *      可选断点，空间够时不显示、空间不够时折行。后台文本框保持纯文本。
+ */
+require_once get_template_directory() . '/inc/ybh/typography.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php

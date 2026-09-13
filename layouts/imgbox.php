@@ -334,7 +334,16 @@ $print_social_zone = function() use ($all_opt): void {
                     <?= iro_opt('signature_typing_json', ''); ?>
                     </script>
                     <?php endif; ?>
-                    <p><?php echo esc_html(iro_opt('signature_text', 'Hi, Mashiro?')); ?></p>
+                    <?php
+                    // 签名栏是 nowrap + ellipsis（见 style.css）：窄屏放不下时只会被省略号截断。
+                    // 这里在「、」等 CJK 标点后补 <wbr>，给它一个可选换行点 —— 空间够时完全不显示，
+                    // 不够时折行而不是截断。后台文本框仍是纯文本（见 inc/ybh/typography.php）。
+                    $signature_text = esc_html(iro_opt('signature_text', 'Hi, Mashiro?'));
+                    if (function_exists('ybh_cjk_break_opportunities')) {
+                        $signature_text = ybh_cjk_break_opportunities($signature_text);
+                    }
+                    ?>
+                    <p><?php echo $signature_text; ?></p>
                     <?php if (iro_opt('infor_bar_style') === 'v2') : ?>
                         <div class="top-social_v2">
                             <?php $print_social_zone(); ?>
