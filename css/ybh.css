@@ -989,6 +989,47 @@ body.ybh-exhibit-contain .card-title-wrapper {
   display: inline;
 }
 
+/* ---------- 标签行 · 窄屏折叠点前移 ----------
+   需求：标签区在平板/手机上默认展开项过多，挤压纵向空间。
+   做法：不改服务端渲染的 30 个基础标签，而是在窄屏把「第 N 个之后的基础标签」
+   一并并入折叠态 —— 默认少显示几个，点「显示更多」后仍全部可见，不丢标签。
+   仍是纯 CSS（媒体查询 + 既有 checkbox），无 JavaScript 参与。
+
+   :nth-child(n+N) 精确命中基础标签：.ybh-tag-list 的子元素顺序是
+   「30 个 .ybh-tag → 68 个 .ybh-tag-extra → 1 个 label.ybh-tag-more」，
+   前 30 个基础标签连续占据第 1–30 位，故 n+13 即第 13–30 个基础标签。
+   :not(.ybh-tag-extra) 用来与既有折叠项区分，避免两条规则互相打架。
+   （桌面端不受影响：全部包在媒体查询内。） */
+@media (max-width: 768px) {
+  .ybh-tag-row {
+    line-height: 1.85; /* 窄屏略收行高 */
+  }
+  .ybh-tag,
+  .ybh-tag-more {
+    font-size: 13.5px; /* 窄屏略收字号 */
+  }
+  .ybh-tag {
+    margin-right: 10px;
+  }
+  /* 默认只显示前 12 个基础标签 */
+  .ybh-tag-list > .ybh-tag:nth-child(n+13):not(.ybh-tag-extra) {
+    display: none;
+  }
+  /* 展开后第 13–30 个基础标签一并出现 ⇒ 不丢标签 */
+  .ybh-tag-toggle:checked ~ .ybh-tag-list > .ybh-tag:nth-child(n+13):not(.ybh-tag-extra) {
+    display: inline-block;
+  }
+}
+@media (max-width: 480px) {
+  /* 小屏默认只显示前 8 个基础标签 */
+  .ybh-tag-list > .ybh-tag:nth-child(n+9):not(.ybh-tag-extra) {
+    display: none;
+  }
+  .ybh-tag-toggle:checked ~ .ybh-tag-list > .ybh-tag:nth-child(n+9):not(.ybh-tag-extra) {
+    display: inline-block;
+  }
+}
+
 /* ---------- Cookie 同意横幅（替代 WPConsent） ----------
    视觉语言对齐站点卡片：毛玻璃底 + 细亮边 + 柔和投影 + 大圆角，
    配色与圆角全部取自 YBH 设计令牌 ⇒ 深浅色模式、低端设备降级**自动适配**
