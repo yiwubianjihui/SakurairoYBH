@@ -1,0 +1,205 @@
+@charset "utf-8";
+/*
+ * YBH · 经典编辑器「页面外壳」样式（只进 wp-admin，不污染前台）
+ *
+ * 对应 T33 第 1、3 项：
+ *   · .ybh-fr*       查找 / 替换面板（js/ybh-post-editor.js）
+ *   · .ybh-ed-toast  右下角保存提示
+ *
+ * 配色沿用 WordPress 后台的蓝色系（#2271b1 / #f0f0f1 / #50575e），
+ * 让面板看起来"本来就是后台的一部分"，而不是外挂控件。
+ */
+
+/* ---------------- 查找 / 替换面板 ---------------- */
+.ybh-fr {
+  display: none;
+  position: fixed;
+  top: 46px;                     /* 让开 WP 顶部工具条 */
+  right: 18px;
+  z-index: 100000;               /* 高于编辑器全屏层与媒体弹窗 */
+  width: 430px;
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  padding: 12px 14px 10px;
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+  color: #1d2327;
+}
+
+.ybh-fr.is-open {
+  display: block;
+}
+
+.ybh-fr__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ybh-fr__row:last-child {
+  margin-bottom: 0;
+}
+
+.ybh-fr__row--actions {
+  flex-wrap: wrap;
+  padding-top: 2px;
+  border-top: 1px solid #f0f0f1;
+  margin-top: 2px;
+  padding-top: 10px;
+}
+
+.ybh-fr__lbl {
+  flex: 0 0 34px;
+  color: #50575e;
+  font-size: 13px;
+}
+
+.ybh-fr__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #8c8f94;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  color: #1d2327;
+  background: #fff;
+}
+
+.ybh-fr__input:focus {
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+  outline: 2px solid transparent;
+}
+
+.ybh-fr__count {
+  flex: 0 0 auto;
+  min-width: 86px;
+  text-align: right;
+  font-size: 12px;
+  color: #646970;
+  font-variant-numeric: tabular-nums;
+}
+
+.ybh-fr__x {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #646970;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ybh-fr__x:hover {
+  background: #f0f0f1;
+  color: #1d2327;
+}
+
+.ybh-fr__btn {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #2271b1;
+  border-radius: 4px;
+  background: #f6f7f7;
+  color: #2271b1;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ybh-fr__btn:hover {
+  background: #f0f0f1;
+  border-color: #0a4b78;
+  color: #0a4b78;
+}
+
+.ybh-fr__btn--primary {
+  background: #2271b1;
+  border-color: #2271b1;
+  color: #fff;
+}
+
+.ybh-fr__btn--primary:hover {
+  background: #135e96;
+  border-color: #135e96;
+  color: #fff;
+}
+
+.ybh-fr__chk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 12px;
+  color: #50575e;
+  white-space: nowrap;
+}
+
+/* ---------------- 保存提示（toast） ---------------- */
+.ybh-ed-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 100001;
+  max-width: 340px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border-left: 4px solid #2271b1;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  font-size: 13px;
+  color: #1d2327;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.ybh-ed-toast.is-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ybh-ed-toast--ok {
+  border-left-color: #00a32a;
+}
+
+.ybh-ed-toast--err {
+  border-left-color: #d63638;
+}
+
+.ybh-ed-toast--info {
+  border-left-color: #2271b1;
+}
+
+/* 尊重「减少动效」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .ybh-ed-toast {
+    transition: none;
+  }
+}
+
+/* 窄屏：面板占满可用宽度，按钮自动换行 */
+@media screen and (max-width: 782px) {
+  .ybh-fr {
+    top: 52px;
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-width: none;
+  }
+
+  .ybh-fr__chk {
+    margin-left: 0;
+  }
+}

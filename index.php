@@ -1,6 +1,14 @@
 <?php
 get_header();
 
+// T33 第 5 项：首页行动按钮（投稿 / 加入 / 全部文章 / 赞助）
+//  ① ybh_render_home_cta()        内容最顶端的一排按钮卡片（各尺寸通用）
+//  ② ybh_render_mobile_actions()  手机端常驻吸底操作条（≥861px 由 CSS 隐藏）——
+//     因为封面是整屏高，上面那排在手机上落在折线之下。
+//  两者都只在首页输出（函数内部已用 is_home()/is_front_page() 判定）。
+ybh_render_home_cta();
+ybh_render_mobile_actions();
+
 // 获取组件顺序数据
 $component_order = iro_opt('homepage_components',[]) ? iro_opt('homepage_components',[]) : array();
 

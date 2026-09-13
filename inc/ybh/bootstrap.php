@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.2');
+define('YBH_VERSION', '1.3.4');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -167,28 +167,29 @@ function ybh_enqueue_layer()
 }
 
 /**
- * 4) 字体预加载（只给「每页确定会用到」的字重）。
+ * 4) 字体预加载 —— **v1.3.2 起停用**（函数与钩子保留，便于日后重新启用）。
  *
- * ⚠️ 这里的路径**必须与 css/ybh.css 里的 @font-face 保持一致**，否则会 preload 一堆
- *    用不上的文件——浏览器 preload 是无条件下载的，控制台还会报
- *    "preloaded but not used within a few seconds"。
- *    v1.2.2 做完字体子集化后 CSS 已改指 `ybh-fonts/slice/*`，本函数一度仍指向
- *    `sarasa/SarasaUiSC-*.woff2` 全量文件，等于每页白下 21 MB，把子集化收益全抵消。
+ * 历史：v1.2.2 把字体子集化到 ~0.44 MB/面之后，这里预加载正文 400 与标题 600。
  *
- * 只预加载正文(400)与标题(600)两个字重：
- *   - 正文：:lang(zh) 规则下所有正文都走 Sarasa UI SC 400，必然用到；
- *   - 标题：h1/h2/h3 与卡片标题用 600，页面首屏必有标题。
- * 霞鹜文楷只在正文出现 <em>/<i>/<cite> 等时才用得到，属内容相关，不做预加载
- * （预加载了反而会再次触发同类警告）。
+ * 为什么去掉：
+ *   1. `<link rel="preload" as="font">` 由**预加载扫描器**发起，浏览器看到即下载，
+ *      页面 JS 无法取消 —— 即便客户端（如 App 内嵌 WebView）自带同名字体，
+ *      也照样白下这两个文件。**这是客户端字体本地化唯一的、无法在客户端修补的漏点。**
+ *   2. 站点 CSS 本来就在 `<head>` 且渲染阻塞，字体发现时机只比 preload 晚几毫秒，
+ *      而两个字重合计仅 0.88 MB；
+ *   3. 每个面都写了 `font-display: swap`，不会因为等字体而白屏。
+ *   收益已抵不过「无条件下载」的代价，故默认不再预加载。
+ *
+ * ⚠️ 若日后字体重新变大（例如换回全量字体），把要预加载的文件名填回 `$preloads` 即可；
+ *    填了就必须与 `css/ybh.css` 里的 `@font-face` 路径一字不差，
+ *    否则浏览器会报 "preloaded but not used within a few seconds" 并白下文件。
  */
 add_action('wp_head', 'ybh_resource_hints', 2);
 function ybh_resource_hints()
 {
     // 字体已同源化（wp-content/uploads/ybh-fonts），无需跨域 preconnect。
-    $preloads = array(
-        'slice/SarasaUiSC-Regular.subset.woff2',  // 正文 400
-        'slice/SarasaUiSC-SemiBold.subset.woff2', // 标题 600
-    );
+    $preloads = array();   // v1.3.2：见上方说明，默认不预加载任何字体
+
     foreach ($preloads as $file) {
         printf(
             '<link rel="preload" href="%s/%s" as="font" type="font/woff2" crossorigin>' . "\n",
@@ -256,6 +257,18 @@ require_once get_template_directory() . '/inc/ybh/footnotes.php';
 require_once get_template_directory() . '/inc/ybh/typography.php';
 
 /**
+ * 8.9) 经典编辑器「就地保存」AJAX 端点（T33）：Ctrl+S 就地保存、不离开编辑器。
+ *      前端在 js/ybh-post-editor.js，工具栏与入队逻辑在 inc/ybh/editor.php。
+ */
+require_once get_template_directory() . '/inc/ybh/quick-save.php';
+
+/**
+ * 8.10) 主页行动按钮（T33）：投稿 / 加入 / 全部文章 / 赞助 四个入口，
+ *       手机端放大点击区（样式见 css/ybh.css 第 14 节，调用点在 index.php）。
+ */
+require_once get_template_directory() . '/inc/ybh/home-cta.php';
+
+/**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
  *
  *    原先走主题内建 REST（/wp-json/sakura/v1/gallery?img=w）：每次请求都要**完整启动
@@ -290,6 +303,36 @@ function ybh_cover_api_endpoint($value)
     $value['random_graphs_link']        = $base . '?img=w';   // 桌面：横图
     $value['random_graphs_mts']         = true;
     $value['random_graphs_link_mobile'] = $base . '?img=l';   // 移动：竖图（与原内建分支一致）
+
+    return $value;
+}
+
+/**
+ * 9.5) 取消「更早的文章」自动加载（滚动到页面底部不再自动翻页）
+ *
+ *     现象：滚到页脚就会自动 AJAX 追加下一批文章，页脚被不断顶走 ⇒ 无法与页脚交互。
+ *     根因：`js/app.js` 里有个 IntersectionObserver 观察 `.footer-content`，一旦进入视口，
+ *     就读 `#add_post_time` 的 title 当作延时 —— `title="0"` 等于「立刻加载」。
+ *     title 的值来自后台选项 `page_auto_load`；主题**默认值本就是 `233`**
+ *     （后台下拉里的「do not autoload」，见 opt/options/theme-options.php），
+ *     但本站数据库里存的是 `0`，于是每次滚到底都秒加载。
+ *
+ *     处理：在 `option_iro_options` 过滤器里把 `page_auto_load` 强制回 `233`。
+ *     app.js 的回调读到 title="233" 即不再挂 setTimeout ⇒ 自动加载被关闭；
+ *     而**手动**点击（绑在 `#pagination` 上的 h 处理，调用 m()）是在 f() 里**无条件**注册的，
+ *     所以「更早的文章」按钮照常可用，只是不再自动触发。
+ *
+ *     需要恢复自动加载：删掉本段 add_filter 即可（后台「下一页自动加载」选项保持原样）。
+ *     顺带一提：本文件第 10 节已把 app.js 的延时解析由 parseInt 改成 parseFloat，
+ *     使后台可填小数（如 0.5 秒）—— 与本次改动互不影响。
+ */
+add_filter('option_iro_options', 'ybh_disable_auto_load');
+function ybh_disable_auto_load($value)
+{
+    if (!is_array($value)) {
+        return $value;
+    }
+    $value['page_auto_load'] = '233';   // 主题内建哨兵值：do not autoload
 
     return $value;
 }

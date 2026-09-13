@@ -597,6 +597,12 @@
   text-indent: 0;
   line-height: 2;
 }
+/* 段首缩进（T33 第 4 项）：由编辑器工具栏「首行缩进」按钮给段落加 .ybh-indent。
+   默认不加（本站是"空行分段"版式）；作者想缩进时逐段点按钮，
+   只作用于第一行，不动段间距 —— 与 css/editor-style.css 里的编辑期预览同源。 */
+.entry-content .ybh-indent {
+  text-indent: 2em;
+}
 :root {
   text-autospace: normal;
   text-spacing-trim: trim-start;
@@ -1715,6 +1721,7 @@ html.ybh-lite body .post-list-thumb:hover,
 html.ybh-lite body .bento-item:hover,
 html.ybh-lite body .stat-capsule:hover,
 html.ybh-lite body #pagination a:hover,
+html.ybh-lite body .ybh-cta-btn:hover,
 html.ybh-lite body .top-social a:hover {
   transform: none;
 }
@@ -2000,4 +2007,254 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
 .ybh-legal-sep {
   margin: 0 7px;
   opacity: 0.35;
+}
+
+/* ============================================================
+   14. 主页行动按钮（T33 第 5 项）
+   ------------------------------------------------------------
+   背景：站点最关键的四个入口（我要投稿 / 加入 YBH / 全部文章 / 请给我们钱）
+   此前只存在于顶栏里，而顶栏在手机上会折叠成汉堡菜单 —— 读者与学生作者
+   基本看不到它们。这一节把四者做成首页顶部的按钮阵列：
+
+     桌面      一行四个
+     ≤860px    两列
+     ≤480px    两列且放大点击区，「我要投稿」通栏成为首屏最显眼的一块
+
+   视觉语言沿用站内既有的「玻璃卡片 + 大圆角 + 悬浮位移」，
+   配色走设计令牌（--ybh-*），深浅色自动各自成立。
+   注意：只有主按钮用实底色 —— 用 --ybh-accent（= --theme-skin-matching），
+   这是站内已经在用的按钮底色令牌；不直接用 --theme-skin（运行时派生色，
+   明度不可控，当底会翻车，见 README 的坑 5）。
+   ============================================================ */
+body .ybh-home-cta {
+  margin: 20px auto 8px;
+  padding: 0 16px;
+  max-width: 1080px;
+  box-sizing: border-box;
+}
+
+.ybh-cta-inner {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* 只有两个按钮时（如「我要投稿」页里的入口）不要留出四个空位 */
+.ybh-cta-inner--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ybh-cta-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 88px;
+  padding: 14px 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--ybh-glass-edge);
+  border-radius: var(--ybh-radius-md);
+  background: var(--ybh-glass-bg);
+  -webkit-backdrop-filter: var(--ybh-glass-blur);
+  backdrop-filter: var(--ybh-glass-blur);
+  box-shadow: var(--ybh-shadow-1);
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease),
+              background-color var(--ybh-dur) ease,
+              color var(--ybh-dur) ease,
+              border-color var(--ybh-dur) ease;
+}
+
+.ybh-cta-btn i {
+  font-size: 19px;
+  line-height: 1;
+  color: var(--ybh-accent);
+  transition: color var(--ybh-dur) ease;
+}
+
+.ybh-cta-label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.ybh-cta-sub {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.66;
+}
+
+.ybh-cta-btn:hover {
+  transform: translateY(var(--ybh-hover-lift-sm));
+  box-shadow: var(--ybh-shadow-2);
+  border-color: var(--ybh-accent);
+}
+
+.ybh-cta-btn:active {
+  transform: translateY(0);
+}
+
+/* 主按钮：投稿 —— 唯一实底色，第一眼就落在它身上 */
+.ybh-cta-btn--primary {
+  background: var(--ybh-accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.ybh-cta-btn--primary i {
+  color: #fff;
+}
+
+.ybh-cta-btn--primary .ybh-cta-sub {
+  opacity: 0.88;
+}
+
+.ybh-cta-btn--primary:hover {
+  border-color: transparent;
+  filter: brightness(1.06);
+}
+
+body.dark .ybh-cta-btn {
+  color: #e6e7ec;
+}
+
+body.dark .ybh-cta-btn--primary {
+  color: #fff;
+}
+
+@media (max-width: 860px) {
+  .ybh-cta-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* 手机端：点击区放大，主按钮通栏 —— 用户明确要求"特别是手机端"要更明显 */
+@media (max-width: 480px) {
+  body .ybh-home-cta {
+    margin: 14px auto 4px;
+    padding: 0 12px;
+  }
+
+  .ybh-cta-btn {
+    min-height: 96px;
+    padding: 12px 8px;
+  }
+
+  .ybh-cta-label {
+    font-size: 16px;
+  }
+
+  .ybh-cta-sub {
+    font-size: 11.5px;
+  }
+
+  .ybh-cta-btn--primary {
+    grid-column: 1 / -1;
+    min-height: 72px;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .ybh-cta-btn--primary .ybh-cta-sub {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ybh-cta-btn {
+    transition: none;
+  }
+}
+
+/* ---------- 14.1 手机端吸底操作条 ----------
+   上面那排按钮在首页封面之下 —— 而封面是整屏高（100vh），
+   手机上第一屏根本看不到它（实测：390×844 时按钮区 top ≈ 859，正好在折线下方）。
+   所以手机端再给一条**常驻吸底**的操作条，保证关键入口任何时候都点得到；
+   ≥861px 不显示（桌面顶栏本来就完整可见，不需要）。
+
+   避让关系（都在同一屏底部，必须排好队）：
+     · 右下角控制台 #changskin / #moblieGoTop 是 z-index 99 且贴右下 → 右侧留出 72px；
+     · Cookie 同意横幅占着底部 → 它可见时本操作条整体隐藏（body:has 判定，主题已在用 :has）；
+     · 页脚法务入口在文档流末尾 → 首页手机端给页脚加底部内边距，别被本操作条压住。 */
+.ybh-mobile-actions {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .ybh-mobile-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    position: fixed;
+    left: 8px;
+    right: 72px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    padding: 6px;
+    box-sizing: border-box;
+    border: 1px solid var(--ybh-glass-edge);
+    border-radius: 16px;
+    background: var(--ybh-glass-bg-strong);
+    -webkit-backdrop-filter: var(--ybh-glass-blur);
+    backdrop-filter: var(--ybh-glass-blur);
+    box-shadow: var(--ybh-shadow-2);
+  }
+
+  .ybh-ma-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 6px;
+    border-radius: 11px;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .ybh-ma-btn i {
+    font-size: 15px;
+    color: var(--ybh-accent);
+  }
+
+  .ybh-ma-btn--primary {
+    background: var(--ybh-accent);
+    color: #fff;
+  }
+
+  .ybh-ma-btn--primary i {
+    color: #fff;
+  }
+
+  body.dark .ybh-ma-btn {
+    color: #e6e7ec;
+  }
+
+  body.dark .ybh-ma-btn--primary {
+    color: #fff;
+  }
+
+  /* 同意横幅还在时让路（两条底栏叠一起会互相遮挡） */
+  body:has(#ybh-consent:not([hidden])) .ybh-mobile-actions {
+    display: none;
+  }
+
+  /* 首页手机端：页脚别被吸底操作条压住（页脚里有隐私政策等法务入口） */
+  body.home .site-footer {
+    padding-bottom: 76px;
+  }
+}
+
+/* 低端降级：去掉毛玻璃（与主题既有规则一致） */
+html.ybh-lite body .ybh-mobile-actions {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }

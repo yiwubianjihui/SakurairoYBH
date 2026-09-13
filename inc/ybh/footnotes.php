@@ -63,6 +63,53 @@ add_filter('the_content', 'ybh_fn_reset', 1);
 function ybh_fn_reset($content)
 {
     $GLOBALS['ybh_fn_items'] = array();
+    $GLOBALS['ybh_fn_code_store'] = array();
+    return $content;
+}
+
+/**
+ * 2.6) 保护代码块：写在 `<code>` / `<pre>` 里的 `[fn]` 是**教学文本**，不是脚注。
+ *
+ * 没有这一层时，正文里演示语法的 `[fn]` 会被短代码引擎吃掉 ——
+ * 轻则标记消失（读者看到句子断掉），重则把后面的正文当注释内容挪到文末。
+ * 这里把整个 `<code>`/`<pre>` 元素暂存起来换成占位符，
+ * 等脚注全部渲染完（prio 13）再原样放回 —— 代码块内一个字符都不会被改动。
+ *
+ * 优先级 10：晚于 `wpautop`(10，先注册先执行)，早于 `do_shortcode`(11)。
+ */
+add_filter('the_content', 'ybh_fn_protect_code', 10);
+function ybh_fn_protect_code($content)
+{
+    if (false === stripos($content, '[fn]')) {
+        return $content;   // 没有脚注标记就不必动它，省一次正则
+    }
+    $GLOBALS['ybh_fn_code_store'] = array();
+    return preg_replace_callback(
+        '#<(code|pre)\b[^>]*>.*?</\1>#is',
+        function ($m) {
+            $i = count($GLOBALS['ybh_fn_code_store']);
+            $GLOBALS['ybh_fn_code_store'][$i] = $m[0];
+            return '{{YBH-CODE-' . $i . '}}';
+        },
+        $content
+    );
+}
+
+/**
+ * 2.7) 把 2.6 暂存的代码块放回。
+ * 优先级 13：晚于 `ybh_fn_append`(12)，确保脚注列表已经拼好。
+ */
+add_filter('the_content', 'ybh_fn_restore_code', 13);
+function ybh_fn_restore_code($content)
+{
+    $store = isset($GLOBALS['ybh_fn_code_store']) ? (array) $GLOBALS['ybh_fn_code_store'] : array();
+    if (!$store) {
+        return $content;
+    }
+    foreach ($store as $i => $html) {
+        $content = str_replace('{{YBH-CODE-' . $i . '}}', $html, $content);
+    }
+    $GLOBALS['ybh_fn_code_store'] = array();
     return $content;
 }
 
@@ -101,6 +148,12 @@ function ybh_fn_render_ref($text)
 add_shortcode('fn', 'ybh_fn_shortcode');
 function ybh_fn_shortcode($atts, $content = '')
 {
+    // 孤立 `[fn]`（正文里没有配对的 `[/fn]`）会被短代码引擎当成"自闭合短代码"调用，
+    // 此时 $content 为空。**必须原样吐回标记**，而不是返回空字符串 ——
+    // 否则正文里那几个字符会凭空消失（写"如何写脚注"这类说明文字时必踩）。
+    if (trim((string) $content) === '') {
+        return '[fn]';
+    }
     return ybh_fn_render_ref($content);
 }
 

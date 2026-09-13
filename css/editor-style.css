@@ -39,41 +39,93 @@ body.mce-content-body {
   background: transparent;
 }
 
-/* ---------- 脚注（[fn]…[/fn]）的编辑器内可视化 ----------
+/* ---------- 脚注（[fn]…[/fn]）的编辑器内可视化（T33 第 2 项重做） ----------
    编辑器里脚注以 <span class="ybh-fn-chip">注释文字</span> 存在
    （见 js/ybh-editor.js），保存时会被换回 [fn]注释文字[/fn]。
-   编号由 CSS 计数器自动生成 —— 顺序与前台渲染的「注1、注2…」一致，
-   增删脚注后不需要手工维护编号。 */
+
+   旧观感（v1.3.1）：注释文字整段铺在正文里、带底色 —— 读句子时很跳，
+   作者反馈"预览不好用"。现在改成**与前台一致的观感**：
+
+     默认        只显示一个上标编号（注释文字折叠起来，不打断阅读）
+     鼠标悬停    该处展开，显示注释全文
+     光标点进去  展开（.is-active，由 js/ybh-editor.js 在 nodeChange 时点亮）
+     光标离开    自动收回成编号
+
+   折叠的实现：把文字字号归零，只让 ::before 的编号撑出宽度。
+   文字仍在 DOM 里、仍可编辑 —— 这是"折叠"而不是"移除"，
+   所以点进去就能改，保存时也照常还原成 [fn]…[/fn]。
+
+   编号由 CSS 计数器自动生成：顺序与前台 ybh_fn_render_ref() 的编号规则一致，
+   增删脚注后不需要手工维护。 */
 body#tinymce,
 body.mce-content-body {
   counter-reset: ybh-fn;
 }
+
 body#tinymce .ybh-fn-chip,
 body.mce-content-body .ybh-fn-chip {
-  background: rgba(122, 140, 178, 0.13);
-  border-bottom: 1px dashed rgba(122, 140, 178, 0.7);
+  font-size: 0;                    /* 折叠：注释文字不占视觉空间 */
+  cursor: pointer;
   border-radius: 3px;
-  padding: 0 4px;
-  font-size: 0.94em;
-  /* 跨行时让底色/圆角在两行上都画出来，而不是只包住首尾 */
+  padding: 0;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+
+/* 编号做成 inline-block 的圆形小徽章。
+   ⚠️ 必须给 ::before 真实宽高：父级 font-size:0 会让它自己的 inline box 高度为 0，
+   若徽章只是普通行内内容，整个 span 的 getBoundingClientRect() 会量到 18.5×0.0 ——
+   视觉上还在，但**点击热区几乎为零**，作者很难点开它改注释（实测踩到）。
+   inline-block + 固定宽高后，span 恢复成 16px 高的真实热区。 */
 body#tinymce .ybh-fn-chip::before,
 body.mce-content-body .ybh-fn-chip::before {
   counter-increment: ybh-fn;
-  content: "注" counter(ybh-fn);
-  margin-right: 4px;
-  padding: 0 4px;
-  border-radius: 3px;
-  font-size: 0.78em;
+  content: counter(ybh-fn);
+  display: inline-block;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0;
+  vertical-align: text-top;
+  margin: 0 1px;
+  padding: 0 3px;
+  border-radius: 9px;
   color: #5d6f9c;
-  background: rgba(122, 140, 178, 0.26);
+  background: rgba(122, 140, 178, 0.22);
+  /* 提示"这里可以点开/改写"，但不抢眼 */
+  box-shadow: inset 0 -1px 0 rgba(122, 140, 178, 0.55);
 }
+
+/* 悬停 或 光标在内 → 展开成可读、可编辑的行内文字 */
+body#tinymce .ybh-fn-chip:hover,
+body#tinymce .ybh-fn-chip.is-active,
+body.mce-content-body .ybh-fn-chip:hover,
+body.mce-content-body .ybh-fn-chip.is-active {
+  font-size: 0.94em;
+  background: rgba(122, 140, 178, 0.13);
+  border-bottom: 1px dashed rgba(122, 140, 178, 0.7);
+  padding: 0 4px;
+}
+
+body#tinymce .ybh-fn-chip:hover::before,
+body#tinymce .ybh-fn-chip.is-active::before,
+body.mce-content-body .ybh-fn-chip:hover::before,
+body.mce-content-body .ybh-fn-chip.is-active::before {
+  margin-right: 4px;
+}
+
 /* 深色编辑器皮肤暂未启用（后台无 body.dark），因此不写深色分支；
    若日后给编辑器加深色皮肤，记得在这里补一组 .ybh-fn-chip 的深色配色。 */
+
+/* ---------- 段首缩进（T33 第 4 项） ----------
+   工具栏「首行缩进」按钮给段落加的类，前台同一套类名（见 css/ybh.css）。
+   只作用于**第一行**，符合中文排版习惯；不改变段间距。 */
+body#tinymce .ybh-indent,
+body.mce-content-body .ybh-indent {
+  text-indent: 2em;
+}
 
 /* ---------- 段落：无首行缩进 + 段间距（与前台 .entry-content p 对齐） ---------- */
 body#tinymce p {

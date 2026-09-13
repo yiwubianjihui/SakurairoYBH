@@ -60,6 +60,84 @@ add_filter('mce_external_plugins', function ($plugins) {
 });
 
 /* ---------------------------------------------------------------------------
+ * 1.6) 编辑页外壳增强（T33）
+ *
+ *   · js/ybh-post-editor.js —— 「查找/替换」面板 + Ctrl+S 就地保存 + 保存提示。
+ *     它是**页面级**脚本（不在 TinyMCE iframe 内），因为要同时服务可视化与文本两个标签页；
+ *     可视化区里的按钮/快捷键由 js/ybh-editor.js 转发到它暴露的 window.YBH_Editor。
+ *   · css/admin-editor.css —— 面板与提示的样式（只进后台，不污染前台）。
+ *   · 左侧 WordPress 菜单：在文章/页面编辑页**自动折叠成图标条**（悬停仍可展开子菜单），
+ *     把横向空间让给正文。用 WP 原生的 `folded` body class 实现，
+ *     因此折叠布局全部走核心 CSS，不需要自己模仿那套样式。
+ * ------------------------------------------------------------------------- */
+add_action('admin_enqueue_scripts', function ($hook) {
+    if (!in_array($hook, array('post.php', 'post-new.php'), true)) {
+        return;
+    }
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if (!$screen || 'post' !== $screen->base) {
+        return;
+    }
+
+    wp_enqueue_style(
+        'ybh-admin-editor',
+        get_template_directory_uri() . '/css/admin-editor.css',
+        array(),
+        YBH_VERSION
+    );
+    wp_enqueue_script(
+        'ybh-post-editor',
+        get_template_directory_uri() . '/js/ybh-post-editor.js',
+        array('jquery'),
+        YBH_VERSION,
+        true
+    );
+    wp_localize_script('ybh-post-editor', 'YBH_EditorData', array(
+        'ajaxUrl'  => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('ybh_quick_save'),
+        // 文章 ID：post.php 在 ?post= 里；post-new.php 的文章是刚建的 auto-draft，
+        // 此时 $post 全局已就绪。取不到就交给 JS 读 #post_ID / URL —— 关键是
+        // **不要下发一个 0**：JS 里 "0" 是真值，会把真正的 ID 挡掉（已踩过）。
+        'postId'   => ybh_editor_current_post_id(),
+        'showHint' => true,
+    ));
+});
+
+/**
+ * 取当前编辑页的文章 ID（取不到返回 0，由前端兜底）。
+ *
+ * @return int
+ */
+function ybh_editor_current_post_id()
+{
+    if (isset($_GET['post'])) {
+        return (int) $_GET['post'];
+    }
+    if (isset($_POST['post_ID'])) {
+        return (int) $_POST['post_ID'];
+    }
+    global $post;
+    if ($post instanceof WP_Post) {
+        return (int) $post->ID;
+    }
+    return 0;
+}
+
+add_filter('admin_body_class', function ($classes) {
+    if (!function_exists('get_current_screen')) {
+        return $classes;
+    }
+    $screen = get_current_screen();
+    if (!$screen || 'post' !== $screen->base) {
+        return $classes;
+    }
+    if (!in_array($screen->post_type, array('post', 'page'), true)) {
+        return $classes;
+    }
+    return trim($classes . ' folded');
+});
+
+/* ---------------------------------------------------------------------------
  * 2) 精简工具栏（优先级 999 = 最后执行，确保结果就是我们定义的样子）
  *    其它插件（如 ruby-markup-converter 的注音按钮）会往工具栏里塞按钮，
  *    这里显式保留 ruby，其余第三/四行一律清空。
@@ -89,6 +167,10 @@ add_filter('mce_buttons_2', function ($buttons) {
     return array(
         'pastetext',      // 粘贴为纯文本（需要清格式时用）
         'removeformat',   // 清除格式
+        // T33 新增：段首缩进（开关式，作用于光标所在段落）
+        'ybh_indent',
+        // T33 新增：查找 / 替换（Ctrl+F / Ctrl+H 同效）
+        'ybh_findreplace',
         'hr',
         'charmap',
         'forecolor',
