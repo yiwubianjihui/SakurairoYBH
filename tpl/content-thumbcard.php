@@ -1,7 +1,7 @@
 <?php
 if (!function_exists('render_meta_views')) {
     function render_meta_views() {
-        ?><span><i class="fa-regular fa-eye"></i><?= esc_html(get_post_views(get_the_ID()) . ' ' . _n('Hit', 'Hits', get_post_views(get_the_ID()), 'sakurairo'))/*热度*/ ?></span><?php
+        ?><span><i class="fa-regular fa-eye"></i><?= esc_html(get_post_views(get_the_ID())) ?></span><?php
     }
 }
 
