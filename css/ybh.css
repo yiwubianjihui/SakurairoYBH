@@ -1601,6 +1601,14 @@ html.ybh-compact body .post-list-thumb .post-title {
   padding: 8px 14px;
   bottom: 8%;
 }
+/* ⚠️ 下面的 font-size 在本站**不会生效**，属已知且有意接受的状态：
+   站点「自定义 CSS」里有一条 `.post-list-thumb .post-title h3{ font-size:16px !important }`
+   （首页输出的内联 <style>，全站 19 条 !important 之一）。
+   同层 !important 的作者声明优先于任何普通声明 —— 特指度再高也压不过，
+   所以 (0,3,3) 的这条 15px 输给 (0,2,1) 的 16px。
+   不改成 !important：那是站长为卡片标题定的字号，紧凑模式不该篡改它。
+   紧凑模式的「一屏多放文章」是靠下面 .post-list-thumb 的高度 300px→232px 实现的，
+   与标题字号无关。若将来站点撤掉那条 !important，这里的 15px 会自动接管。 */
 html.ybh-compact body .post-list-thumb .post-title h3 {
   font-size: 15px;
   letter-spacing: 1px;

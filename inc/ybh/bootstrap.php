@@ -471,6 +471,13 @@ function ybh_client_prefs()
  * 为什么不改 js/app.js：那是 webpack 打包的压缩产物，手改会在下次
  * 构建/升级时被覆盖，也无法在源码层维护。这里用一小段独立脚本绑定，
  * 与字体/日夜模式共用同一套 localStorage 记忆习惯（ybh_compact）。
+ *
+ * ⚠️ 必须用「事件委托 + DOMContentLoaded」，不能「取元素后 addEventListener」：
+ *   本脚本挂在 wp_footer，但 footer.php 是**先**调 wp_footer()（第 92 行）
+ *   再输出 .skin-menu（第 93 行起，按钮在第 145 行）。也就是说脚本执行时
+ *   按钮在 DOM 里根本不存在 ⇒ querySelector 返回 null，监听器被静默丢弃。
+ *   v1.2.5~1.2.7 的「紧凑」按钮点了没反应，就是这个原因
+ *   （主题自身用 (0,s.Gc)() 包裹也是同一套纪律：readyState 非 loading 才立即跑）。
  */
 add_action('wp_footer', 'ybh_compact_toggle_script', 99);
 function ybh_compact_toggle_script()
@@ -481,20 +488,30 @@ function ybh_compact_toggle_script()
     ?>
     <script>
     (function () {
-      var btn = document.querySelector('.skin-menu .ybh-compact-toggle');
       var h = document.documentElement;
-      if (!btn) return;
+      var SEL = '.skin-menu .ybh-compact-toggle';
 
       function sync() {
-        btn.classList.toggle('selected', h.classList.contains('ybh-compact'));
+        var btn = document.querySelector(SEL);
+        if (btn) btn.classList.toggle('selected', h.classList.contains('ybh-compact'));
       }
-      sync();
 
-      btn.addEventListener('click', function () {
+      /* 事件委托：document 始终存在，按钮何时被插入 DOM 都不会漏绑 */
+      document.addEventListener('click', function (e) {
+        var el = e.target;
+        var t = (el && el.closest) ? el.closest(SEL) : null;
+        if (!t) return;
         var on = h.classList.toggle('ybh-compact');
-        try { localStorage.setItem('ybh_compact', on ? '1' : '0'); } catch (e) {}
+        try { localStorage.setItem('ybh_compact', on ? '1' : '0'); } catch (err) {}
         sync();
       });
+
+      /* 首次进入时把已保存的状态反映到按钮选中态 */
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', sync);
+      } else {
+        sync();
+      }
     })();
     </script>
     <?php
