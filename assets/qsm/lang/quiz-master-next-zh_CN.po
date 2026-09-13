@@ -1,0 +1,5111 @@
+# T25 · Quiz And Survey Master (QSM) v11.2.6 简体中文语言包
+# 官方基底 232 条 + YBH 补译；由 qsm_build.py 生成
+msgid ""
+msgstr ""
+"Project-Id-Version: Quiz And Survey Master 11.2.6 (YBH)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: YBH-T25\n"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "No"
+msgstr "否"
+
+msgid "PRO"
+msgstr "专业版"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Unauthorized!"
+msgstr "未授权！"
+
+msgid "Quiz"
+msgstr "测验"
+
+msgid "User not logged in"
+msgstr "用户未登录"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Category"
+msgstr "分类"
+
+msgid "None"
+msgstr "无"
+
+msgid "Points"
+msgstr "分数"
+
+msgid "Select"
+msgstr "选择"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Select Category"
+msgstr "选择分类"
+
+msgid "Email"
+msgstr "邮箱"
+
+msgid "Hint"
+msgstr "提示"
+
+msgid "Quiz Name"
+msgstr "测验名称"
+
+msgid "View"
+msgstr "查看"
+
+msgid "Change Template"
+msgstr "更换模板"
+
+msgid "IP Address"
+msgstr "IP地址"
+
+msgid "Name"
+msgstr "名字"
+
+msgid "Next"
+msgstr "继续"
+
+msgid "Please complete all required fields!"
+msgstr "请填写所有必填字段！"
+
+msgid "Quiz Results"
+msgstr "测验结果"
+
+msgid "Quizzes & Surveys"
+msgstr "测验和调查"
+
+msgid "Set Limit"
+msgstr "设置上限"
+
+msgid "Unlink"
+msgstr "取消关联"
+
+msgid "Version: "
+msgstr "版本： "
+
+msgid "View Documentation"
+msgstr "观看文档"
+
+msgid " out of "
+msgstr " ，共 "
+
+msgid "Add"
+msgstr "添加"
+
+msgid "Answer Limit"
+msgstr "答案数量上限"
+
+msgid "Business"
+msgstr "单位"
+
+msgid "Correct"
+msgstr "正确"
+
+msgid "Correct Answer Info"
+msgstr "正确答案信息"
+
+msgid "Delete Selected"
+msgstr "删除所选"
+
+msgid "Disable first page on quiz"
+msgstr "在测验中禁用第一页"
+
+msgid "Duplicate"
+msgstr "重复"
+
+msgid "End Date"
+msgstr "结束日期"
+
+msgid "Featured Image"
+msgstr "特色图片"
+
+msgid "I just scored %CORRECT_SCORE%% on %QUIZ_NAME%!"
+msgstr "我在 %QUIZ_NAME% 上刚刚得了 %CORRECT_SCORE%%！"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Legacy"
+msgstr "旧版"
+
+msgid "Next "
+msgstr "下一页 "
+
+msgid "No Categories Available"
+msgstr "没有可用的分类"
+
+msgid "Nonce verification failed."
+msgstr "Nonce 验证失败。"
+
+msgid "Not Graded"
+msgstr "不分等级"
+
+msgid "Note: "
+msgstr "注意： "
+
+msgid "Page Name"
+msgstr "页面名称"
+
+msgid "Parent Category"
+msgstr "父分类"
+
+msgid "Previous"
+msgstr "上一个"
+
+msgid "Question Type"
+msgstr "问题类型"
+
+msgid "Require"
+msgstr "必填"
+
+msgid "Show "
+msgstr "显示 "
+
+msgid "Start Date"
+msgstr "开始日期"
+
+msgid "Upload Image"
+msgstr "上传图片"
+
+msgid " Questions"
+msgstr " 道题目"
+
+msgid " Results"
+msgstr " 条结果"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Activate"
+msgstr "激活"
+
+msgid "Add New"
+msgstr "添加新的"
+
+msgid "Add New Category"
+msgstr "新增分类"
+
+msgid "Add Template"
+msgstr "添加模板"
+
+msgid "Addons :"
+msgstr "附加组件："
+
+msgid "Advanced Settings"
+msgstr "高级设置"
+
+msgid "All Categories"
+msgstr "所有分类"
+
+msgid "Allow File type"
+msgstr "允许的文件类型"
+
+msgid "Answers Type"
+msgstr "答案类型"
+
+msgid "Available in pro"
+msgstr "高级版可用"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Both"
+msgstr "两者"
+
+msgid "Buttons"
+msgstr "按钮"
+
+msgid "Categories"
+msgstr "分类"
+
+msgid "Category Name"
+msgstr "分类名称"
+
+msgid "Click to Copy"
+msgstr "点击复制"
+
+msgid "Close [Esc]"
+msgstr "关闭 [Esc]"
+
+msgid "Comment Box"
+msgstr "评论文本框"
+
+msgid "Contact form position"
+msgstr "联系表单位置"
+
+msgid "Correct/Incorrect"
+msgstr "正确/错误"
+
+msgid "Custom"
+msgstr "自定义"
+
+msgid "Default Template"
+msgstr "默认模板"
+
+msgid "Delete Page"
+msgstr "删除页面"
+
+msgid "Disable auto fill for contact input"
+msgstr "禁用联系输入框的自动填充"
+
+msgid "Doc File"
+msgstr "Doc 文件"
+
+msgid "Excel File"
+msgstr "Excel 文件"
+
+msgid "Featured image"
+msgstr "特色图片"
+
+msgid "Field Type"
+msgstr "字段类型"
+
+msgid "File upload limit ( in MB )"
+msgstr "文件上传限制(以MB为单位)"
+
+msgid "General"
+msgstr "常规"
+
+msgid "Grading System"
+msgstr "评分体系"
+
+msgid "Hint Text"
+msgstr "提示文本"
+
+msgid "Image"
+msgstr "图像"
+
+msgid "Image Answers"
+msgstr "图片答案"
+
+msgid "Import & Export"
+msgstr "导入 & 导出"
+
+msgid "Insert Template Variables"
+msgstr "插入模板变量"
+
+msgid "Large Text Field"
+msgstr "长文本字段"
+
+msgid "Logged in users can edit their contact information"
+msgstr "已登录用户可以编辑他们的联系信息"
+
+msgid "Maximum %maxlength% characters allowed."
+msgstr "最多允许 %maxlength% 个字符。"
+
+msgid "New"
+msgstr "新建"
+
+msgid "Not a valid e-mail address!"
+msgstr "不是有效的邮箱地址！"
+
+msgid "Options"
+msgstr "选项"
+
+msgid "PDF File"
+msgstr "PDF 文件"
+
+msgid "Questions Per Page"
+msgstr "每页题目数"
+
+msgid "ReCaptcha is missing"
+msgstr "缺少 ReCaptcha"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Replace"
+msgstr "替换"
+
+msgid "Required Add-ons"
+msgstr "必需的附加组件"
+
+msgid "Required atleast %minlength% characters."
+msgstr "至少需要 %minlength% 个字符。"
+
+msgid "Required?"
+msgstr "是否必需？"
+
+msgid "Reset"
+msgstr "重置"
+
+msgid "Resubmit"
+msgstr "重新提交"
+
+msgid "Rich Answers"
+msgstr "富文本答案"
+
+msgid "Save Changes"
+msgstr "保存更改"
+
+msgid "Save Settings"
+msgstr "保存设置"
+
+msgid "Select Condition"
+msgstr "选择条件"
+
+msgid "Show after the quiz ends"
+msgstr "在测验结束后显示"
+
+msgid "Show before quiz begins"
+msgstr "在测验开始前显示"
+
+msgid "Simple Form"
+msgstr "简单表单"
+
+msgid "Small Text Field"
+msgstr "小文本字段"
+
+msgid "Survey"
+msgstr "问卷"
+
+msgid "Template Variables"
+msgstr "模板变量"
+
+msgid "Text Answers"
+msgstr "文本答案"
+
+msgid "Text File"
+msgstr "文本文件"
+
+msgid "Thanks for submitting your response! Here are your quiz results. <br>%QUESTIONS_ANSWERS%"
+msgstr "感谢提交您的回答！以下是您的测验结果。<br>%QUESTIONS_ANSWERS%"
+
+msgid "The entered URL is not valid!"
+msgstr "输入的网址无效！"
+
+msgid "Theme Settings"
+msgstr "主题设置"
+
+msgid "This field must be a number!"
+msgstr "此字段必须是数字！"
+
+msgid "This quiz is no longer available."
+msgstr "此测验已不可用。"
+
+msgid "Type Template name here "
+msgstr "在此输入模板名称 "
+
+msgid "Type your question here"
+msgstr "在此输入您的题目"
+
+msgid "Use points based grading system for Polar questions."
+msgstr "对极性问题使用基于分数的评分体系。"
+
+msgid "Video"
+msgstr "视频"
+
+msgid "or"
+msgstr "或"
+
+msgid " Add Condition"
+msgstr " 添加条件"
+
+msgid " Browse"
+msgstr " 浏览"
+
+msgid " characters long."
+msgstr " 个字符。"
+
+msgid " to insert template variables"
+msgstr " 以插入模板变量"
+
+msgid "%QUESTIONS_ANSWERS% Text"
+msgstr "%QUESTIONS_ANSWERS%  文本"
+
+msgid "..Then"
+msgstr "……然后"
+
+msgid "About us"
+msgstr "关于我们"
+
+msgid "Accept all correct answers"
+msgstr "接受所有正确答案"
+
+msgid "Add Answer!"
+msgstr "添加答案！"
+
+msgid "Add New Question"
+msgstr "添加新题目"
+
+msgid "Add Question"
+msgstr "添加题目"
+
+msgid "Add Variables"
+msgstr "添加变量"
+
+msgid "Add class for correct/incorrect answers"
+msgstr "为正确/错误答案添加样式类"
+
+msgid "Add your description here"
+msgstr "在此添加您的描述"
+
+msgid "Add-ons"
+msgstr "附加组件"
+
+msgid "Additional Form Settings"
+msgstr "附加表单设置"
+
+msgid "Admin does not allow process your request, please contact administrator."
+msgstr "管理员不允许处理您的请求，请联系管理员。"
+
+msgid "Advanced Assessment, Smarter Results"
+msgstr "更高级的评估，更智能的结果"
+
+msgid "Alert"
+msgstr "警告"
+
+msgid "All categories"
+msgstr "所有分类"
+
+msgid "All question types"
+msgstr "所有题型"
+
+msgid "All quizzes"
+msgstr "所有测验"
+
+msgid "All the legacy options are deprecated and will be removed in upcoming version"
+msgstr "所有旧版选项均已弃用，并将在后续版本中移除"
+
+msgid "Allow only logged-in users to access the content"
+msgstr "仅允许已登录用户访问该内容"
+
+msgid "Allow users to post comments at the end of the form type"
+msgstr "允许用户在表单类型末尾发表评论"
+
+msgid "Allow users to retake the quiz"
+msgstr "允许用户重考本测验"
+
+msgid "Always display"
+msgstr "始终显示"
+
+msgid "Always use uppercase while using these variables."
+msgstr "使用这些变量时请始终使用大写。"
+
+msgid "Analyse quiz results using charts and tables"
+msgstr "使用图表与表格分析测验结果"
+
+msgid "Answer Field in Question Editor."
+msgstr "题目编辑器中的答案字段。"
+
+msgid "Answer Fields in Question Editor"
+msgstr "题目编辑器中的答案字段"
+
+msgid "Answer Labels"
+msgstr "答案标签"
+
+msgid "Answer Settings"
+msgstr "答案设置"
+
+msgid "Answer options"
+msgstr "答案选项"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Are you sure you want to delete these results?"
+msgstr "您确定要删除这些结果吗？"
+
+msgid "Are you sure?"
+msgstr "确定吗？"
+
+msgid "Assign custom labels to answers"
+msgstr "为答案分配自定义标签"
+
+msgid "Autofill"
+msgstr "自动填充"
+
+msgid "Bulk Delete"
+msgstr "批量删除"
+
+msgid "Buy Now"
+msgstr "立即购买"
+
+msgid "Buy Quiz Advanced Assessment"
+msgstr "购买测验高级评估"
+
+msgid "Buy Quiz Proctor Addon"
+msgstr "购买测验监考附加组件"
+
+msgid "Calculation Type"
+msgstr "计算方式"
+
+msgid "Capture test-taker images during the quiz"
+msgstr "在测验过程中拍摄应试者图像"
+
+msgid "Case Sensitivity"
+msgstr "区分大小写"
+
+msgid "Close this dialog window"
+msgstr "关闭此对话框"
+
+msgid "Comma separated list of domains. (i.e. example.com,abc.com)"
+msgstr "以逗号分隔的域名列表。（例如 example.com,abc.com）"
+
+msgid "Comments"
+msgstr "评论"
+
+msgid "Condition "
+msgstr "条件 "
+
+msgid "Contact Us"
+msgstr "联系我们"
+
+msgid "Correct percentage"
+msgstr "正确率"
+
+msgid "Correct! You have selected correct answer."
+msgstr "正确！您选择了正确答案。"
+
+msgid "Creating question..."
+msgstr "正在创建题目……"
+
+msgid "Customize"
+msgstr "自定义"
+
+msgid "Customize result pages based on quiz performance"
+msgstr "根据测验表现自定义结果页面"
+
+msgid "Database Migration"
+msgstr "数据库迁移"
+
+msgid "Database update required"
+msgstr "需要更新数据库"
+
+msgid "Date"
+msgstr "日期"
+
+msgid "Default Question Settings"
+msgstr "默认题目设置"
+
+msgid "Default Theme"
+msgstr "默认主题"
+
+msgid "Delete All"
+msgstr "全部删除"
+
+msgid "Delete Options"
+msgstr "删除选项"
+
+msgid "Delete Page "
+msgstr "删除页面 "
+
+msgid "Delete items from database?"
+msgstr "要从数据库中删除条目吗？"
+
+msgid "Delete question from question bank?"
+msgstr "要从题库中删除题目吗？"
+
+msgid "Demo"
+msgstr "演示"
+
+msgid "Deselect Answer"
+msgstr "取消选择答案"
+
+msgid "Detect tab switching & enforce full-screen mode"
+msgstr "检测标签页切换并强制全屏模式"
+
+msgid "Disable auto-fill suggestions for the quiz inputs."
+msgstr "禁用测验输入框的自动填充建议。"
+
+msgid "Disable description on quiz result page"
+msgstr "在测验结果页面禁用描述"
+
+msgid "Disable entering math formulas in questions, using TeX and LaTeX notation."
+msgstr "禁止使用 TeX 与 LaTeX 记法在题目中输入数学公式。"
+
+msgid "Disable scrolling while submitting quizzes and displaying results"
+msgstr "提交测验与显示结果时禁用页面滚动"
+
+msgid "Display"
+msgstr "显示"
+
+msgid "Display current page number of the quiz"
+msgstr "显示测验的当前页码"
+
+msgid "Display only if the answer is correct"
+msgstr "仅在答案正确时显示"
+
+msgid "Display the category name next to each quiz question"
+msgstr "在每道测验题目旁显示分类名称"
+
+msgid "Display the correct answer information in real-time"
+msgstr "实时显示正确答案信息"
+
+msgid "Display the featured image of the question on the results page"
+msgstr "在结果页面显示题目的特色图片"
+
+msgid "Do not allow quiz submission after the end date/time"
+msgstr "结束日期/时间后不允许提交测验"
+
+msgid "Do not scroll the page on clicking next/previous buttons"
+msgstr "点击下一页/上一页按钮时不滚动页面"
+
+msgid "Documentation"
+msgstr "文档"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "Drag and Drop File Here or "
+msgstr "将文件拖放到此处，或 "
+
+msgid "Duplicate Page"
+msgstr "复制页面"
+
+msgid "Edit Quiz"
+msgstr "编辑测验"
+
+msgid "Edit description"
+msgstr "编辑描述"
+
+msgid "Enable comments"
+msgstr "启用评论"
+
+msgid "Ensure fair and secure assessments"
+msgstr "确保评估公平且安全"
+
+msgid "Enter a name for this Quiz"
+msgstr "为此测验输入名称"
+
+msgid "Error!"
+msgstr "错误！"
+
+msgid "Error! "
+msgstr "错误！ "
+
+msgid "Explore Addons"
+msgstr "浏览附加组件"
+
+msgid "Failed DB Queries"
+msgstr "失败的数据库查询"
+
+msgid "Featured Addons"
+msgstr "特色插件"
+
+msgid "File is too large. Maximum size: "
+msgstr "文件过大。最大大小： "
+
+msgid "File removed successfully"
+msgstr "文件已成功移除"
+
+msgid "File validated successfully"
+msgstr "文件验证成功"
+
+msgid "Get Quiz"
+msgstr "获取测验"
+
+msgid "Get all our add-ons at a discounted rate with the QSM Addon Bundle and save up to 95% today! Alternatively, you can also purchase the Advanced Assessment Addon separately."
+msgstr "通过 QSM 附加组件套装以折扣价获取我们的全部附加组件，今天最高可省 95%！您也可以单独购买高级评估附加组件。"
+
+msgid "Go To Migration"
+msgstr "前往迁移"
+
+msgid "Height"
+msgstr "高度"
+
+msgid "Hide Autofill?"
+msgstr "隐藏自动填充？"
+
+msgid "Hide contact form to logged in users"
+msgstr "对已登录用户隐藏联系表单"
+
+msgid "Hide correct answer in results if the user selected the incorrect answer"
+msgstr "若用户选择了错误答案，则在结果中隐藏正确答案"
+
+msgid "Hide description"
+msgstr "隐藏描述"
+
+msgid "How it works?"
+msgstr "工作原理？"
+
+msgid "Ignore validations after timer expires"
+msgstr "计时结束后忽略验证"
+
+msgid "Import"
+msgstr "导入"
+
+msgid "Incorrect answers will end the quiz"
+msgstr "答错将结束本测验"
+
+msgid "Insert image URL"
+msgstr "插入图片网址"
+
+msgid "Invalid file type. Allowed types: "
+msgstr "无效的文件类型。允许的类型： "
+
+msgid "Invalid result id!"
+msgstr "无效的结果 ID！"
+
+msgid "It appears that this quiz is not set up correctly."
+msgstr "看起来这个测验没有正确配置。"
+
+msgid "Label (pro)"
+msgstr "标签（高级版）"
+
+msgid "Learn More About Templates"
+msgstr "进一步了解模板"
+
+msgid "Learn more"
+msgstr "了解更多"
+
+msgid "License is not valid for this product"
+msgstr "许可证不适用于本产品"
+
+msgid "Limit Multiple choice"
+msgstr "限制多项选择"
+
+msgid "Limit Text"
+msgstr "限制文本"
+
+msgid "Limit number of Questions"
+msgstr "限制题目数量"
+
+msgid "Limit number of questions per category"
+msgstr "每个分类的题目数量上限"
+
+msgid "Limit of choice is reached."
+msgstr "已达到选择数量上限。"
+
+msgid "Link"
+msgstr "链接"
+
+msgid "Live Preview"
+msgstr "实时预览"
+
+msgid "Loading questions..."
+msgstr "正在加载题目……"
+
+msgid "MM"
+msgstr "MM"
+
+msgid "Main Settings"
+msgstr "主菜单设置"
+
+msgid "Mark as default"
+msgstr "标记为默认"
+
+msgid "Match Answer"
+msgstr "匹配答案"
+
+msgid "Maximum number of characters allowed"
+msgstr "允许的最大字符数"
+
+msgid "Maximum number of choice selection allowed"
+msgstr "允许选择的最大选项数量"
+
+msgid "Maximum question limit"
+msgstr "题目数量上限"
+
+msgid "Migration has already been completed. No further action is required."
+msgstr "迁移已完成。无需进一步操作。"
+
+msgid "Minimum Characters"
+msgstr "最小字符数"
+
+msgid "Minimum number of characters required"
+msgstr "所需的最小字符数"
+
+msgid "Minutes"
+msgstr "分钟"
+
+msgid "Monitor and prevent cheating with the Quiz Proctor Addon."
+msgstr "使用测验监考附加组件监控并防止作弊。"
+
+msgid "More Options"
+msgstr "更多选项"
+
+msgid "Need Help?"
+msgstr "需要帮助？"
+
+msgid "Never Display"
+msgstr "从不显示"
+
+msgid "Next %s Audits"
+msgstr "下一个%s"
+
+msgid "No questions match your filters. Try adjusting your search criteria."
+msgstr "没有符合筛选条件的题目。请尝试调整搜索条件。"
+
+msgid "No quiz results available."
+msgstr "没有可用的测验结果。"
+
+msgid "Number"
+msgstr "号码"
+
+msgid "Option (pro)"
+msgstr "选项（高级版）"
+
+msgid "Or, Type"
+msgstr "或输入"
+
+msgid "Other"
+msgstr "其他"
+
+msgid "Page URL"
+msgstr "页面网址"
+
+msgid "Paid"
+msgstr "付费"
+
+msgid "Participants"
+msgstr "参与人数"
+
+msgid "Permanently remove this question from all quizzes and the database. This cannot be undone."
+msgstr "从所有测验与数据库中永久删除此题。此操作无法撤销。"
+
+msgid "Phone"
+msgstr "电话号码"
+
+msgid "Phone Number"
+msgstr "电话号码"
+
+msgid "Phone number is invalid"
+msgstr "电话号码无效"
+
+msgid "Placeholder Text"
+msgstr "占位符文本"
+
+msgid "Please fill in the comment box below."
+msgstr "请在下面的评论框中填写。"
+
+msgid "Please note that this action %1$s can not be %2$s rolled back. We recommend you to take a backup of your current site before proceeding."
+msgstr "请注意，此操作 %1$s 无法 %2$s 回滚。建议您在继续之前备份当前站点。"
+
+msgid "Please provide an API key."
+msgstr "请提供 API 密钥。"
+
+msgid "Please select your answer"
+msgstr "请选择您的答案"
+
+msgid "Please try again!"
+msgstr "请重试！"
+
+msgid "Prevent users from changing their response."
+msgstr "阻止用户更改他们的回答。"
+
+msgid "Preview"
+msgstr "预览"
+
+msgid "Previous "
+msgstr "上一页 "
+
+msgid "Previous %s Audits"
+msgstr "上一个%s"
+
+msgid "Proctor Reports"
+msgstr "监考报告"
+
+msgid "Progress Controls"
+msgstr "进度控制"
+
+msgid "QSM has been updated!"
+msgstr "QSM 已更新！"
+
+msgid "Question Bank"
+msgstr "题库"
+
+msgid "Question Categories"
+msgstr "题目分类"
+
+msgid "Question Preferences"
+msgstr "题目偏好设置"
+
+msgid "Question answer"
+msgstr "题目答案"
+
+msgid "Question delete failed!"
+msgstr "题目删除失败！"
+
+msgid "Question description"
+msgstr "题目描述"
+
+msgid "Question settings"
+msgstr "题目设置"
+
+msgid "Question title"
+msgstr "题目标题"
+
+msgid "Questions"
+msgstr "问题"
+
+msgid "Quick Settings"
+msgstr "快速设置"
+
+msgid "Quiz And Survey Master"
+msgstr "Quiz And Survey Master"
+
+msgid "Quiz Controls"
+msgstr "测验控制"
+
+msgid "Quiz Dates"
+msgstr "测验日期"
+
+msgid "Quiz Name *"
+msgstr "测验名称 *"
+
+msgid "Quiz Page Settings"
+msgstr "测验页面设置"
+
+msgid "Quiz and Survey Master"
+msgstr "Quiz and Survey Master"
+
+msgid "Quiz not found."
+msgstr "未找到测验。"
+
+msgid "Quiz submission"
+msgstr "测验提交"
+
+msgid "Quiz time is over."
+msgstr "测验时间已结束。"
+
+msgid "Randomly"
+msgstr "随机"
+
+msgid "Recommended"
+msgstr "推荐"
+
+msgid "Remove Image"
+msgstr "移除图片"
+
+msgid "Remove this question from the quiz only."
+msgstr "仅从测验中移除本题。"
+
+msgid "Removing file..."
+msgstr "正在移除文件……"
+
+msgid "Require correct input of uppercase and lowercase letters"
+msgstr "要求正确输入大小写字母"
+
+msgid "Response Settings"
+msgstr "回答设置"
+
+msgid "Result Page"
+msgstr "结果页面"
+
+msgid "Result Page Controls"
+msgstr "结果页面控制"
+
+msgid "Result id is wrong!"
+msgstr "结果 ID 有误！"
+
+msgid "Retake Quiz"
+msgstr "重考测验"
+
+msgid "Roadmap"
+msgstr "路线图"
+
+msgid "SS"
+msgstr "SS"
+
+msgid "Save Quiz Style"
+msgstr "保存测验风格"
+
+msgid "Save Text Message"
+msgstr "保存文本消息"
+
+msgid "Saving emails..."
+msgstr "正在保存邮件……"
+
+msgid "Search Results"
+msgstr "搜索结果"
+
+msgid "Secure Your Quizzes with Proctoring"
+msgstr "用监考功能保障您的测验安全"
+
+msgid "Security check failed."
+msgstr "安全检查失败。"
+
+msgid "See All Services"
+msgstr "查看所有服务"
+
+msgid "Select All"
+msgstr "全选"
+
+msgid "Select Image"
+msgstr "选择图片"
+
+msgid "Select Logo"
+msgstr "选择 Logo"
+
+msgid "Select Mode"
+msgstr "选择模式"
+
+msgid "Select Type"
+msgstr "选择类型"
+
+msgid "Select when to display the contact form"
+msgstr "选择何时显示联系表单"
+
+msgid "Selected"
+msgstr "已选择"
+
+msgid "Send email notifications"
+msgstr "发送邮件通知"
+
+msgid "Sequentially"
+msgstr "按顺序"
+
+msgid "Set a logo for Facebook sharing"
+msgstr "设置用于 Facebook 分享的 Logo"
+
+msgid "Set custom image size"
+msgstr "设置自定义图片尺寸"
+
+msgid "Set it to 0 or blank to remove the Incorrect answers limit"
+msgstr "设为 0 或留空即可取消错误答案数量限制"
+
+msgid "Set it to 0 or blank to remove the time restriction."
+msgstr "设为 0 或留空即可取消时间限制。"
+
+msgid "Set the limit to 0 or leave it blank to remove the limit on attempts."
+msgstr "设为 0 或留空即可取消尝试次数限制。"
+
+msgid "Set the limit to 0 or leave it blank to remove the limit on entries."
+msgstr "设为 0 或留空即可取消答卷数量限制。"
+
+msgid "Setting a limit overrides the quiz questions default pagination. Set it to 0 or blank for default pagination."
+msgstr "设置上限会覆盖测验题目的默认分页。设为 0 或留空则使用默认分页。"
+
+msgid "Shortcode"
+msgstr "短码"
+
+msgid "Show Text/HTML Section in results"
+msgstr "在结果中显示文本/HTML 区块"
+
+msgid "Show progress bar"
+msgstr "显示进度条"
+
+msgid "Show question numbers"
+msgstr "显示题号"
+
+msgid "Show responses to opt-in question type in results"
+msgstr "在结果中显示“选择性加入”题型的回答"
+
+msgid "Show the results of each question's response in real-time"
+msgstr "实时显示每道题目回答的结果"
+
+msgid "Shows the label(s) least frequently chosen."
+msgstr "显示最不常被选择的标签。"
+
+msgid "Shows the label(s) with highest points earned."
+msgstr "显示得分最高的标签。"
+
+msgid "Shows the label(s) with lowest points earned."
+msgstr "显示得分最低的标签。"
+
+msgid "Shows the most frequently chosen label(s)."
+msgstr "显示最常被选择的标签。"
+
+msgid "Sorry, your submission was not successful. Please contact the website administrator."
+msgstr "抱歉，您的提交未成功。请联系网站管理员。"
+
+msgid "Start"
+msgstr "开始"
+
+msgid "Start With a Template"
+msgstr "从模板开始"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Store results permanently in database"
+msgstr "将结果永久保存在数据库中"
+
+msgid "Submit"
+msgstr "提交"
+
+msgid "Submit Actions"
+msgstr "提交动作"
+
+msgid "Submit Quiz"
+msgstr "提交测验"
+
+msgid "Submit automatically when timer ends"
+msgstr "计时结束时自动提交"
+
+msgid "Support"
+msgstr "支持"
+
+msgid "Table "
+msgstr "表 "
+
+msgid "Text"
+msgstr "文字"
+
+msgid "Text Before Quiz"
+msgstr "测验前的文本"
+
+msgid "The API key is not configured."
+msgstr "API 密钥尚未配置。"
+
+msgid "The amount of counts of all labels earned."
+msgstr "所有标签所获次数的数值。"
+
+msgid "The amount of percentage of all labels earned."
+msgstr "所有标签所获百分比的数值。"
+
+msgid "The amount of points of all labels earned."
+msgstr "所有标签所获分值的数值。"
+
+msgid "The entered text is not correct!"
+msgstr "输入的文本不正确！"
+
+msgid "The form can be configured in Contact tab"
+msgstr "该表单可在“联系”标签页中配置"
+
+msgid "The information will still get saved if this option is disabled"
+msgstr "即使禁用此选项，信息仍会被保存"
+
+msgid "The provided API key is invalid. Please verify and try again."
+msgstr "提供的 API 密钥无效。请核实后重试。"
+
+msgid "Themes"
+msgstr "主题"
+
+msgid "This logo will be used for Facebook sharing. If left blank, QSM's logo will appear."
+msgstr "此 Logo 将用于 Facebook 分享。若留空，则显示 QSM 的 Logo。"
+
+msgid "This question is linked with other quizzes "
+msgstr "此题目已与其他测验关联 "
+
+msgid "This quiz is for logged in users only."
+msgstr "此测验仅限已登录用户参加。"
+
+msgid "This quiz is in draft mode and is not recording your responses. Please publish the quiz to start recording your responses."
+msgstr "本测验处于草稿模式，暂不记录您的回答。请发布该测验以开始记录回答。"
+
+msgid "This will permanently remove all associated data and metadata"
+msgstr "这将永久删除所有关联数据与元数据"
+
+msgid "Time"
+msgstr "次数"
+
+msgid "Timer Settings"
+msgstr "计时器设置"
+
+msgid "Total points"
+msgstr "总分数"
+
+msgid "Unfortunately, this quiz has a limited amount of entries it can recieve and has already reached that limit."
+msgstr "很遗憾，本测验的答卷数量有限，且已达到上限。"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Unknown error"
+msgstr "未知错误"
+
+msgid "Unlock Personalized Quiz Experiences with the Advanced Assessment Addon."
+msgstr "借助高级评估附加组件，解锁个性化测验体验。"
+
+msgid "Update Database"
+msgstr "更新数据库"
+
+msgid "Upgrade"
+msgstr "升级"
+
+msgid "Upgrade to Premium"
+msgstr "升级到高级版"
+
+msgid "Use these dynamic variables to customize your quiz or survey. Just copy and paste one or more variables into the content templates and these will be replaced by actual values when user takes a quiz."
+msgstr "使用这些动态变量来自定义您的测验或问卷。只需将一个或多个变量复制粘贴到内容模板中，用户作答时它们会被替换为实际值。"
+
+msgid "User"
+msgstr "用户"
+
+msgid "User Access"
+msgstr "用户访问"
+
+msgid "Validating file..."
+msgstr "正在验证文件……"
+
+msgid "Validation Messages"
+msgstr "验证消息"
+
+msgid "Value"
+msgstr "值"
+
+msgid "Value user entered into contact field. X is # of contact field. For example, first contact field would be %CONTACT_1%"
+msgstr "用户填入联系字段的值。X 为联系字段的编号。例如，第一个联系字段为 %CONTACT_1%"
+
+msgid "View Quiz"
+msgstr "查看测验"
+
+msgid "We need to upgrade your database so that you can enjoy the latest features."
+msgstr "我们需要升级您的数据库，以便您享用最新功能。"
+
+msgid "Welcome to your %QUIZ_NAME%"
+msgstr "欢迎参加 %QUIZ_NAME%"
+
+msgid "When.."
+msgstr "当……"
+
+msgid "Width "
+msgstr "宽度 "
+
+msgid "Works with %1$sMultiple Response, Horizontal Multiple Response%2$s and %3$sFill in the Blanks%4$s Question Types."
+msgstr "适用于 %1$s多项选择、横向多项选择%2$s 与 %3$s填空题%4$s 题型。"
+
+msgid "Works with multiple choice & horizontal multiple choice questions only"
+msgstr "仅适用于多项选择题与横向多项选择题"
+
+msgid "Works with multiple choice questions only"
+msgstr "仅适用于多项选择题"
+
+msgid "Wrong! You have selected wrong answer."
+msgstr "错误！您选择了错误答案。"
+
+msgid "X = Question ID. It will show result of particular question."
+msgstr "X =问题ID。 它将显示特定问题的结果。"
+
+msgid "X: Answer label slug - The amount of counts a specific label earned."
+msgstr "X：答案标签别名 - 该特定标签所获得的次数。"
+
+msgid "X: Answer label slug - The amount of percentage a specific label earned."
+msgstr "X：答案标签别名 - 该特定标签所获得的百分比。"
+
+msgid "X: Answer label slug - The amount of points a specific label earned."
+msgstr "X：答案标签别名 - 该特定标签所获得的分数。"
+
+msgid "You are not allowed to modify these questions."
+msgstr "您无权修改这些题目。"
+
+msgid "You are not allowed to modify this question."
+msgstr "您无权修改本题。"
+
+msgid "You can use text and rich answer for question answers."
+msgstr "您可以为题目答案使用文本和富文本答案。"
+
+msgid "You do not have permission to manage quiz templates."
+msgstr "您没有管理测验模板的权限。"
+
+msgid "You do not have permission to perform migrations."
+msgstr "您没有执行迁移的权限。"
+
+msgid "You have utilized all of your attempts to pass this quiz."
+msgstr "您已用完通过本测验的全部尝试次数。"
+
+msgid "Your Answer"
+msgstr "您的答案"
+
+msgid "Your answer"
+msgstr "您的答案"
+
+msgid "attempts or submissions can be done by a respondent"
+msgstr "受访者可以进行的尝试或提交次数"
+
+msgid "hours"
+msgstr "小时"
+
+msgid "is equal to"
+msgstr "等于"
+
+msgid "is greater than"
+msgstr "大于"
+
+msgid "is greater than or equal to"
+msgstr "大于或等于"
+
+msgid "is less than"
+msgstr "小于"
+
+msgid "is less than or equal to"
+msgstr "小于或等于"
+
+msgid "is not equal to"
+msgstr "不等于"
+
+msgid "minutes"
+msgstr "分钟"
+
+msgid "out of"
+msgstr "，共"
+
+msgid "users can respond to this form type"
+msgstr "用户可以回答此表单类型"
+
+msgid " Addon"
+msgstr " 附加组件"
+
+msgid " Nonce validation issue."
+msgstr " Nonce 验证问题。"
+
+msgid " Quiz have been updated!"
+msgstr " 测验已更新！"
+
+msgid " Quiz/Survey has been updated successfully."
+msgstr " 测验/问卷已成功更新。"
+
+msgid " Search"
+msgstr " 搜索"
+
+msgid " Settings have been updated!"
+msgstr "用户设置已更新"
+
+msgid " Templates"
+msgstr " 个模板"
+
+msgid " Time to complete "
+msgstr " 完成所需时间 "
+
+msgid " already exists."
+msgstr " 已存在。"
+
+msgid " does not exist."
+msgstr " 不存在。"
+
+msgid " file type)"
+msgstr " 文件类型）"
+
+msgid " for the emails to work properly."
+msgstr " ，邮件才能正常工作。"
+
+msgid " is missing columns: "
+msgstr " 缺少以下列： "
+
+msgid " let you know when new or updated addons are being released and provide informative articles that show you how to use "
+msgstr " 让您了解新增或更新的附加组件，并提供实用文章教您如何使用 "
+
+msgid " must be at least "
+msgstr " 至少为 "
+
+msgid " must be no more than "
+msgstr " 不得超过 "
+
+msgid " to its full potential. "
+msgstr " 充分发挥其潜力。 "
+
+msgid " took quiz "
+msgstr " 参加了测验 "
+
+msgid "\"Process emails in background\" option is enabled. WPML string translation may not work as expected for email templates. Please disable this option to send translated strings in emails."
+msgstr "“后台处理邮件”选项已启用。WPML 字符串翻译对邮件模板可能无法按预期工作。请禁用该选项，以便在邮件中发送已翻译的字符串。"
+
+msgid "%QUESTION%<br />%USER_ANSWERS_DEFAULT%<br/>%CORRECT_ANSWER_INFO%"
+msgstr "%QUESTION%<br />%USER_ANSWERS_DEFAULT%<br/>%CORRECT_ANSWER_INFO%"
+
+msgid "%QUESTION%<br />Answer Provided: %USER_ANSWER%<br/>Correct Answer: %CORRECT_ANSWER%<br/>Comments Entered: %USER_COMMENTS%"
+msgstr "%QUESTION%<br />用户答案：%USER_ANSWER%<br/>正确答案：%CORRECT_ANSWER%<br/>填写的评语：%USER_COMMENTS%"
+
+msgid "%QUESTIONS_ANSWERS_EMAIL% Text"
+msgstr "%QUESTIONS_ANSWERS_EMAIL% 文本"
+
+msgid "%d question failed."
+msgid_plural "%d questions failed."
+msgstr[0] "%d 道题目导入失败。"
+
+msgid "%d question imported."
+msgid_plural "%d questions imported."
+msgstr[0] "已导入 %d 道题目。"
+
+msgid "(Optional)."
+msgstr "（可选）。"
+
+msgid "*This bundle includes all themes and add-ons"
+msgstr "*此套装包含全部主题与附加组件"
+
+msgid "+ Add New Category"
+msgstr "+ 新增分类"
+
+msgid "+ Add New Category "
+msgstr "+ 新增分类 "
+
+msgid "1 out of "
+msgstr "第 1 个，共 "
+
+msgid "API Key"
+msgstr "API 密钥"
+
+msgid "Abilities for managing questions within QSM quizzes."
+msgstr "管理 QSM 测验中题目的能力接口。"
+
+msgid "Abilities for reading Quiz and Survey Master quizzes."
+msgstr "读取 Quiz and Survey Master 测验的能力接口。"
+
+msgid "About"
+msgstr "关于"
+
+msgid "Accept any correct answer"
+msgstr "接受任意正确答案"
+
+msgid "Accept any correct answers"
+msgstr "接受任意正确答案"
+
+msgid "Access legacy settings from older versions of QSM."
+msgstr "访问 QSM 旧版本的遗留设置。"
+
+msgid "Access step-by-step guidance and troubleshooting to ensure your quizzes and surveys are up and running smoothly."
+msgstr "获取分步指导与故障排查，确保您的测验与问卷稳定顺畅地运行。"
+
+msgid "Action Required"
+msgstr "需要操作"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Activated"
+msgstr "已激活"
+
+msgid "Activating..."
+msgstr "正在激活……"
+
+msgid "Active"
+msgstr "活跃"
+
+msgid "Active Theme: "
+msgstr "当前主题： "
+
+msgid "Add Answers"
+msgstr "添加答案"
+
+msgid "Add New Category "
+msgstr "新增分类 "
+
+msgid "Add New Email"
+msgstr "添加新的Email"
+
+msgid "Add New Field"
+msgstr "添加新字段"
+
+msgid "Add New Page"
+msgstr "新增页面"
+
+msgid "Add New Quiz"
+msgstr "添加新测验"
+
+msgid "Add New Results Page"
+msgstr "添加新的结果页"
+
+msgid "Add Question from quiz editor"
+msgstr "从测验编辑器添加题目"
+
+msgid "Add Questions"
+msgstr "添加题目"
+
+msgid "Add Radio Grid & Checkbox Grid for structured responses"
+msgstr "添加单选框网格与复选框网格，实现结构化作答"
+
+msgid "Add Single Question"
+msgstr "添加单道题目"
+
+msgid "Add a featured image to enhance your quiz's visual appeal and align it with your brand's style."
+msgstr "添加特色图片以提升测验的视觉吸引力，并与品牌风格保持一致。"
+
+msgid "Add a featured image to visually represent your quiz."
+msgstr "添加特色图片以直观呈现您的测验。"
+
+msgid "Add all possible answers for this question."
+msgstr "添加本题所有可能的答案。"
+
+msgid "Add an explanation to support the correct answer."
+msgstr "添加一段说明以支持正确答案。"
+
+msgid "Add an image to visually enhance this question."
+msgstr "添加图片以直观地增强本题。"
+
+msgid "Add user email as Reply-To"
+msgstr "将用户邮箱加入 Reply-To"
+
+msgid "Add, browse, search, and filter questions across all of your quizzes without leaving the dashboard."
+msgstr "无需离开仪表盘即可在所有测验中新增、浏览、搜索与筛选题目。"
+
+msgid "Add, reorder, enable, or disable fields like name, email, phone, or business to customize your contact form."
+msgstr "添加、重新排序、启用或禁用姓名、邮箱、电话或单位等字段，自定义您的联系表单。"
+
+msgid "Adding..."
+msgstr "正在添加……"
+
+msgid "Addon Name"
+msgstr "附加组件名称"
+
+msgid "Adds a new question to a quiz. Provide the quiz ID, question text, question type, and answer options. Returns the ID of the created question."
+msgstr "向测验添加一道新题目。请提供测验 ID、题干、题型与答案选项。返回已创建题目的 ID。"
+
+msgid "Adjust backgrounds, fonts, colors, and borders."
+msgstr "调整背景、字体、颜色与边框。"
+
+msgid "Advance Quiz Settings"
+msgstr "高级测验设置"
+
+msgid "Advance options"
+msgstr "高级选项"
+
+msgid "Advanced Question Type"
+msgstr "高级题型"
+
+msgid "Advanced Question Type : "
+msgstr "高级题型： "
+
+msgid "Advanced Topics"
+msgstr "高级主题"
+
+msgid "After migration, new quiz results will not be compatible with older versions of QSM. If you downgrade later, these results may not be accessible."
+msgstr "迁移后产生的新测验结果将不再兼容旧版 QSM。若您日后降级，这些结果可能无法访问。"
+
+msgid "All Addons"
+msgstr "所有附加组件"
+
+msgid "All Docs"
+msgstr "所有文档"
+
+msgid "All Question Types"
+msgstr "所有题型"
+
+msgid "All Quiz"
+msgstr "所有测验"
+
+msgid "All answer will be reset, Do you want to still continue?"
+msgstr "所有答案都将被重置，您仍要继续吗？"
+
+msgid "All deleted questions have been removed."
+msgstr "所有已删除的题目均已移除。"
+
+msgid "All deleted results have been removed."
+msgstr "所有已删除的结果均已移除。"
+
+msgid "All required fields"
+msgstr "所有必填字段"
+
+msgid "All tables have the correct structure."
+msgstr "所有表结构均正确。"
+
+msgid "Allow"
+msgstr "允许"
+
+msgid "Allow Domains"
+msgstr "允许的域名"
+
+msgid "Allow Quiz And Survey Master to anonymously track this plugin's usage and help us make this plugin better."
+msgstr "允许测验和调查大师匿名跟踪这个插件的使用情况，并帮助我们更好地使这个插件。"
+
+msgid "Allow Quiz And Survey Master to track this plugin's usage and help us make this plugin better?"
+msgstr "允许 Quiz And Survey Master跟踪该插件的使用情况，并帮助我们使该插件更好吗？"
+
+msgid "Allow Usage Tracking?"
+msgstr "允许追踪使用率？"
+
+msgid "Allow participants to download results as PDFs"
+msgstr "允许参与者将结果下载为 PDF"
+
+msgid "Allow user to deselect an answer and leave it blank."
+msgstr "允许用户取消选择答案并留空。"
+
+msgid "Allow user to deselect an answer and leave it blank. "
+msgstr "允许用户取消选择答案并留空。 "
+
+msgid "Allow users to add comments for this question."
+msgstr "允许用户为本题添加评论。"
+
+msgid "Allowed Variables"
+msgstr "允许的变量"
+
+msgid "Allowed Variables:"
+msgstr "允许变量："
+
+msgid "Always use uppercase when inserting these variables."
+msgstr "插入这些变量时请始终使用大写。"
+
+msgid "An error occurred during migration."
+msgstr "迁移过程中发生错误。"
+
+msgid "An error occurred while trying to update the name of your quiz or survey. Please try again."
+msgstr "尝试更新测验或调查的名称时发生错误。 请再试一遍。"
+
+msgid "An error occurred while trying to update the status of your quiz or survey. Please try again."
+msgstr "尝试更新测验或问卷状态时发生错误。请重试。"
+
+msgid "Analyze performance trends with the Reporting & Analysis Addon."
+msgstr "使用报告与分析附加组件分析趋势表现。"
+
+msgid "Answer"
+msgstr "回答"
+
+msgid "Answer choice limit message"
+msgstr "答案选择上限提示"
+
+msgid "Answer points"
+msgstr "答案分数"
+
+msgid "Answers"
+msgstr "回答"
+
+msgid "Appearance"
+msgstr "外观"
+
+msgid "Apply Filter"
+msgstr "应用筛选"
+
+msgid "Apply custom CSS for advanced styling control."
+msgstr "应用自定义 CSS 以实现高级样式控制。"
+
+msgid "Apply default settings to form"
+msgstr "将默认设置应用于表单"
+
+msgid "Apply filters"
+msgstr "应用筛选"
+
+msgid "Apply the above limit to your manually created pages instead of auto-paginating. Each page is capped at this number (pages with fewer questions are unchanged). A page's own \"Limit questions\" value takes priority."
+msgstr "将上述上限应用于您手动创建的页面，而非自动分页。每个页面的题目数以此数值为上限（题目数更少的页面不受影响）。页面自身设置的“题目数量上限”优先。"
+
+msgid "Apply the default settings to selected form type"
+msgstr "将默认设置应用于所选表单类型"
+
+msgid "Apply to multiple quizzes"
+msgstr "应用到多个测验"
+
+msgid "Are you sure you want to delete all deleted questions?"
+msgstr "确定要删除所有已删除的题目吗？"
+
+msgid "Are you sure you want to delete all deleted results?"
+msgstr "确定要删除所有已删除的结果吗？"
+
+msgid "Are you sure you want to delete selected quiz or survey?"
+msgstr "确定要删除所选的测验或问卷吗？"
+
+msgid "Are you sure you want to delete the selected questions?"
+msgstr "确定要删除所选题目吗？"
+
+msgid "Are you sure you want to delete the selected results?"
+msgstr "确定要删除所选结果吗？"
+
+msgid "Are you sure you want to delete these Questions?"
+msgstr "确定要删除这些题目吗？"
+
+msgid "Are you sure you want to delete this quiz or survey?"
+msgstr "您确定要删除这个调查/测验吗？"
+
+msgid "Are you sure you want to delete this record? You will not be able to recover this data!"
+msgstr "确定要删除这条记录吗？此数据将无法恢复！"
+
+msgid "Are you sure you want to delete this template?"
+msgstr "确定要删除此模板吗？"
+
+msgid "Are you sure you want to delete?"
+msgstr "确定要删除吗？"
+
+msgid "Are you sure you want to regenerate the API Key? This will affect your settings when you save changes, and the old key will no longer work."
+msgstr "确定要重新生成 API 密钥吗？这会影响您保存更改时的设置，且旧密钥将不再有效。"
+
+msgid "Are you sure you want to remove this page?"
+msgstr "确定要移除此页面吗？"
+
+msgid "Are you sure you want to reset the stats to 0? All views and taken stats for this quiz will be reset. This is permanent and cannot be undone."
+msgstr "您确定要将统计信息重置为0吗？ 此测验的所有视图和统计信息将被重置。 这是永久性的，无法撤消。"
+
+msgid "Are you sure? After migration, any quiz results submitted on QSM 11 won’t be accessible if you downgrade to an earlier version. Your existing data will remain safe, but it’s recommended to take a database backup before proceeding."
+msgstr "确定要继续吗？迁移后，在 QSM 11 上提交的测验结果一旦降级到早期版本将无法访问。您的现有数据仍然安全，但建议在继续之前先备份数据库。"
+
+msgid "Array of answer options."
+msgstr "答案选项数组。"
+
+msgid "Ascending"
+msgstr "升序"
+
+msgid "Ask user's business"
+msgstr "询问用户的单位/公司"
+
+msgid "Ask user's email"
+msgstr "询问用户的邮箱"
+
+msgid "Ask user's name"
+msgstr "询问用户的姓名"
+
+msgid "Ask user's phone"
+msgstr "询问用户的电话"
+
+msgid "Assign"
+msgstr "分配"
+
+msgid "Assign Webhook"
+msgstr "分配 Webhook"
+
+msgid "Assign individual limits to each category"
+msgstr "为每个分类分别设置上限"
+
+msgid "Assign this question to one or more categories to organize, filter, and reuse it across quizzes."
+msgstr "将本题分配到一个或多个分类，以便整理、筛选并在各测验中重复使用。"
+
+msgid "Atleast one <strong>%BLANK%</strong> and one option is required."
+msgstr "至少需要一个 <strong>%BLANK%</strong> 和一个选项。"
+
+msgid "Attempting to activate a bundle's parent license"
+msgstr "尝试激活套装的主许可证"
+
+msgid "Audit Trail"
+msgstr "审计跟踪"
+
+msgid "Automate Your Workflow with QSM Webhooks"
+msgstr "使用 QSM Webhooks 自动化您的工作流"
+
+msgid "Automate emails based on quiz behavior and results."
+msgstr "根据测验行为与结果自动发送邮件。"
+
+msgid "Automatically send quiz results to any system in real-time."
+msgstr "自动将测验结果实时发送到任意系统。"
+
+msgid "Back to All Results"
+msgstr "返回全部结果"
+
+msgid "Back to Results"
+msgstr "返回结果"
+
+msgid "Back to themes"
+msgstr "返回主题列表"
+
+msgid "Based on your selection, we will assist you in creating a customized quiz"
+msgstr "根据您的选择，我们将协助您创建一个定制化的测验"
+
+msgid "Batch processed."
+msgstr "批次已处理。"
+
+msgid "Before You Continue"
+msgstr "在继续之前"
+
+msgid "Before starting migration, please create a database backup."
+msgstr "开始迁移之前，请先创建数据库备份。"
+
+msgid "Block Domains"
+msgstr "屏蔽的域名"
+
+msgid "Bulk Actions"
+msgstr "批量操作"
+
+msgid "Bulk Permanent Delete"
+msgstr "批量永久删除"
+
+msgid "Bulk Upload"
+msgstr "批量上传"
+
+msgid "Bulk upload closed."
+msgstr "批量上传已关闭。"
+
+msgid "Bulk upload questions"
+msgstr "批量上传题目"
+
+msgid "Bulk upload ready. Select or drop a CSV to continue."
+msgstr "批量上传已就绪。请选择或拖入 CSV 文件以继续。"
+
+msgid "Business Field"
+msgstr "单位字段"
+
+msgid "Business field"
+msgstr "单位/公司字段"
+
+msgid "Business:"
+msgstr "单位/公司："
+
+msgid "Button Control"
+msgstr "按钮控制"
+
+msgid "Buy Addon"
+msgstr "购买附加组件"
+
+msgid "Buy Advanced Questions Addon"
+msgstr "购买高级题目附加组件"
+
+msgid "Buy Export & Import Addon"
+msgstr "购买导出与导入附加组件"
+
+msgid "Buy Export Results Addon"
+msgstr "购买导出结果附加组件"
+
+msgid "Buy QSM Extra Shortodes Addon"
+msgstr "购买 QSM 额外短代码附加组件"
+
+msgid "Buy Reporting & Analysis Addon"
+msgstr "购买报告与分析附加组件"
+
+msgid "Buy Ultimate Addon"
+msgstr "购买终极版附加组件"
+
+msgid "Buy Webhooks Addon"
+msgstr "购买 Webhooks 附加组件"
+
+msgid "CSS"
+msgstr "CSS"
+
+msgid "Captcha"
+msgstr "验证码"
+
+msgid "Captcha verification failed."
+msgstr "验证码验证失败。"
+
+msgid "Caption"
+msgstr "说明文字"
+
+msgid "Category "
+msgstr "分类 "
+
+msgid "Category (Optional)"
+msgstr "分类（可选）"
+
+msgid "Category cannot be empty"
+msgstr "分类不能为空"
+
+msgid "Category:"
+msgstr "分类："
+
+msgid "Change This! If you are sharing the responses with anyone and do not list it anywhere else in your privacy policy, enter information about that here. "
+msgstr "改变这个！ 如果您与任何人分享答复，并且不在隐私策略中的其他任何地方列出，请在这里输入相关信息。"
+
+msgid "Change This! If you are using an addon or custom software to sync data with a 3rd party (such as MailChimp), data is retained there which should be mentioned here."
+msgstr "改变这个！ 如果您使用插件或自定义软件与第三方（例如MailChimp）同步数据，则数据将保留在此处，此处应提及。"
+
+msgid "Changelog"
+msgstr "变更日志"
+
+msgid "Check If Already Fixed"
+msgstr "检查是否已修复"
+
+msgid "Check if any security plugins or firewalls are blocking connections."
+msgstr "检查是否有安全插件或防火墙拦截了连接。"
+
+msgid "Checkbox"
+msgstr "复选框"
+
+msgid "Checkbox Grid"
+msgstr "复选框网格"
+
+msgid "Checkout our updates page to know more about our recent releases"
+msgstr "查看我们的更新页面，了解近期版本发布详情"
+
+msgid "Choose "
+msgstr "选择 "
+
+msgid "Choose Columns to hide/show"
+msgstr "选择要隐藏/显示的列"
+
+msgid "Choose a quiz in the drop down and then click the button to restore or delete permanent quiz."
+msgstr "在下拉菜单中选择一个测验，然后点击按钮以恢复或永久删除该测验。"
+
+msgid "Choose a visual theme for your quiz or survey."
+msgstr "为您的测验或问卷选择一个视觉主题。"
+
+msgid "Choose how this question should be graded."
+msgstr "选择本题的评分方式。"
+
+msgid "Choose the quiz type, grading method, answer logic, access rules, and overall experience settings."
+msgstr "选择测验类型、评分方式、答案逻辑、访问规则以及整体体验设置。"
+
+msgid "Choose themes to enhance your quizzes and surveys, ensuring they align with your brand's aesthetic. You can easily customize the theme to change its look and feel."
+msgstr "选择主题来美化您的测验与问卷，使其与品牌视觉风格保持一致。您可以轻松自定义主题，改变其外观与观感。"
+
+msgid "Choose where the form appears in the quiz flow and manage its behavior for logged-in users and autofill."
+msgstr "选择表单在测验流程中的出现位置，并管理其对已登录用户与自动填充的行为。"
+
+msgid "Choose your question type."
+msgstr "选择您的题型。"
+
+msgid "Choose your quiz type"
+msgstr "选择您的测验类型"
+
+msgid "Choose your style:"
+msgstr "选择您的样式："
+
+msgid "Clear Audit"
+msgstr "清除审计"
+
+msgid "Click <strong>Save Question</strong> to save your first question."
+msgstr "点击 <strong>保存题目</strong> 保存您的第一道题目。"
+
+msgid "Click here"
+msgstr "点击此处"
+
+msgid "Click here to learn more about QSM's minimum PHP version change."
+msgstr "点击此处了解更多关于 QSM 最低 PHP 版本变更的信息。"
+
+msgid "Click here to learn more about why we need this data and what we collect"
+msgstr "单击此处以了解有关我们为什么需要此数据以及我们收集什么的更多信息"
+
+msgid "Click here to renew"
+msgstr "点击此处续订"
+
+msgid "Click here to view"
+msgstr "点击此处查看"
+
+msgid "Click “Save Question” to apply your changes and complete the setup"
+msgstr "点击“保存题目”以应用您的更改并完成设置"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Close modal"
+msgstr "关闭弹窗"
+
+msgid "Column to sort results by."
+msgstr "结果排序所依据的列。"
+
+msgid "Comments field"
+msgstr "评论字段"
+
+msgid "Compatible"
+msgstr "兼容"
+
+msgid "Complete a one-time database migration to ensure your quizzes and results work smoothly with the new version and its improved rendering experience."
+msgstr "请执行一次性的数据库迁移，以确保您的测验与结果能顺畅运行于新版本及其改进后的渲染体验。"
+
+msgid "Complete a one-time database migration to ensure your quizzes and results work smoothly with the new version and its improved rendering experience. After migration, new quiz results will not be compatible with older versions of QSM. If you downgrade later, these results may not be accessible."
+msgstr "请执行一次性的数据库迁移，以确保您的测验与结果能顺畅运行于新版本及其改进后的渲染体验。迁移后产生的新测验结果将不再兼容旧版 QSM。若您日后降级，这些结果可能无法访问。"
+
+msgid "Condition for sending email"
+msgstr "发送邮件的条件"
+
+msgid "Congratulations!"
+msgstr "恭喜！"
+
+msgid "Connect effortlessly with CRMs, email platforms, analytics tools, and more."
+msgstr "与 CRM、邮件营销平台、分析工具等轻松连接。"
+
+msgid "Contact"
+msgstr "联系人"
+
+msgid "Contact Support"
+msgstr "联系支持"
+
+msgid "Contact form"
+msgstr "联系表单"
+
+msgid "Continue"
+msgstr "继续"
+
+msgid "Control how and when users can submit their quiz."
+msgstr "控制用户可以提交测验的方式与时机。"
+
+msgid "Control layout, positioning, and label displays."
+msgstr "控制布局、定位与标签显示。"
+
+msgid "Control progress indicators, question layout, result visibility, page animations, and visual experience settings."
+msgstr "控制进度指示、题目布局、结果显示、页面动画与视觉体验设置。"
+
+msgid "Control the format and content of question, answer, score, and result variables used across emails and result pages."
+msgstr "控制用于邮件与结果页面的题目、答案、得分与结果变量的格式和内容。"
+
+msgid "Control when and how the contact form is shown to users."
+msgstr "控制何时以及如何向用户显示联系表单。"
+
+msgid "Copied!"
+msgstr "已复制！"
+
+msgid "Correct Answer Logic"
+msgstr "正确答案逻辑"
+
+msgid "Correct Answer Logic:"
+msgstr "正确答案逻辑："
+
+msgid "Correct Answers:"
+msgstr "正确答案："
+
+msgid "Correct Percent"
+msgstr "正确百分比"
+
+msgid "Correct answer info goes here"
+msgstr "正确答案信息写在这里"
+
+msgid "Correct answer message"
+msgstr "正确答案消息"
+
+msgid "Create New Page"
+msgstr "新建页面"
+
+msgid "Create New Quiz/Survey"
+msgstr "新建测验/问卷"
+
+msgid "Create Question"
+msgstr "创建题目"
+
+msgid "Create Quiz"
+msgstr "创建测验"
+
+msgid "Create Quiz Page"
+msgstr "创建测验页面"
+
+msgid "Create Support Ticket"
+msgstr "创建工单"
+
+msgid "Create a Quiz / Survey"
+msgstr "创建测验/问卷"
+
+msgid "Create your first question"
+msgstr "创建您的第一道题目"
+
+msgid "Created At"
+msgstr "创建时间"
+
+msgid "Creating Quizzes"
+msgstr "正在创建测验"
+
+msgid "Current Version : "
+msgstr "当前版本： "
+
+msgid "Currently, the block editor doesn't support advanced question type. We are working on it. Alternatively, you can add advanced questions from your QSM's quiz editor."
+msgstr "目前区块编辑器尚不支持高级题型，我们正在努力改进。您也可以从 QSM 的测验编辑器中添加高级题目。"
+
+msgid "Custom Style CSS"
+msgstr "自定义样式CSS"
+
+msgid "Custom error message displayed when a required contact field is left empty"
+msgstr "必填联系字段留空时显示的自定义错误消息"
+
+msgid "Custom error message displayed when an invalid URL is entered in contact field"
+msgstr "在联系字段中输入无效网址时显示的自定义错误消息"
+
+msgid "Custom error message displayed when an invalid email is entered in contact field"
+msgstr "在联系字段中输入无效邮箱时显示的自定义错误消息"
+
+msgid "Custom error message displayed when an invalid number is entered in contact field"
+msgstr "在联系字段中输入无效数字时显示的自定义错误消息"
+
+msgid "Custom error message for maximum length validation. Use %maxlength% for the number."
+msgstr "最大长度验证的自定义错误消息。用 %maxlength% 表示字符数。"
+
+msgid "Custom error message for minimum length validation. Use %minlength% for the number."
+msgstr "最小长度验证的自定义错误消息。用 %minlength% 表示字符数。"
+
+msgid "Customize Quiz Appearance"
+msgstr "自定义测验外观"
+
+msgid "Customize buttons, answer choices, timers, and progress bars."
+msgstr "自定义按钮、答案选项、计时器与进度条。"
+
+msgid "Customize colors, typography, buttons, answer styles, timers, progress bars, and layout elements."
+msgstr "自定义颜色、字体排版、按钮、答案样式、计时器、进度条与布局元素。"
+
+msgid "Customize how quiz data is displayed using dynamic variables."
+msgstr "使用动态变量自定义测验数据的展示方式。"
+
+msgid "Customize how the quiz looks and behaves for users."
+msgstr "自定义测验面向用户的呈现与行为。"
+
+msgid "Customize reports for deeper insights"
+msgstr "自定义报告以获得更深入的洞察"
+
+msgid "Customize the labels and system messages used across the quiz."
+msgstr "自定义测验中使用的标签与系统消息。"
+
+msgid "Customize welcome messages, instructions, system messages, and sharing text to guide users through the quiz experience."
+msgstr "自定义欢迎语、说明、系统消息与分享文案，引导用户完成测验。"
+
+msgid "Daily"
+msgstr "每日"
+
+msgid "Dashboard"
+msgstr "仪表盘"
+
+msgid "Data is missing."
+msgstr "数据缺失。"
+
+msgid "Database updated successfully."
+msgstr "数据库更新成功。"
+
+msgid "Date/time of last submission."
+msgstr "上次提交的日期/时间。"
+
+msgid "Debug Mode: "
+msgstr "调试模式： "
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Default (Time)"
+msgstr "默认(时间)"
+
+msgid "Default Email Template"
+msgstr "默认邮件模板"
+
+msgid "Default Result Template"
+msgstr "默认结果模板"
+
+msgid "Default question settings reset."
+msgstr "默认题目设置已重置。"
+
+msgid "Default question settings saved!"
+msgstr "默认题目设置已保存！"
+
+msgid "Define the core behavior and rules of your quiz."
+msgstr "定义测验的核心行为与规则。"
+
+msgid "Define what users see after completing the quiz."
+msgstr "定义用户完成测验后看到的内容。"
+
+msgid "Delete All Deleted Results"
+msgstr "删除全部已删除的结果"
+
+msgid "Delete All Questions"
+msgstr "删除全部题目"
+
+msgid "Delete Permanent"
+msgstr "永久删除"
+
+msgid "Delete Permanently"
+msgstr "永久删除"
+
+msgid "Delete Questions"
+msgstr "删除题目"
+
+msgid "Delete Result"
+msgstr "删除结果"
+
+msgid "Delete Results"
+msgstr "删除结果"
+
+msgid "Delete all the data related to QSM on deletion?"
+msgstr "删除时是否删除 QSM 的全部相关数据？"
+
+msgid "Delete from Question Bank"
+msgstr "从题库中删除"
+
+msgid "Deleted Questions"
+msgstr "已删除的题目"
+
+msgid "Deleted Quiz"
+msgstr "已删除的测验"
+
+msgid "Deleted Results"
+msgstr "已删除的结果"
+
+msgid "Demos"
+msgstr "演示"
+
+msgid "Descending"
+msgstr "降序"
+
+msgid "Description goes here... (optional)"
+msgstr "描述写在这里……（可选）"
+
+msgid "Deselect Answer Text"
+msgstr "取消选择答案的文本"
+
+msgid "Design quizzes and surveys tailored to your needs."
+msgstr "按您的需求设计测验与问卷。"
+
+msgid "Details not found"
+msgstr "未找到详情"
+
+msgid "Disable"
+msgstr "禁用"
+
+msgid "Disable Quiz Archive"
+msgstr "禁用测验归档"
+
+msgid "Disable Quiz Posts From Being Searched?"
+msgstr "禁止测验内容被搜索？"
+
+msgid "Disable Quiz Public link"
+msgstr "禁用测验公开链接"
+
+msgid "Disable collecting and storing IP addresses?"
+msgstr "禁用收集和存储IP地址？"
+
+msgid "Disabled"
+msgstr "已禁用"
+
+msgid "Dismiss"
+msgstr "忽略"
+
+msgid "Dismiss this notice."
+msgstr "忽略此提示。"
+
+msgid "Display Leaderboard URL to check position."
+msgstr "显示排行榜网址以查看名次。"
+
+msgid "Display User Position out of total results (ie. 15 out of 52)"
+msgstr "显示用户在全部结果中的排名（例如 52 人中的第 15 名）"
+
+msgid "Display a contact form after quiz"
+msgstr "测验后显示联系表单"
+
+msgid "Display piechart based on counts."
+msgstr "按次数显示饼图。"
+
+msgid "Display piechart based on points."
+msgstr "按分数显示饼图。"
+
+msgid "Display quiz rankings, leaderboards & results"
+msgstr "显示测验排名、排行榜与结果"
+
+msgid "Display the point based category barchart."
+msgstr "显示基于分数的分类柱状图。"
+
+msgid "Display the point based category piechart."
+msgstr "显示基于分数的分类饼图。"
+
+msgid "Display time after quiz submission."
+msgstr "在测验提交后显示时间。"
+
+msgid "Display time taken by user per page."
+msgstr "显示用户每页所花的时间。"
+
+msgid "Displays a range between two given option. Please keep only two option here and remove others."
+msgstr "显示两个给定选项之间的范围。请只保留两个选项并删除其他选项。"
+
+msgid "Displays a simple section on front end. Description is mandatory. "
+msgstr "在前端显示一个简单的分区。描述为必填项。 "
+
+msgid "Displays download button on the results page."
+msgstr "在结果页面显示下载按钮。"
+
+msgid "Do not allow"
+msgstr "不允许！"
+
+msgid "Do you want to continue and reset all the settings as per"
+msgstr "您想继续并按以下设置重置所有选项吗"
+
+msgid "Do you want to continue and reset all the settings?"
+msgstr "您想继续并重置所有设置吗？"
+
+msgid "Docs"
+msgstr "文档"
+
+msgid "Download sample CSV"
+msgstr "下载示例 CSV"
+
+msgid "Draft"
+msgstr "草稿"
+
+msgid "Drag & drop your CSV here"
+msgstr "将 CSV 拖放到此处"
+
+msgid "Drop Down"
+msgstr "下拉"
+
+msgid "Duplicate Quiz Controls"
+msgstr "测验复制控制"
+
+msgid "Duplicate questions also?"
+msgstr "重复同样的问题？"
+
+msgid "Duplicating question..."
+msgstr "正在复制题目……"
+
+msgid "Each answer is an object with text, points, correct, and feedback fields."
+msgstr "每个答案都是一个对象，包含 text、points、correct 与 feedback 字段。"
+
+msgid "Each individual form may have fields for a variety of other personal information, such as name and email. This data is needed to identify and possibly communicate with the user. There may be other fields asking for personal information and this data may be for different purposes for each quiz, survey, or form. If any data is to be used for purposes other than grading or survey purposes, this will be disclosed on the form itself."
+msgstr "每个单独的表单可能都有用于其他各种个人信息的字段，例如姓名和电子邮件。 需要此数据来识别用户并可能与用户联系。 可能还有其他字段要求提供个人信息，并且对于每个测验，调查或表格，此数据可能出于不同的目的。 如果将任何数据用于分级或调查以外的目的，则将在表单本身上进行披露。"
+
+msgid "Easily Export Quiz Data"
+msgstr "轻松导出测验数据"
+
+msgid "Easily and quickly add quizzes and surveys inside the block editor."
+msgstr "在区块编辑器中轻松快捷地添加测验与问卷。"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Edit Category"
+msgstr "编辑分类"
+
+msgid "Edit Name"
+msgstr "编辑名称"
+
+msgid "Edit Page"
+msgstr "编辑页面"
+
+msgid "Edit Question"
+msgstr "编辑题目"
+
+msgid "Edit button text, validation messages, and other interface labels to match your tone and terminology."
+msgstr "编辑按钮文字、验证消息与其他界面标签，使其符合您的语气与术语。"
+
+msgid "Edit in quiz builder"
+msgstr "在测验构建器中编辑"
+
+msgid "Edit question in QSM "
+msgstr "在 QSM 中编辑题目 "
+
+msgid "Effortlessly Export Quiz Data"
+msgstr "轻松导出测验数据"
+
+msgid "Email Content"
+msgstr "邮件内容"
+
+msgid "Email Field"
+msgstr "电子邮件字段"
+
+msgid "Email Subject"
+msgstr "邮件主题"
+
+msgid "Email Template "
+msgstr "邮件模板 "
+
+msgid "Email cannot be from a blocked domain ("
+msgstr "邮箱不能来自被屏蔽的域名（"
+
+msgid "Email field"
+msgstr "邮箱字段"
+
+msgid "Email must be a valid e-mail."
+msgstr "邮箱必须是有效的电子邮箱。"
+
+msgid "Email must be from an allowed domain ("
+msgstr "邮箱必须来自允许的域名（"
+
+msgid "Email:"
+msgstr "邮箱："
+
+msgid "Emails"
+msgstr "电子邮件"
+
+msgid "Emails are turned off. Please update "
+msgstr "邮件功能已关闭。请更新 "
+
+msgid "Emails were saved!"
+msgstr "邮件已保存！"
+
+msgid "Embed Iframe"
+msgstr "嵌入 Iframe"
+
+msgid "Embed Shortcode"
+msgstr "嵌入短代码"
+
+msgid "Empty Quiz ID."
+msgstr "测验 ID 为空。"
+
+msgid "Enable / Disable Field"
+msgstr "启用/禁用字段"
+
+msgid "Enable APIs"
+msgstr "启用 API"
+
+msgid "Enable New Render"
+msgstr "启用新版渲染"
+
+msgid "Enable QSM log"
+msgstr "启用 QSM 日志"
+
+msgid "Enable preloader"
+msgstr "启用预加载"
+
+msgid "Enable quiz duplication along with theme settings"
+msgstr "启用测验复制，同时复制主题设置"
+
+msgid "Enable server side validation"
+msgstr "启用服务器端验证"
+
+msgid "Enable this option to generate QSM error logs"
+msgstr "启用此选项以生成 QSM 错误日志"
+
+msgid "Enable this option to preload featured images in the quiz"
+msgstr "启用此选项以在测验中预加载特色图片"
+
+msgid "Enable this option to use new render"
+msgstr "启用此选项以使用新版渲染"
+
+msgid "Enabling this allows only logged in users to take the quiz"
+msgstr "启用后仅允许已登录用户参加测验"
+
+msgid "Enhance quiz display and functionality with the Extra Shortcodes Addon."
+msgstr "通过额外短代码附加组件增强测验的展示与功能。"
+
+msgid "Enhance user experience with flexible question formats"
+msgstr "以灵活的题型提升用户体验"
+
+msgid "Enhance your quiz with additional features using addons"
+msgstr "使用附加组件为测验增添更多功能"
+
+msgid "Enhance your quizzes with seamless integrations using the QSM Webhooks Addon."
+msgstr "使用 QSM Webhooks 附加组件，通过无缝集成增强您的测验。"
+
+msgid "Enter "
+msgstr "输入 "
+
+msgid "Enter Question title or description"
+msgstr "输入题目标题或描述"
+
+msgid "Enter a name for this Quiz."
+msgstr "为此测验输入名称。"
+
+msgid "Enter page no."
+msgstr "输入页码。"
+
+msgid "Enter question position."
+msgstr "输入题目位置。"
+
+msgid "Enter your email address to subscribe"
+msgstr "输入您的邮箱地址以订阅"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Error 0001 delete questions failed - question ID:"
+msgstr "错误 0001 删除题目失败 - 题目 ID："
+
+msgid "Error 0001 delete questions failed - question IDs:"
+msgstr "错误 0001 删除题目失败 - 题目 ID："
+
+msgid "Error 0001 submission failed - Quiz ID:"
+msgstr "错误 0001 提交失败 - 测验 ID："
+
+msgid "Error during migration batch: "
+msgstr "迁移批次出错： "
+
+msgid "Error during migration initialization: "
+msgstr "迁移初始化期间出错： "
+
+msgid "Error occured when trying to save the styles. Please try again."
+msgstr "尝试保存样式时发生错误。 请再试一遍。"
+
+msgid "Error to delete the result!"
+msgstr "删除结果时出错！"
+
+msgid "Error trying to reset stats. Please try again."
+msgstr "尝试重置统计信息时出错。 请再试一遍。"
+
+msgid "Every %d Minutes"
+msgstr "每 %d 分钟"
+
+msgid "Explore live examples of quizzes and surveys built with QSM to see its features in action."
+msgstr "浏览使用 QSM 构建的测验与问卷实时示例，了解其功能表现。"
+
+msgid "Export"
+msgstr "导出"
+
+msgid "Export Results"
+msgstr "导出结果"
+
+msgid "Export Results Addon required"
+msgstr "需要导出结果附加组件"
+
+msgid "Export quizzes and settings in a single click"
+msgstr "一键导出测验与设置"
+
+msgid "Export responses to CSV for analysis"
+msgstr "将回答导出为 CSV 以供分析"
+
+msgid "Extensions"
+msgstr "扩展"
+
+msgid "Extensions Settings"
+msgstr "扩展设置"
+
+msgid "FAQ"
+msgstr "常见问题"
+
+msgid "Facebbok Share"
+msgstr "Facebook 分享"
+
+msgid "Facebook"
+msgstr "Facebook"
+
+msgid "Facebook App Id"
+msgstr "Facebook应用程序ID"
+
+msgid "Facebook Sharing Text"
+msgstr "Facebook 分享文本"
+
+msgid "Failed DB Query Table"
+msgstr "数据库查询失败：表"
+
+msgid "Failed Database Queries"
+msgstr "失败的数据库查询"
+
+msgid "Failed Submission"
+msgstr "提交失败"
+
+msgid "Failed Submissions"
+msgstr "提交失败"
+
+msgid "Failed to create quiz."
+msgstr "创建测验失败。"
+
+msgid "Failed to create quiz. Function not found"
+msgstr "创建测验失败。未找到相应函数"
+
+msgid "Failed to insert template."
+msgstr "插入模板失败。"
+
+msgid "Failed to remove the template."
+msgstr "删除模板失败。"
+
+msgid "Failed to update template."
+msgstr "更新模板失败。"
+
+msgid "Featured Image (Optional)"
+msgstr "特色图片（可选）"
+
+msgid "Featured image updated successfully."
+msgstr "特色图片更新成功。"
+
+msgid "File Settings"
+msgstr "文件设置"
+
+msgid "File Upload"
+msgstr "文件上传"
+
+msgid "File Upload Unsuccessful! (Please select file type)"
+msgstr "文件上传失败！（请选择文件类型）"
+
+msgid "File Upload Unsuccessful! (Please upload "
+msgstr "文件上传失败！（请上传 "
+
+msgid "File is not uploaded!"
+msgstr "文件未上传！"
+
+msgid "File is too large. File must be less than "
+msgstr "文件过大。文件必须小于 "
+
+msgid "Fill In The Blank"
+msgstr "填空题"
+
+msgid "Filter"
+msgstr "筛选"
+
+msgid "Finalizing migration, retrying failed results..."
+msgstr "正在完成迁移，重试失败的结果……"
+
+msgid "Find detailed guides and step-by-step instructions to help you explore and utilize all the features of the QSM plugin effectively."
+msgstr "查找详细指南与分步说明，帮助您高效地探索并使用 QSM 插件的全部功能。"
+
+msgid "Fine-tune the visual details of your quiz or survey."
+msgstr "微调测验或问卷的视觉细节。"
+
+msgid "Following conditions are met"
+msgstr "满足以下条件"
+
+msgid "For fill in the blank types, use %BLANK% to represent where to put the text box in your text."
+msgstr "为了填充空白类型，请使用％BLANK％表示将文本框放在文本中的位置。"
+
+msgid "For this question type, users will see a Captcha field on front end."
+msgstr "对于此题型，用户在前端会看到一个验证码字段。"
+
+msgid "For this question type, users will see a checkbox on front end. The text in description field will act like it's label."
+msgstr "对于此题型，用户在前端会看到一个复选框。描述字段中的文本将作为它的标签。"
+
+msgid "For this question type, users will see a date input field on front end."
+msgstr "对于此题型，用户在前端会看到一个日期输入字段。"
+
+msgid "For this question type, users will see a file upload field on front end."
+msgstr "对于此题型，用户在前端会看到一个文件上传字段。"
+
+msgid "For this question type, users will see a standard input box on front end."
+msgstr "对于此题型，用户在前端会看到一个标准的输入框。"
+
+msgid "For this question type, users will see a standard textarea input box on front end."
+msgstr "对于此题型，用户在前端会看到一个标准的多行文本输入框。"
+
+msgid "For this question type, users will see an input box which accepts only number values on front end."
+msgstr "对于此题型，用户在前端会看到一个只接受数字值的输入框。"
+
+msgid "Form Name"
+msgstr "表单名"
+
+msgid "Form Responses"
+msgstr "表单回答"
+
+msgid "Form Type"
+msgstr "表单类型"
+
+msgid "Form comments"
+msgstr "表单评论"
+
+msgid "Format data as JSON, XML, or Form Data to fit your needs."
+msgstr "将数据格式化为 JSON、XML 或表单数据，以满足您的需求。"
+
+msgid "Free Add-ons"
+msgstr "免费附加组件"
+
+msgid "From Email (The email address that emails come from)"
+msgstr "发件人邮箱（电子邮件地址）"
+
+msgid "From Name (The name emails come from)"
+msgstr "发件人姓名（来自的电子邮件的名称）"
+
+msgid "Gain Powerful Insights with In-Depth Reports"
+msgstr "通过深度报告获得强大洞察"
+
+msgid "Generate Key"
+msgstr "生成密钥"
+
+msgid "Get Latest QSM Installer"
+msgstr "获取最新版 QSM 安装包"
+
+msgid "Get Questions"
+msgstr "获取题目"
+
+msgid "Get Result"
+msgstr "获取结果"
+
+msgid "Get Started"
+msgstr "快速上手"
+
+msgid "Get This Addon"
+msgstr "获取此附加组件"
+
+msgid "Get Your Free Extension!"
+msgstr "获取您的免费扩展！"
+
+msgid "Get expert answers to your questions about features, pricing, or installation of Quiz and Survey Master."
+msgstr "获取关于 Quiz and Survey Master 功能、价格或安装问题的专家解答。"
+
+msgid "Get now"
+msgstr "立即获取"
+
+msgid "Get quick answers to commonly asked questions about QSM, covering troubleshooting, setup, and best practices."
+msgstr "快速获取关于 QSM 的常见问题解答，涵盖故障排查、设置与最佳实践。"
+
+msgid "Get support"
+msgstr "获取支持"
+
+msgid "Get this add-on "
+msgstr "获取此附加组件 "
+
+msgid "Getting Started"
+msgstr "快速上手"
+
+msgid "Getting your addon is dead simple: just subscribe to our newsletter and then you will get the free addon by e-mail. We will not spam you. We usually send out newsletters to talk about new features in "
+msgstr "获取附加组件非常简单：只需订阅我们的电子报，即可通过邮件收到免费附加组件。我们不会向您发送垃圾邮件。我们通常发送电子报介绍新功能， "
+
+msgid "Github"
+msgstr "GitHub"
+
+msgid "Give Your Quiz a Name to Get Started!"
+msgstr "为您的测验起个名字即可开始！"
+
+msgid "Global Settings"
+msgstr "全局设置"
+
+msgid "Go Beyond Standard Questions"
+msgstr "超越标准题型"
+
+msgid "Go Beyond Standard Quizzes"
+msgstr "超越标准测验"
+
+msgid "Grab the Bundle & Save 90%"
+msgstr "获取套装立省 90%"
+
+msgid "Great start!"
+msgstr "好的开始！"
+
+msgid "Guest"
+msgstr "访客"
+
+msgid "Guided Wizard"
+msgstr "引导式向导"
+
+msgid "Help"
+msgstr "帮助"
+
+msgid "Here you can configure advanced settings for this question."
+msgstr "在此处可以为本题配置高级设置。"
+
+msgid "Hide Additional Settings"
+msgstr "隐藏附加设置"
+
+msgid "Hide Hint"
+msgstr "隐藏提示"
+
+msgid "Hide Label?"
+msgstr "隐藏标签？"
+
+msgid "Hide Previous Button?"
+msgstr "隐藏“上一页”按钮？"
+
+msgid "Hide Previous button"
+msgstr "隐藏“上一页”按钮"
+
+msgid "Hide advance options «"
+msgstr "隐藏高级选项 «"
+
+msgid "Home URL:"
+msgstr "首页网址："
+
+msgid "How long we retain your data"
+msgstr "我们保留您的数据多久"
+
+msgid "How many minutes does the user have to finish the page?"
+msgstr "用户需要多少分钟完成本页面？"
+
+msgid "I've already reviewed"
+msgstr "我已审阅过"
+
+msgid "ID of the newly created question."
+msgstr "新创建题目的 ID。"
+
+msgid "ID of the quiz this question belongs to."
+msgstr "本题所属测验的 ID。"
+
+msgid "ID of the quiz to add the question to."
+msgstr "要添加题目的测验 ID。"
+
+msgid "ID of the quiz whose questions to retrieve."
+msgstr "要获取题目的测验 ID。"
+
+msgid "If QSM has been helpful so far, would you consider leaving a quick review on WordPress?"
+msgstr "如果 QSM 对您有所帮助，是否愿意在 WordPress 上留下一条简短评价？"
+
+msgid "If the issue persists, contact our support team for assistance."
+msgstr "如果问题仍然存在，请联系我们的支持团队寻求帮助。"
+
+msgid "If you're using a cache plugin, please exclude the page from your cache where you're about to use the quiz's shortcode to avoid"
+msgstr "如果您使用了缓存插件，请将即将插入测验短代码的页面排除在缓存之外，以避免"
+
+msgid "Image Caption"
+msgstr "图片说明"
+
+msgid "Import quizzes seamlessly across sites"
+msgstr "在站点之间无缝导入测验"
+
+msgid "Important"
+msgstr "重要"
+
+msgid "In order to distinguish individual users, IP addresses are collected and stored with the responses."
+msgstr "为了区分各个用户，将收集IP地址并将其与响应一起存储。"
+
+msgid "Inactive"
+msgstr "未激活"
+
+msgid "Incorrect answer message"
+msgstr "错误答案消息"
+
+msgid "Incorrect database structure!"
+msgstr "数据库结构不正确！"
+
+msgid "Incorrect username or password! Please try again."
+msgstr "用户名或密码不正确！请重试。"
+
+msgid "Initial Version : "
+msgstr "初始版本： "
+
+msgid "Insert"
+msgstr "插入"
+
+msgid "Insert Image"
+msgstr "插入图片"
+
+msgid "Insert QSM variables"
+msgstr "插入 QSM 变量"
+
+msgid "Install & Activate"
+msgstr "安装并激活"
+
+msgid "Installed"
+msgstr "已安装"
+
+msgid "Installed Addons"
+msgstr "已安装的附加组件"
+
+msgid "Installed Version"
+msgstr "已安装版本"
+
+msgid "Installing..."
+msgstr "正在安装……"
+
+msgid "Invalid Captcha"
+msgstr "验证码无效"
+
+msgid "Invalid IP Address"
+msgstr "无效的 IP 地址"
+
+msgid "Invalid Item ID"
+msgstr "无效的条目 ID"
+
+msgid "Invalid URL"
+msgstr "无效网址"
+
+msgid "Invalid URL error message"
+msgstr "无效网址错误消息"
+
+msgid "Invalid ability execution method."
+msgstr "无效的能力执行方式。"
+
+msgid "Invalid email"
+msgstr "无效邮箱"
+
+msgid "Invalid email error message"
+msgstr "无效邮箱错误消息"
+
+msgid "Invalid nonce."
+msgstr "无效的 nonce。"
+
+msgid "Invalid nonce. Action not authorized."
+msgstr "无效的 nonce。操作未获授权。"
+
+msgid "Invalid nonce. Busted."
+msgstr "无效的 nonce。"
+
+msgid "Invalid number"
+msgstr "无效的数字"
+
+msgid "Invalid number error message"
+msgstr "无效数字错误消息"
+
+msgid "Invalid or missing input."
+msgstr "输入无效或缺失。"
+
+msgid "Invalid question ID."
+msgstr "无效的题目 ID。"
+
+msgid "Invalid quiz id"
+msgstr "无效的测验 ID"
+
+msgid "Invalid request"
+msgstr "无效请求"
+
+msgid "Invalid template ID."
+msgstr "无效的模板 ID。"
+
+msgid "Items per page in question bank pagination"
+msgstr "题库分页中每页显示的条目数"
+
+msgid "June 15, 2023"
+msgstr "2023 年 6 月 15 日"
+
+msgid "June 15, 2023 "
+msgstr "2023 年 6 月 15 日 "
+
+msgid "Label"
+msgstr "标签"
+
+msgid "Labels"
+msgstr "标签"
+
+msgid "Language: "
+msgstr "语言： "
+
+msgid "Last Modified"
+msgstr "上一次更改"
+
+msgid "Leave 0 for no time limit"
+msgstr "留 0 表示没有时间限制"
+
+msgid "Leave blank for no date limit"
+msgstr "留空表示没有日期限制"
+
+msgid "Leave blank to allow all domains. "
+msgstr "留空即允许所有域名。 "
+
+msgid "Left Label"
+msgstr "左侧标签"
+
+msgid "Left Range"
+msgstr "左侧区间"
+
+msgid "Left range and right range should be different"
+msgstr "左侧区间与右侧区间不能相同"
+
+msgid "License Key Expired. "
+msgstr "许可证密钥已过期。 "
+
+msgid "License doesn't exist"
+msgstr "许可证不存在"
+
+msgid "License has expired"
+msgstr "许可证已过期"
+
+msgid "License key revoked"
+msgstr "许可证密钥已被撤销"
+
+msgid "License validated Successfully"
+msgstr "许可证验证成功"
+
+msgid "Limit questions"
+msgstr "限制题目数量"
+
+msgid "Limit submissions based on email address"
+msgstr "根据邮箱地址限制提交次数"
+
+msgid "Line %1$d: Answer row found before any question row."
+msgstr "第 %1$d 行：在任何题目行之前先出现了答案行。"
+
+msgid "Line %1$d: Question text is required."
+msgstr "第 %1$d 行：题目文本为必填项。"
+
+msgid "Line %1$d: Unknown item type \"%2$s\"."
+msgstr "第 %1$d 行：未知的条目类型“%2$s”。"
+
+msgid "Link Shortcode"
+msgstr "链接短代码"
+
+msgid "Linkedin Share"
+msgstr "LinkedIn 分享"
+
+msgid "Linkedin Sharing Text"
+msgstr "LinkedIn 分享文本"
+
+msgid "Linking..."
+msgstr "正在关联……"
+
+msgid "List"
+msgstr "列表"
+
+msgid "List Questions"
+msgstr "列出题目"
+
+msgid "List Quizzes"
+msgstr "列出测验"
+
+msgid "List of Questions removed from the quizzes"
+msgstr "从测验中移除的题目列表"
+
+msgid "List of deleted Quiz Results from the quiz result page"
+msgstr "从测验结果页面列出已删除的测验结果"
+
+msgid "Load more questions"
+msgstr "加载更多题目"
+
+msgid "Loading questions…"
+msgstr "正在加载题目……"
+
+msgid "Make the first option default selection?"
+msgstr "将第一个选项设为默认选中？"
+
+msgid "Make your quizzes more engaging with the Advanced Question Types Addon."
+msgstr "使用高级题型附加组件让您的测验更具吸引力。"
+
+msgid "Manage "
+msgstr "管理 "
+
+msgid "Manage quiz results with the Export Results Addon."
+msgstr "使用导出结果附加组件管理测验结果。"
+
+msgid "Manage the text shown to users at different stages of the quiz."
+msgstr "管理测验不同阶段向用户展示的文本。"
+
+msgid "Many of our quizzes, surveys, and forms are created using Quiz And Survey Master."
+msgstr "我们的许多测验，调查和表单都是使用 Quiz And Survey Master创建的。"
+
+msgid "Mark new questions as required"
+msgstr "将新题目标记为必填"
+
+msgid "Matching Pairs"
+msgstr "配对题"
+
+msgid "Max Length"
+msgstr "最大长度"
+
+msgid "Maximum Length"
+msgstr "最大长度"
+
+msgid "Maximum length error message"
+msgstr "最大长度错误消息"
+
+msgid "Maximum number of quizzes to return."
+msgstr "返回的测验数量上限。"
+
+msgid "Maximum points of the question"
+msgstr "题目的最高分数"
+
+msgid "Maximum possible points one can score"
+msgstr "可获得的最大可能分数"
+
+msgid "Memory Limit: "
+msgstr "内存限制： "
+
+msgid "Migration"
+msgstr "迁移"
+
+msgid "Migration Notice:"
+msgstr "迁移提示："
+
+msgid "Migration completed successfully!"
+msgstr "迁移已成功完成！"
+
+msgid "Migration in progress..."
+msgstr "迁移进行中……"
+
+msgid "Migration initiated. Starting batch processing."
+msgstr "迁移已启动。开始分批处理。"
+
+msgid "Migration is currently disabled due to version compatibility requirements."
+msgstr "由于版本兼容性要求，迁移当前已禁用。"
+
+msgid "Migration started..."
+msgstr "迁移已开始……"
+
+msgid "Migration stopped due to an error. Check browser console and server logs for details."
+msgstr "迁移因错误而停止。请查看浏览器控制台与服务器日志以了解详情。"
+
+msgid "Min Length"
+msgstr "最小长度"
+
+msgid "Minimum Length"
+msgstr "最小长度"
+
+msgid "Minimum length error message"
+msgstr "最小长度错误消息"
+
+msgid "Minimum possible points one can score"
+msgstr "可获得的最小可能分数"
+
+msgid "Missing Feature - Advanced Assessment Add-on required"
+msgstr "缺少功能 - 需要高级评估附加组件"
+
+msgid "Missing Feature - Quiz Proctor Add-on required"
+msgstr "缺少功能 - 需要测验监考附加组件"
+
+msgid "Missing Feature - webhook Add-On required"
+msgstr "缺少功能 - 需要 Webhook 附加组件"
+
+msgid "Missing Input"
+msgstr "缺少输入"
+
+msgid "Missing input"
+msgstr "缺少输入"
+
+msgid "Missing or incorrect input"
+msgstr "输入缺失或不正确"
+
+msgid "Missing question ID."
+msgstr "缺少题目 ID。"
+
+msgid "Missing quiz_id or post_id"
+msgstr "缺少 quiz_id 或 post_id"
+
+msgid "Monthly"
+msgstr "每月"
+
+msgid "Move"
+msgstr "移动"
+
+msgid "Move Question To"
+msgstr "将题目移动到"
+
+msgid "Move quizzes effortlessly with the Export & Import Addon."
+msgstr "使用导出与导入附加组件轻松迁移测验。"
+
+msgid "Multiple Choice"
+msgstr "多选题"
+
+msgid "Multiple Choice (Horizontal)"
+msgstr "多项选择（横向）"
+
+msgid "Multiple Response"
+msgstr "多选"
+
+msgid "Multiple Response (Horizontal)"
+msgstr "多项选择（横向）"
+
+msgid "Multisite: "
+msgstr "多站点： "
+
+msgid "Must Use"
+msgstr "必须使用"
+
+msgid "My Templates"
+msgstr "我的模板"
+
+msgid "MySQL : "
+msgstr "MySQL： "
+
+msgid "Name Field"
+msgstr "名称字段"
+
+msgid "Name Of New Quiz Or Survey:"
+msgstr "输入新测验/调查名称"
+
+msgid "Name field"
+msgstr "姓名字段"
+
+msgid "Name:"
+msgstr "姓名："
+
+msgid "Need further assistance? Reach out to our support team for personalized help with any issues or queries related to QSM."
+msgstr "还需要更多帮助？请联系我们的支持团队，获取针对 QSM 相关任何问题或疑问的个性化协助。"
+
+msgid "Need help with QSM Setup?"
+msgstr "需要 QSM 设置方面的帮助？"
+
+msgid "New Category Name"
+msgstr "新分类名称"
+
+msgid "New Quiz"
+msgstr "新测验"
+
+msgid "New Template"
+msgstr "新建模板"
+
+msgid "New Template For Admin Results Details"
+msgstr "管理端结果详情的新模板"
+
+msgid "Next button"
+msgstr "下一页按钮"
+
+msgid "No %s templates found."
+msgstr "未找到 %s 个模板。"
+
+msgid "No Answer Provided"
+msgstr "未提供答案"
+
+msgid "No Answer Text"
+msgstr "无答案文本"
+
+msgid "No CSV file was uploaded."
+msgstr "未上传任何 CSV 文件。"
+
+msgid "No Questions found!!"
+msgstr "未找到任何题目！！"
+
+msgid "No Quiz Found"
+msgstr "找不到测验"
+
+msgid "No Quiz Found In Trash"
+msgstr "回收站中未找到测验"
+
+msgid "No Variable Found"
+msgstr "未找到变量"
+
+msgid "No activations left"
+msgstr "没有剩余激活次数"
+
+msgid "No data found!!"
+msgstr "未找到数据！！"
+
+msgid "No deleted quizzes found!!"
+msgstr "未找到已删除的测验！！"
+
+msgid "No deleted results found!"
+msgstr "未找到已删除的结果！"
+
+msgid "No failed results to reprocess."
+msgstr "没有需要重新处理的失败结果。"
+
+msgid "No file uploaded"
+msgstr "未上传文件"
+
+msgid "No more results to process in this batch."
+msgstr "本批次中没有更多结果需要处理。"
+
+msgid "No more themes found."
+msgstr "未找到更多主题。"
+
+msgid "No question found in this given question id."
+msgstr "在给定的题目 ID 中未找到题目。"
+
+msgid "No question is selected."
+msgstr "未选择任何题目。"
+
+msgid "No question results found for the provided search."
+msgstr "未找到与所提供搜索匹配的题目结果。"
+
+msgid "No questions are available for the given quiz id."
+msgstr "指定的测验 ID 没有可用题目。"
+
+msgid "No questions found for the specified criteria"
+msgstr "未找到符合指定条件的题目"
+
+msgid "No questions found for this quiz."
+msgstr "未找到此测验的题目。"
+
+msgid "No questions were found in the uploaded file."
+msgstr "在上传的文件中未找到任何题目。"
+
+msgid "No quiz found"
+msgstr "未找到测验"
+
+msgid "No quiz results available.found for the specified criteria."
+msgstr "未找到符合指定条件的测验结果。"
+
+msgid "No quizzes found for the specified criteria"
+msgstr "未找到符合指定条件的测验"
+
+msgid "No recent activity found."
+msgstr "未找到近期活动。"
+
+msgid "No recent logs"
+msgstr "无近期日志"
+
+msgid "No record found."
+msgstr "没有找到记录。"
+
+msgid "No results found for the specified criteria"
+msgstr "未找到符合指定条件的结果"
+
+msgid "No search results found based on the provided email."
+msgstr "未找到与所提供邮箱匹配的搜索结果。"
+
+msgid "No search results found based on the provided name."
+msgstr "未找到与所提供名称匹配的搜索结果。"
+
+msgid "No search results found based on the provided quiz name."
+msgstr "未找到符合所提供测验名称的搜索结果。"
+
+msgid "No search results found based on the quiz id."
+msgstr "未找到与测验 ID 匹配的搜索结果。"
+
+msgid "No sensitive data is tracked. Only feature usage and data about quizzes, surveys, and questions are collected. No questions or user responses is ever collected."
+msgstr "没有跟踪敏感数据。 仅收集功能使用情况以及有关测验，调查和问题的数据。 从未收集任何问题或用户回复。"
+
+msgid "No settings found"
+msgstr "未找到设置"
+
+msgid "No. of Questions"
+msgstr "题目数量"
+
+msgid "Nonce Validation Issue."
+msgstr "Nonce 验证问题。"
+
+msgid "Nonce Validation failed!"
+msgstr "Nonce 验证失败！"
+
+msgid "Nonce verification failed!"
+msgstr "Nonce 验证失败！"
+
+msgid "Not Installed"
+msgstr "未安装"
+
+msgid "Not collected"
+msgstr "未收集"
+
+msgid "Not send email if already sent"
+msgstr "如已发送则不重复发送邮件"
+
+msgid "Note: Add only correct answer options with their respective points score."
+msgstr "注意：仅添加正确的答案选项及其对应的分数。"
+
+msgid "Now you can customize logic and behavior to unlock its full potential."
+msgstr "现在您可以自定义逻辑与行为，充分发挥其潜力。"
+
+msgid "Now you can easily customize the appearance"
+msgstr "现在您可以轻松自定义外观"
+
+msgid "Number of <strong>%BLANK%</strong> should be equal to options for sequential matching"
+msgstr "<strong>%BLANK%</strong> 的数量应与顺序匹配的选项数量相等"
+
+msgid "Number of quizzes to skip for pagination."
+msgstr "分页时需要跳过的测验数量。"
+
+msgid "OR"
+msgstr "或"
+
+msgid "Old Template"
+msgstr "旧模板"
+
+msgid "Only .csv files are supported for bulk import."
+msgstr "批量导入仅支持 .csv 文件。"
+
+msgid "Opt-in"
+msgstr "选择性加入"
+
+msgid "Optimize quiz results with data-driven decisions"
+msgstr "用数据驱动的决策优化测验结果"
+
+msgid "Option-1, Option-2, Option-3"
+msgstr "选项-1、选项-2、选项-3"
+
+msgid "Optional question settings such as required, points, category."
+msgstr "可选的题目设置，例如必填、分数、分类。"
+
+msgid "Order By"
+msgstr "排序"
+
+msgid "Other Answer Settings"
+msgstr "其他答案设置"
+
+msgid "Other Answer Settings:"
+msgstr "其他答案设置："
+
+msgid "Out of"
+msgstr "，共"
+
+msgid "Output Rules"
+msgstr "输出规则"
+
+msgid "Override the default pagination created on questions tab"
+msgstr "覆盖在题目标签页中创建的默认分页"
+
+msgid "PHP : "
+msgstr "PHP： "
+
+msgid "Page %1$s of %2$s"
+msgstr "第 %1$s 页，共 %2$s 页"
+
+msgid "Page Name is required!"
+msgstr "页面名称为必填项！"
+
+msgid "Page No."
+msgstr "页码"
+
+msgid "Page Timer"
+msgstr "页面计时器"
+
+msgid "Page settings"
+msgstr "页面设置"
+
+msgid "Pages"
+msgstr "页面"
+
+msgid "Paragraph"
+msgstr "段落"
+
+msgid "Parent Category "
+msgstr "父分类 "
+
+msgid "Parent Category:"
+msgstr "父分类："
+
+msgid "Parent Quiz:"
+msgstr "上级测验:"
+
+msgid "Parent Theme: "
+msgstr "父主题： "
+
+msgid "Percentage:"
+msgstr "百分比："
+
+msgid "Permalink Structure: "
+msgstr "固定链接结构： "
+
+msgid "Personalize quiz pages with flexible shortcode options"
+msgstr "用灵活短代码选项个性化测验页面"
+
+msgid "Personalize the look and feel of your quizzes and surveys effortlessly."
+msgstr "轻松个性化您的测验与问卷的外观与观感。"
+
+msgid "Phone Field"
+msgstr "电话字段"
+
+msgid "Phone Pattern"
+msgstr "电话号码格式"
+
+msgid "Phone number field"
+msgstr "电话号码字段"
+
+msgid "Phone:"
+msgstr "电话："
+
+msgid "Pick a Free or Premium theme to personalize your quiz experience."
+msgstr "选择免费或高级主题，个性化您的测验体验。"
+
+msgid "Placeholder"
+msgstr "占位符"
+
+msgid "Please activate the WooCommerce plugin to proceed."
+msgstr "请激活 WooCommerce 插件以继续。"
+
+msgid "Please complete your sign in."
+msgstr "请完成登录。"
+
+msgid "Please enable contact Email field to use this feature. <a href=\"%s\" target=\"_blank\">Go to Contact tab</a>"
+msgstr "请启用联系邮箱字段以使用此功能。<a href=\"%s\" target=\"_blank\">前往联系标签页</a>"
+
+msgid "Please enter an appropriate value for 'X'"
+msgstr "请为“X”输入一个合适的值"
+
+msgid "Please enter both a username and a password."
+msgstr "请同时输入用户名与密码。"
+
+msgid "Please fill in your name and email."
+msgstr "请填写您的姓名与邮箱。"
+
+msgid "Please go to the quizzes page and click on the Edit link from the quiz you wish to edit."
+msgstr "请到测验页面，并单击从您要编辑的测验编辑链接。"
+
+msgid "Please note that this action is not reversible."
+msgstr "请注意此操作不可撤销。"
+
+msgid "Please note: If you are using any cache plugins, please remember to exclude your quiz pages from cache to prevent."
+msgstr "请注意：如果您使用了任何缓存插件，请记得将测验页面排除在缓存之外以避免此问题。"
+
+msgid "Please reactivate the related add-ons to make sure the quiz works as expected."
+msgstr "请重新激活相关附加组件，以确保测验按预期运行。"
+
+msgid "Please select a CSV file to upload."
+msgstr "请选择一个要上传的 CSV 文件。"
+
+msgid "Please select a valid bulk action."
+msgstr "请选择一个有效的批量操作。"
+
+msgid "Please selecte a template."
+msgstr "请选择一个模板。"
+
+msgid "Please try again"
+msgstr "请重试"
+
+msgid "Please update the addons listed below to continue with the migration."
+msgstr "请更新下列附加组件以继续迁移。"
+
+msgid "Please use only Alphanumeric characters."
+msgstr "请仅使用字母与数字字符。"
+
+msgid "Please use the new template variables instead.%FACEBOOK_SHARE% %TWITTER_SHARE% %LINKEDIN_SHARE%"
+msgstr "请改用新的模板变量。%FACEBOOK_SHARE% %TWITTER_SHARE% %LINKEDIN_SHARE%"
+
+msgid "Plugins Information"
+msgstr "插件信息"
+
+msgid "Points Earned"
+msgstr "获得积分"
+
+msgid "Points:"
+msgstr "分数："
+
+msgid "Polar"
+msgstr "极性"
+
+msgid "Poll Result"
+msgstr "投票结果"
+
+msgid "Popular Themes"
+msgstr "热门主题"
+
+msgid "Post Type Plural Name (Shown in various places such as on archive pages)"
+msgstr "文章类型复数名称（在各个位置显示，例如在存档页面上）"
+
+msgid "Preferred date format:"
+msgstr "首选日期格式："
+
+msgid "Prevent accidental page reloads"
+msgstr "防止页面意外重新加载"
+
+msgid "Previous button"
+msgstr "上一页按钮"
+
+msgid "Price: "
+msgstr "价格： "
+
+msgid "Proceed"
+msgstr "继续"
+
+msgid "Process emails in background?"
+msgstr "在后台处理邮件？"
+
+msgid "Processed"
+msgstr "已处理"
+
+msgid "Processing your quiz..."
+msgstr "正在处理您的测验……"
+
+msgid "Processing..."
+msgstr "正在处理……"
+
+msgid "Progress bar based on number of pages"
+msgstr "基于页面数量的进度条"
+
+msgid "Provide a hint to guide users before answering."
+msgstr "提供提示以引导用户在作答前思考。"
+
+msgid "Provide your email address to subscribe. For e.g abc@xyz.com"
+msgstr "请提供您的邮箱地址以订阅。例如 abc@xyz.com"
+
+msgid "Publish"
+msgstr "发布"
+
+msgid "Publish Quiz"
+msgstr "发布测验"
+
+msgid "Published"
+msgstr "已发布"
+
+msgid "Published / Draft"
+msgstr "已发布/草稿"
+
+msgid "QSM"
+msgstr "QSM"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today OR you can buy Advanced Question Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%，或者您可以单独购买高级题目附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today OR you can buy Export & Import Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%，或者您可以单独购买导出与导入附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today OR you can buy QSM Extra Shortodes Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%，或者您可以单独购买 QSM 额外短代码附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today OR you can buy Quiz Proctor Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%，或者您可以单独购买测验监考附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today. OR you can buy Export Results Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%。您也可以单独购买导出结果附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today. OR you can buy Proctoring Quiz Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%。您也可以单独购买监考测验附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today. OR you can buy Reporting & Analysis Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%。您也可以单独购买报告与分析附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today. OR you can buy Ultimate Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%。您也可以单独购买终极版附加组件。"
+
+msgid "QSM Addon Bundle is the best way to get all our add-ons at a discount. Upgrade to save 95% today. OR you can buy Webhooks Addon separately."
+msgstr "QSM 附加组件套装是以折扣价获取我们全部附加组件的最佳方式。今天升级即可节省 95%。您也可以单独购买 Webhooks 附加组件。"
+
+msgid "QSM Information"
+msgstr "QSM 信息"
+
+msgid "QSM Question Bank"
+msgstr "QSM 题库"
+
+msgid "QSM Questions"
+msgstr "QSM 题目"
+
+msgid "QSM Quizzes"
+msgstr "QSM 测验"
+
+msgid "QSM Recent Logs"
+msgstr "QSM 近期日志"
+
+msgid "QSM Team"
+msgstr "QSM 团队"
+
+msgid "QSM Templates"
+msgstr "QSM 模板"
+
+msgid "QSM Themes"
+msgstr "QSM 主题"
+
+msgid "QSM Tools"
+msgstr "QSM 工具"
+
+msgid "QSM Variables"
+msgstr "QSM 变量"
+
+msgid "Query"
+msgstr "查询"
+
+msgid "Question"
+msgstr "题目"
+
+msgid "Question %1$d: Unable to determine question type."
+msgstr "第 %1$d 题：无法确定题型。"
+
+msgid "Question ID"
+msgstr "题目 ID"
+
+msgid "Question Name"
+msgstr "题目名称"
+
+msgid "Question Position"
+msgstr "题目位置"
+
+msgid "Question Title"
+msgstr "题目标题"
+
+msgid "Question Types"
+msgstr "题型"
+
+msgid "Question created!"
+msgstr "题目已创建！"
+
+msgid "Question delete failed! Invalid question ID."
+msgstr "题目删除失败！无效的题目 ID。"
+
+msgid "Question is unlinked from all quizzes."
+msgstr "题目已与所有测验解除关联。"
+
+msgid "Question not found!"
+msgstr "未找到题目！"
+
+msgid "Question removed Successfully."
+msgstr "题目已成功移除。"
+
+msgid "Question settings (required, category, points, etc.)."
+msgstr "题目设置（必填、分类、分数等）。"
+
+msgid "Question shuffled successfully!"
+msgstr "题目打乱成功！"
+
+msgid "Question text."
+msgstr "题目文本。"
+
+msgid "Question type"
+msgstr "题型"
+
+msgid "Question type: \"0\"=multiple choice, \"1\"=true/false, \"8\"=open-ended."
+msgstr "题型：\"0\"=多项选择，\"1\"=判断对错，\"8\"=开放式问答。"
+
+msgid "Question was saved!"
+msgstr "题目已保存！"
+
+msgid "Questions Answered Correctly"
+msgstr "正确回答的问题"
+
+msgid "Questions and pages were saved!"
+msgstr "题目与页面已保存！"
+
+msgid "Questions removed Successfully."
+msgstr "题目已成功移除。"
+
+msgid "Questions will load only from selected categories."
+msgstr "题目只会从所选分类中加载。"
+
+msgid "Quiz And Survey Master Snapshot"
+msgstr "QSM快照"
+
+msgid "Quiz And Survey Master does not send any of your data to anywhere outside of this site by default."
+msgstr "默认情况下，Quiz And Survey Master 不会将您的任何数据发送到该网站之外的任何地方。"
+
+msgid "Quiz And Survey Master is a leading WordPress plugin developed by a dedicated team of developers and educational experts. Our mission is to help individuals and organizations create engaging and effective quizzes and surveys that enhance learning and gather valuable insights. With a focus on user experience and flexibility, our plugin is designed to meet the needs of educators, marketers, and businesses alike. Quiz And Survey Master is a powerful and intuitive WordPress plugin that allows users to create a wide range of quizzes and surveys effortlessly."
+msgstr "Quiz And Survey Master 是一款领先的 WordPress 插件，由专业的开发团队与教育专家共同打造。我们的使命是帮助个人与机构创建引人入胜且高效实用的测验与问卷，以促进学习并获取有价值的洞察。我们注重用户体验与灵活性，插件可满足教育工作者、营销人员与企业用户的多样需求。Quiz And Survey Master 功能强大、操作直观，让您轻松创建各类测验与问卷。"
+
+msgid "Quiz And Survey Submissions"
+msgstr "测验和调查提交"
+
+msgid "Quiz Archive Settings"
+msgstr "测验归档设置"
+
+msgid "Quiz Default Options"
+msgstr "测验默认选项"
+
+msgid "Quiz Default Template"
+msgstr "测验默认模板"
+
+msgid "Quiz Expired!"
+msgstr "测验已过期！"
+
+msgid "Quiz Has Been Deleted!"
+msgstr "测验已被删除！"
+
+msgid "Quiz Has Been Restored!"
+msgstr "测验已恢复！"
+
+msgid "Quiz ID"
+msgstr "测验 ID"
+
+msgid "Quiz ID not found in options or quiz_data"
+msgstr "在选项或 quiz_data 中未找到测验 ID"
+
+msgid "Quiz Not Found"
+msgstr "未找到测验"
+
+msgid "Quiz Result"
+msgstr "测验结果"
+
+msgid "Quiz Result Not Available"
+msgstr "测验结果不可用"
+
+msgid "Quiz Results for"
+msgstr "测验结果属于"
+
+msgid "Quiz Styles"
+msgstr "测验样式"
+
+msgid "Quiz Submissions"
+msgstr "测验提交"
+
+msgid "Quiz Submit/Processing Message"
+msgstr "测验提交/处理中消息"
+
+msgid "Quiz Url Slug"
+msgstr "测验网址别名"
+
+msgid "Quiz created successfully."
+msgstr "测验创建成功。"
+
+msgid "Quiz deleted successfully."
+msgstr "测验删除成功。"
+
+msgid "Quiz is setup properly."
+msgstr "测验已正确配置。"
+
+msgid "Quiz not found on given quiz id."
+msgstr "未找到指定测验 ID 对应的测验。"
+
+msgid "Quiz not found!"
+msgstr "未找到测验！"
+
+msgid "Quiz not found. Please select an existing quiz or create a new one."
+msgstr "未找到测验。请选择一个现有测验或创建一个新测验。"
+
+msgid "Quiz resubmitted successfully."
+msgstr "测验已成功重新提交。"
+
+msgid "Quiz result not found based on this result id."
+msgstr "根据此结果 ID 未找到测验结果。"
+
+msgid "Quiz saved successfully"
+msgstr "测验已成功保存"
+
+msgid "Quiz settings"
+msgstr "测验设置"
+
+msgid "Quiz status has been updated successfully to publish."
+msgstr "测验状态已成功更新为已发布。"
+
+msgid "Quiz title."
+msgstr "测验标题。"
+
+msgid "Quiz/Survey Statistics"
+msgstr "测验/调查 统计"
+
+msgid "Radio"
+msgstr "单选"
+
+msgid "Radio Grid"
+msgstr "单选框网格"
+
+msgid "Randomization Mode"
+msgstr "随机化模式"
+
+msgid "Randomize Question"
+msgstr "随机打乱题目"
+
+msgid "Randomize answers only"
+msgstr "仅随机打乱答案"
+
+msgid "Randomize question only"
+msgstr "仅随机打乱题目"
+
+msgid "Randomize questions and their answers"
+msgstr "随机打乱题目及其答案"
+
+msgid "Randomize the order of questions or answers every time the quiz loads"
+msgstr "每次加载测验时随机打乱题目或答案的顺序"
+
+msgid "Range fields are required!"
+msgstr "区间字段为必填项！"
+
+msgid "Read Documentation"
+msgstr "阅读文档"
+
+msgid "Recent Activity"
+msgstr "近期活动"
+
+msgid "Recent Updates"
+msgstr "近期更新"
+
+msgid "Redirect URL"
+msgstr "跳转网址"
+
+msgid "Redirecting the user by entering the URL below:"
+msgstr "通过输入以下网址来重定向用户："
+
+msgid "Regenerate Key"
+msgstr "重新生成密钥"
+
+msgid "Reporting & Analysis Addon required"
+msgstr "需要报告与分析附加组件"
+
+msgid "Reporting And Analysis"
+msgstr "报告与分析"
+
+msgid "Require User Login"
+msgstr "要求用户登录"
+
+msgid "Required"
+msgstr "必填"
+
+msgid "Required Version"
+msgstr "所需版本"
+
+msgid "Required contact field"
+msgstr "必填联系字段"
+
+msgid "Required field error message"
+msgstr "必填字段错误消息"
+
+msgid "Reset All Stats For Quiz"
+msgstr "重置测验的所有统计信息"
+
+msgid "Reset stats for this quiz?"
+msgstr "重置此测验的统计数据？"
+
+msgid "Reset to Defaults"
+msgstr "重置为默认值"
+
+msgid "Responses"
+msgstr "回答"
+
+msgid "Restore Quiz"
+msgstr "还原测验"
+
+msgid "Restrict public access to results"
+msgstr "限制对结果的公开访问"
+
+msgid "Result Details"
+msgstr "详细信息"
+
+msgid "Result ID"
+msgstr "结果 ID"
+
+msgid "Result Link Visibility"
+msgstr "结果链接可见性"
+
+msgid "Result Page "
+msgstr "结果页面 "
+
+msgid "Results"
+msgstr "结果"
+
+msgid "Results Pages"
+msgstr "结果页"
+
+msgid "Results Processed:"
+msgstr "已处理结果数："
+
+msgid "Results Table"
+msgstr "结果表格"
+
+msgid "Results pages were saved!"
+msgstr "结果页面已保存！"
+
+msgid "Retake Quiz Button"
+msgstr "重考按钮"
+
+msgid "Retry"
+msgstr "重试"
+
+msgid "Returns a list of all quizzes and surveys. Use this to discover available quizzes before fetching details or results. Supports optional ordering and pagination."
+msgstr "返回所有测验与问卷的列表。可用于在获取详情或结果之前了解有哪些可用测验。支持可选的排序与分页。"
+
+msgid "Returns all active questions for a given quiz. Use this to inspect the questions in a quiz before creating or updating them."
+msgstr "返回指定测验的全部已激活题目。可用于在创建或更新题目之前查看测验中的题目。"
+
+msgid "Returns the full settings and metadata for a single quiz identified by its ID. Use list-quizzes first to obtain valid quiz IDs."
+msgstr "返回指定 ID 的单个测验的完整设置与元数据。请先使用 list-quizzes 获取有效的测验 ID。"
+
+msgid "Right Label"
+msgstr "右侧标签"
+
+msgid "Right Range"
+msgstr "右侧区间"
+
+msgid "Round off all scores and points"
+msgstr "对所有分数与得分四舍五入"
+
+msgid "Round off all scores and points for this quiz"
+msgstr "为本测验对所有分数与得分取整"
+
+msgid "Run Migration Again"
+msgstr "重新运行迁移"
+
+msgid "SAVE WITH OUR BUNDLES"
+msgstr "用我们的套装更划算"
+
+msgid "SUBSCRIBE"
+msgstr "订阅"
+
+msgid "Save Contact Form"
+msgstr "保存联系表单"
+
+msgid "Save Emails"
+msgstr "保存电子邮件"
+
+msgid "Save Image"
+msgstr "保存图片"
+
+msgid "Save Page"
+msgstr "保存页面"
+
+msgid "Save Question"
+msgstr "保存题目"
+
+msgid "Save Questions and Pages"
+msgstr "保存题目与页面"
+
+msgid "Save Results Pages"
+msgstr "保存结果页面"
+
+msgid "Save time when migrating or backing up quizzes"
+msgstr "在迁移或备份测验时节省时间"
+
+msgid "Save your updates"
+msgstr "保存您的更改"
+
+msgid "Saving contact fields..."
+msgstr "正在保存联系字段……"
+
+msgid "Saving page info"
+msgstr "正在保存页面信息"
+
+msgid "Saving pages and questions..."
+msgstr "正在保存页面与题目……"
+
+msgid "Saving question..."
+msgstr "正在保存题目……"
+
+msgid "Saving results pages..."
+msgstr "正在保存结果页面……"
+
+msgid "Saving.."
+msgstr "正在保存……"
+
+msgid "Score"
+msgstr "分数"
+
+msgid "Score Earned"
+msgstr "获得分数"
+
+msgid "Score for the quiz when using correct answers"
+msgstr "使用正确答案时的测验的分数"
+
+msgid "Score for the quiz when using points"
+msgstr "？使用积分时测验的分数"
+
+msgid "Scorecard"
+msgstr "记分卡"
+
+msgid "Screen Options"
+msgstr "页面选项"
+
+msgid "Search"
+msgstr "搜索"
+
+msgid "Search Questions"
+msgstr "搜索题目"
+
+msgid "Search Questions:"
+msgstr "搜索题目："
+
+msgid "Search Quizzes"
+msgstr "搜索测验"
+
+msgid "Search questions"
+msgstr "搜索题目"
+
+msgid "Search questions…"
+msgstr "搜索题目……"
+
+msgid "Security Alert: Unauthorized attempt - Quiz ID:"
+msgstr "安全警报：未授权尝试 - 测验 ID："
+
+msgid "See All Results "
+msgstr "查看全部结果 "
+
+msgid "See More Themes"
+msgstr "查看更多主题"
+
+msgid "See more Addons"
+msgstr "查看更多附加组件"
+
+msgid "Select Addons"
+msgstr "选择附加组件"
+
+msgid "Select All Question"
+msgstr "选择全部题目"
+
+msgid "Select Labels"
+msgstr "选择标签"
+
+msgid "Select Message"
+msgstr "选择消息"
+
+msgid "Select Quiz Animation"
+msgstr "选择测验动画"
+
+msgid "Select Template"
+msgstr "选择模板"
+
+msgid "Select Variable Text"
+msgstr "选择变量文本"
+
+msgid "Select Webhook"
+msgstr "选择 Webhook"
+
+msgid "Select a theme"
+msgstr "选择主题"
+
+msgid "Select a type..."
+msgstr "选择类型……"
+
+msgid "Select the appropriate"
+msgstr "选择相应的"
+
+msgid "Select the quiz"
+msgstr "选择测验"
+
+msgid "Select the system for grading the quiz."
+msgstr "选择测验的评分系统。"
+
+msgid "Select where to display the contact form"
+msgstr "选择联系表单的显示位置"
+
+msgid "Selected Questions are removed from question bank."
+msgstr "所选题目已从题库中移除。"
+
+msgid "Selected questions have been deleted."
+msgstr "所选题目已删除。"
+
+msgid "Selected results have been deleted."
+msgstr "所选结果已删除。"
+
+msgid "Send to: Use %USER_EMAIL% for the user or %QSM_ADMIN_EMAIL% for the admin. Separate multiple emails with commas."
+msgstr "发送至：用户用 %USER_EMAIL%，管理员用 %QSM_ADMIN_EMAIL%。多个邮箱请用逗号分隔。"
+
+msgid "Serialised quiz settings array."
+msgstr "序列化后的测验设置数组。"
+
+msgid "Server Information"
+msgstr "服务器信息"
+
+msgid "Set 0 to show all"
+msgstr "设为 0 以显示全部"
+
+msgid "Set Background Image"
+msgstr "设置背景图片"
+
+msgid "Set Featured Image"
+msgstr "设置特色图片"
+
+msgid "Set Global Settings"
+msgstr "设置全局设置"
+
+msgid "Set Question Limit"
+msgstr "设置题目上限"
+
+msgid "Set a time limit to complete this page in "
+msgstr "将本页的完成时限设为 "
+
+msgid "Set conditions for when an email should be sent and define who receives it and what it contains."
+msgstr "设置邮件的发送条件，并定义收件人及其内容。"
+
+msgid "Set how many answers users can select."
+msgstr "设置用户可选择的答案数量。"
+
+msgid "Set it to Published to make the question available in quizzes, or keep it as Draft to continue editing."
+msgstr "将其设为“已发布”可使题目在测验中可用，或保持“草稿”以继续编辑。"
+
+msgid "Set time limits, response restrictions, attempt limits, retake rules, and what happens after submission."
+msgstr "设置时限、答卷限制、尝试次数限制、重考规则以及提交后的行为。"
+
+msgid "Set up the contact information you want to collect from users."
+msgstr "设置您希望向用户收集的联系方式信息。"
+
+msgid "Setup"
+msgstr "设置"
+
+msgid "Setup Contact Form"
+msgstr "设置联系表单"
+
+msgid "Setup pattern for phone format. Examples: +1 [0-9]{5} [0-9]{5} for with country code, [0-9]{5} [0-9]{5} for without country code"
+msgstr "电话格式的设置规则。示例：带国家代码用 +1 [0-9]{5} [0-9]{5}，不带国家代码用 [0-9]{5} [0-9]{5}"
+
+msgid "Short Answer"
+msgstr "简答题"
+
+msgid "Show Correct Answer Info"
+msgstr "显示正确答案信息"
+
+msgid "Show Disabled Fields"
+msgstr "显示已禁用的字段"
+
+msgid "Show Hint"
+msgstr "显示提示"
+
+msgid "Show advance options »"
+msgstr "显示高级选项 »"
+
+msgid "Show confirmation alert before reloading or leaving the page"
+msgstr "在刷新或离开页面前显示确认提示"
+
+msgid "Show contact form to logged in users"
+msgstr "向已登录用户显示联系表单"
+
+msgid "Show current page number"
+msgstr "显示当前页码"
+
+msgid "Show different result pages or redirect users based on their answers, scores, or conditions."
+msgstr "根据用户的回答、得分或条件显示不同的结果页面或跳转。"
+
+msgid "Show following page"
+msgstr "显示以下页面"
+
+msgid "Show more"
+msgstr "显示更多"
+
+msgid "Show only limited number of category questions from your quiz. You also need to set Limit Number of questions."
+msgstr "仅显示测验中有限数量的分类题目。您还需要设置“题目数量上限”。"
+
+msgid "Show only limited number of category questions from your quiz.You also need to set Limit Number of questions."
+msgstr "仅显示测验中有限数量的分类题目。您还需要设置“题目数量上限”。"
+
+msgid "Show only limited number of questions from your quiz."
+msgstr "仅显示测验中有限数量的题目。"
+
+msgid "Show question featured image in results page"
+msgstr "在结果页面显示题目特色图片"
+
+msgid "Show result id"
+msgstr "显示结果id"
+
+msgid "Show user scores dynamically anywhere"
+msgstr "在任何位置动态显示用户得分"
+
+msgid "Show warning at"
+msgstr "在以下位置显示警告"
+
+msgid "Shows the question, the answer provided by user, and the correct answer."
+msgstr "显示题目、用户给出的答案以及正确答案。"
+
+msgid "Shows the question, the answer the user provided, and the correct answer"
+msgstr "*显示问题，用户提供的答案和正确答案"
+
+msgid "Simplify reporting & record-keeping"
+msgstr "简化报告与记录归档"
+
+msgid "Site Information"
+msgstr "站点信息"
+
+msgid "Site URL:"
+msgstr "站点网址："
+
+msgid "Skip for now"
+msgstr "暂时跳过"
+
+msgid "Skip this"
+msgstr "跳过此步"
+
+msgid "Social Sharing Buttons"
+msgstr "社交分享按钮"
+
+msgid "Something went wrong"
+msgstr "出错了"
+
+msgid "Sorry, there's an issue in saving your responses. Please let the website admin know about it."
+msgstr "抱歉，保存您的回答时出现问题。请告知网站管理员。"
+
+msgid "Sorry, unable to subscribe. Please try again later!"
+msgstr "抱歉，无法订阅。请稍后再试！"
+
+msgid "Sorry, you are not allowed to delete this quiz."
+msgstr "抱歉，您无权删除此测验。"
+
+msgid "Sorry, you are not allowed to duplicate this quiz."
+msgstr "抱歉，您无权复制此测验。"
+
+msgid "Sorry, you are not allowed to reset this quiz."
+msgstr "抱歉，您无权重置此测验。"
+
+msgid "Sort By Question ID"
+msgstr "按题目 ID 排序"
+
+msgid "Sort direction."
+msgstr "排序方向。"
+
+msgid "Start Adding Questions"
+msgstr "开始添加题目"
+
+msgid "Start Migration"
+msgstr "开始迁移"
+
+msgid "Start Quiz"
+msgstr "开始测验"
+
+msgid "Start Quiz Button"
+msgstr "开始测验按钮"
+
+msgid "Start Survey"
+msgstr "开始问卷"
+
+msgid "Starting in QSM 6.0, your version of PHP will no longer be supported."
+msgstr "从 QSM 6.0 开始，您的 PHP 版本将不再受支持。"
+
+msgid "Stats"
+msgstr "统计"
+
+msgid "Style"
+msgstr "样式"
+
+msgid "Submission count."
+msgstr "提交次数。"
+
+msgid "Submit Button"
+msgstr "提交按钮"
+
+msgid "Submit your ideas"
+msgstr "提交您的想法"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Success!"
+msgstr "成功！"
+
+msgid "Success! Database query executed successfully."
+msgstr "成功！数据库查询已成功执行。"
+
+msgid "Support & Pre-Sales Questions"
+msgstr "支持与售前咨询"
+
+msgid "System Info"
+msgstr "系统信息"
+
+msgid "Tailor Quiz and Survey Master to your specific needs with our professional customization services for unique functionality."
+msgstr "通过我们的专业定制服务满足您的特定需求，为 Quiz and Survey Master 打造独特功能。"
+
+msgid "Take a Tour"
+msgstr "开始导览"
+
+msgid "Take full control over quiz customization and User Experience with QSM Ultimate Add-On."
+msgstr "借助 QSM 终极版附加组件，全面掌控测验定制与用户体验。"
+
+msgid "Template For Admin Results Details"
+msgstr "管理结果详细信息的模板"
+
+msgid "Template Name"
+msgstr "模板名称"
+
+msgid "Template added successfully!"
+msgstr "模板添加成功！"
+
+msgid "Template content cannot be empty."
+msgstr "模板内容不能为空。"
+
+msgid "Template name cannot be empty."
+msgstr "模板名称不能为空。"
+
+msgid "Template removed successfully."
+msgstr "模板已成功移除。"
+
+msgid "Template replaced successfully!"
+msgstr "模板替换成功！"
+
+msgid "Templates"
+msgstr "模板"
+
+msgid "Terms & Privacy policy"
+msgstr "条款与隐私政策"
+
+msgid "Text After Quiz"
+msgstr "测验后的文本"
+
+msgid "Text For Limited Attempts"
+msgstr "达到尝试次数上限时的文本"
+
+msgid "Text for Comment Box"
+msgstr "评论文本框的文本"
+
+msgid "Text for Expired Quiz"
+msgstr "测验过期时的文本"
+
+msgid "Text for Limited Entries"
+msgstr "达到答卷数量上限时的文本"
+
+msgid "Text for Registered User"
+msgstr "已注册用户的文本"
+
+msgid "Text id is missing."
+msgstr "缺少文本 ID。"
+
+msgid "Text to notify that the answer choice limit is exceeded in the multiple response type question."
+msgstr "当多项选择题型超出答案选择上限时显示的提示文字。"
+
+msgid "Text to show when the selected option is correct answer."
+msgstr "所选选项为正确答案时显示的文本。"
+
+msgid "Text to show when the selected option is wrong answer."
+msgstr "所选选项为错误答案时显示的文本。"
+
+msgid "Text to show while submitting the quiz."
+msgstr "提交测验时显示的文本。"
+
+msgid "Text/HTML Section"
+msgstr "文本/HTML 部分"
+
+msgid "Text/HTML Section cannot be empty"
+msgstr "文本/HTML 区块不能为空"
+
+msgid "Thanks I undertsand!"
+msgstr "谢谢，我明白了！"
+
+msgid "Thanks for submitting your response! You can edit this message on the \"Results Pages\" tab. <br>%CONTACT_ALL% <br>%QUESTIONS_ANSWERS%"
+msgstr "感谢提交您的回答！您可以在“结果页面”标签页中编辑此消息。<br>%CONTACT_ALL% <br>%QUESTIONS_ANSWERS%"
+
+msgid "Thanks, you are now subscribed to our mailing list!"
+msgstr "谢谢，您现在已订阅我们的邮件列表！"
+
+msgid "The ID of the quiz to retrieve."
+msgstr "要获取的测验 ID。"
+
+msgid "The amount of time user spent on quiz in minutes i.e. If total time is 3 minutes 38 seconds. This will output 3"
+msgstr "用户在测验上花费的时间（分钟）。例如总时长为 3 分 38 秒，此处输出 3"
+
+msgid "The amount of time user spent on quiz in seconds"
+msgstr "用户在测验中花费的时间（秒）"
+
+msgid "The average amount of points user had per question"
+msgstr "用户每个问题的平均分数"
+
+msgid "The average points from all categories."
+msgstr "所有类别的平均点数。"
+
+msgid "The average score from all categories."
+msgstr "所有类别的平均分。"
+
+msgid "The business the user entered before the quiz"
+msgstr "用户在测验前输入的单位"
+
+msgid "The comments the user entered into comment box if enabled"
+msgstr "用户输入评论框的注释（如果启用）"
+
+msgid "The data the software collects"
+msgstr "软件收集的数据"
+
+msgid "The email the user entered before the quiz"
+msgstr "用户在测验前输入的电子邮件"
+
+msgid "The full name of user with first name and last name"
+msgstr "用户的全名，含名字与姓氏"
+
+msgid "The left over seconds user spent on quiz. i.e. If total time is 3 minutes 38 seconds. This will output 38"
+msgstr "用户花费在测验上的剩余秒数。例如总时长为 3 分 38 秒，此处输出 38"
+
+msgid "The link of the quiz"
+msgstr "测验的链接"
+
+msgid "The link of the result page."
+msgstr "结果页面的链接。"
+
+msgid "The name of the quiz"
+msgstr "测验的名称"
+
+msgid "The name of your quiz or survey has been updated successfully."
+msgstr "您的测验或调查的名称已成功更新。"
+
+msgid "The name the user entered before the quiz"
+msgstr "用户在测验前输入的名称"
+
+msgid "The number of correct answers the user had"
+msgstr "用户正确回答的数量"
+
+msgid "The number of incorrect answers the user had"
+msgstr "用户答错的题目数量"
+
+msgid "The number of questions are attempted"
+msgstr "已作答题目的数量"
+
+msgid "The phone number the user entered before the quiz"
+msgstr "用户在测验前输入的电话号码"
+
+msgid "The question logic and behavior are now updated."
+msgstr "题目逻辑与行为现已更新。"
+
+msgid "The question text."
+msgstr "题目文本。"
+
+msgid "The quiz result you are trying to view could not be found. Please return to the results page."
+msgstr "找不到您尝试查看的测验结果。请返回结果页面。"
+
+msgid "The responses and data attached to the responses are stored indefinitely until an administrator of this site deletes the responses."
+msgstr "回答及其附带的数据将被无限期保存，直到本站管理员删除这些回答。"
+
+msgid "The scheduled end date/time of the quiz."
+msgstr "测验的计划结束日期/时间。"
+
+msgid "The scheduled start date/time of the quiz."
+msgstr "测验的计划开始日期/时间。"
+
+msgid "The selected file exceeds the maximum upload size of %s."
+msgstr "所选文件超过了 %s 的最大上传大小。"
+
+msgid "The selected file exceeds the maximum upload size."
+msgstr "所选文件超过最大上传大小。"
+
+msgid "The settings has been updated successfully."
+msgstr "问题已成功更新。"
+
+msgid "The stats has been reset successfully."
+msgstr "该统计已成功复位。"
+
+msgid "The style has been saved successfully."
+msgstr "所选样式已成功保存。"
+
+msgid "The system generated following error while resubmitting the result:"
+msgstr "系统在重新提交结果时生成了以下错误："
+
+msgid "The theme default settings saved successfully."
+msgstr "主题默认设置已成功保存。"
+
+msgid "The theme is applied successfully."
+msgstr "主题已成功应用。"
+
+msgid "The theme settings saved successfully."
+msgstr "主题设置已成功保存。"
+
+msgid "The total number of questions in the quiz"
+msgstr "测验中的问题总数"
+
+msgid "Theme Defaults"
+msgstr "主题默认值"
+
+msgid "Theme settings are saved!"
+msgstr "主题设置已保存！"
+
+msgid "Themes control the overall look and feel, helping your quiz match your brand or content style."
+msgstr "主题控制整体外观与观感，帮助您的测验与品牌或内容风格保持一致。"
+
+msgid "There has been an error in this action. Please share this with the developer"
+msgstr "此操作发生错误。请将此信息告知开发者"
+
+msgid "There has been an error in this action. Please share this with the developer. Error Code: 0001"
+msgstr "此操作发生错误。请将此信息告知开发者。错误代码：0001"
+
+msgid "There has been an error in this action. Please share this with the developer. Error Code: 0002"
+msgstr "此操作发生错误。请将此信息告知开发者。错误代码：0002"
+
+msgid "There has been an error in this action. Please share this with the developer. Error Code: 0011"
+msgstr "此操作发生错误。请将此信息告知开发者。错误代码：0011"
+
+msgid "There has been an error in this action. Please share this with the developer. Error Code: 0020"
+msgstr "此操作发生错误。请将此信息告知开发者。错误代码：0020"
+
+msgid "There has been an error in this action. Please share this with the developer. Error Code: 0051"
+msgstr "此操作发生错误。请将此信息告知开发者。错误代码：0051"
+
+msgid "There has been an error! Please try again."
+msgstr "此处有一错误！ 请再试一次。"
+
+msgid "There was an error encountered when saving your contact fields."
+msgstr "保存联系字段时遇到错误。"
+
+msgid "There was an error saving the default question settings."
+msgstr "保存默认题目设置时发生错误。"
+
+msgid "There was an error when deleting this result. Error from WordPress: %s"
+msgstr "删除此结果时出现错误。 WordPress错误: %s"
+
+msgid "There was an error when saving the emails."
+msgstr "保存邮件时发生错误。"
+
+msgid "There was an error when saving the results pages."
+msgstr "保存结果页面时发生错误。"
+
+msgid "There was an error when saving the template."
+msgstr "保存模板时发生错误。"
+
+msgid "There was an error when updating the settings. Please try again."
+msgstr "更新设置时出现错误。 请再试一遍。"
+
+msgid "There was an error with your submission:"
+msgstr "您的提交出现了错误："
+
+msgid "These options are deprecated and will be removed in a future update. Use newer settings available in other tabs."
+msgstr "这些选项已弃用，将在未来的更新中移除。请使用其他标签页中提供的新设置。"
+
+msgid "These settings will be applied automatically to all newly added questions. You can still change any of it per question."
+msgstr "这些设置将自动应用于所有新增题目。您仍可逐题更改其中任何一项。"
+
+msgid "These styles will be removed in a future update. Use Themes and Appearance for styling new quizzes."
+msgstr "这些样式将在未来的更新中移除。请使用“主题”与“外观”为新测验设计样式。"
+
+msgid "This image helps set context, improve visual appeal, and align the quiz with your brand."
+msgstr "此图片有助于建立语境、提升视觉吸引力，并使测验与您的品牌保持一致。"
+
+msgid "This option will be removed in future."
+msgstr "此选项将在未来移除。"
+
+msgid "This quiz contains advance question types which will be skipped on quiz page as there are no active add-ons to support these questions."
+msgstr "本测验包含高级题型，由于没有已激活的相关附加组件支持这些题目，它们将在测验页面中被跳过。"
+
+msgid "This quiz has expired and is no longer available."
+msgstr "此测验已过期，不再可用。"
+
+msgid "This quiz has the \"How many questions per page would you like?\" option enabled. The pages below will not be used while that option is enabled. To turn off, go to the \"Options\" tab and set that option to 0."
+msgstr "本测验已启用“每页显示多少道题目？”选项。在该选项启用期间，下面的页面不会被使用。如需关闭，请前往“选项”标签页并将该选项设为 0。"
+
+msgid "This quiz has the \"How many questions should be loaded for quiz?\" option enabled. The pages below will not be used while that option is enabled. To turn off, go to the \"Options\" tab and set that option to 0."
+msgstr "本测验已启用“一次加载多少道题目？”选项。在该选项启用期间，下面的页面不会被使用。如需关闭，请前往“选项”标签页并将该选项设为 0。"
+
+msgid "This quiz is password protected and not accepting responses from this endpoint."
+msgstr "本测验受密码保护，不接受来自此端点的回答。"
+
+msgid "This variable displays only attempted questions answers on the result page."
+msgstr "此变量在结果页面中仅显示已作答题目的答案。"
+
+msgid "This variable displays the obtained percentage of quiz."
+msgstr "此变量显示测验获得的百分比。"
+
+msgid "This variable displays the quiz remaining attempts."
+msgstr "此变量显示测验的剩余尝试次数。"
+
+msgid "This variable displays the quiz retake button."
+msgstr "此变量显示测验的重考按钮。"
+
+msgid "This variable displays the quiz submission date."
+msgstr "此变量显示测验的提交日期。"
+
+msgid "This variable displays the total number of questions not attempted or not counted by the user."
+msgstr "此变量显示用户未作答或未计入的题目总数。"
+
+msgid "This variable displays the total time of quiz."
+msgstr "此变量显示测验的总时长。"
+
+msgid "This variable shows all questions and answers for questions the user got correct."
+msgstr "此变量显示用户作答正确的题目及其全部答案。"
+
+msgid "This variable shows all questions and answers for questions the user got incorrect."
+msgstr "此变量显示用户作答错误的题目及其全部答案。"
+
+msgid "This will replace your current template. Continue?"
+msgstr "这将替换您当前的模板。是否继续？"
+
+msgid "Time Limit (in Minute)"
+msgstr "时间限制（分钟）"
+
+msgid "Time Submitted"
+msgstr "提交时间"
+
+msgid "Time Taken"
+msgstr "所用时间"
+
+msgid "Time To Complete"
+msgstr "完成时间"
+
+msgid "Time is Up!"
+msgstr "时间到！"
+
+msgid "Time to complete form"
+msgstr "填写表单的时间"
+
+msgid "Time's up"
+msgstr "时间到"
+
+msgid "To know more about our grading systems please "
+msgstr "如需进一步了解我们的评分体系，请 "
+
+msgid "Toggle"
+msgstr "切换"
+
+msgid "Toggle panel: What's Next"
+msgstr "切换面板：下一步"
+
+msgid "Too many login attempts. Please wait a moment and try again."
+msgstr "登录尝试次数过多。请稍候片刻再重试。"
+
+msgid "Tools"
+msgstr "工具"
+
+msgid "Total Active Questions : "
+msgstr "活跃题目总数： "
+
+msgid "Total Active Quizzes : "
+msgstr "活跃测验总数： "
+
+msgid "Total Active Results : "
+msgstr "活跃结果总数： "
+
+msgid "Total Deleted Questions:"
+msgstr "已删除题目总数："
+
+msgid "Total Deleted Results:"
+msgstr "已删除结果总数："
+
+msgid "Total Questions"
+msgstr "总问题"
+
+msgid "Total Questions : "
+msgstr "题目总数： "
+
+msgid "Total Questions:"
+msgstr "题目总数："
+
+msgid "Total Quizzes : "
+msgstr "测验总数： "
+
+msgid "Total Results : "
+msgstr "结果总数： "
+
+msgid "Total Results Failed:"
+msgstr "失败结果总数："
+
+msgid "Total Results Migrated:"
+msgstr "已迁移结果总数："
+
+msgid "Total Results to Migrate:"
+msgstr "待迁移结果总数："
+
+msgid "Total actions since QSM installed:"
+msgstr "自安装 QSM 以来的操作总数："
+
+msgid "Track quiz performance over time"
+msgstr "跟踪测验在不同时间的表现"
+
+msgid "Troubleshoot Now"
+msgstr "立即排查"
+
+msgid "Turn this into a poll to show how others responded."
+msgstr "把它变成一个投票，展示其他人的回答。"
+
+msgid "Twitter Share"
+msgstr "Twitter 分享"
+
+msgid "Twitter Sharing Text"
+msgstr "Twitter 分享文本"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Type of question (e.g. 0=multiple choice, 1=true/false)."
+msgstr "题型（例如 0=多项选择，1=判断对错）。"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL not provided"
+msgstr "未提供网址"
+
+msgid "Ultimate Addon required"
+msgstr "需要终极版附加组件"
+
+msgid "Unable To Load Required Data"
+msgstr "无法加载所需数据"
+
+msgid "Unable to load questions. Please try again."
+msgstr "无法加载题目。请重试。"
+
+msgid "Unable to parse the uploaded CSV file."
+msgstr "无法解析所上传的 CSV 文件。"
+
+msgid "Unique question ID."
+msgstr "唯一的题目 ID。"
+
+msgid "Unique quiz ID."
+msgstr "唯一的测验 ID。"
+
+msgid "Unknown quiz"
+msgstr "未知测验"
+
+msgid "Unlock More Customization with Extra Shortcodes"
+msgstr "用额外短代码解锁更多自定义能力"
+
+msgid "Untitled question"
+msgstr "未命名题目"
+
+msgid "Update Available"
+msgstr "有可用更新"
+
+msgid "Update Category"
+msgstr "更新分类"
+
+msgid "Update Required"
+msgstr "需要更新"
+
+msgid "Updating database"
+msgstr "正在更新数据库"
+
+msgid "Upgrade Plan"
+msgstr "升级方案"
+
+msgid "Upload CSV"
+msgstr "上传 CSV"
+
+msgid "Upload a CSV file that matches the Question Bank schema. Each question row should be followed by its answer rows."
+msgstr "上传符合题库结构的 CSV 文件。每道题目行后应跟随其答案行。"
+
+msgid "Upload complete! We are processing your questions."
+msgstr "上传完成！我们正在处理您的题目。"
+
+msgid "Upload failed!"
+msgstr "上传失败！"
+
+msgid "Upload failed. Please try again."
+msgstr "上传失败。请重试。"
+
+msgid "Upload failed: %s"
+msgstr "上传失败：%s"
+
+msgid "Uploading… Please keep this tab open."
+msgstr "正在上传……请保持此标签页开启。"
+
+msgid "Use %BLANK% variable in the description field to display input boxes."
+msgstr "在描述字段中使用 %BLANK% 变量来显示输入框。"
+
+msgid "Use %maxlength% to display number of characters allowed."
+msgstr "使用 %maxlength% 显示允许的字符数。"
+
+msgid "Use %minlength% to display number of characters required."
+msgstr "使用 %minlength% 显示所需字符数。"
+
+msgid "Use Matching Pairs for interactive learning"
+msgstr "使用配对题实现互动式学习"
+
+msgid "Use QSM Editor for Advanced Question"
+msgstr "对高级题目使用 QSM 编辑器"
+
+msgid "Use QSM editor for Advanced Question"
+msgstr "对高级题目使用 QSM 编辑器"
+
+msgid "Use Template"
+msgstr "使用模板"
+
+msgid "Use comma seperated values."
+msgstr "请使用逗号分隔的值。"
+
+msgid "Use custom CSS to override theme or appearance styles when deeper customization is required."
+msgstr "当需要更深入的定制时，使用自定义 CSS 覆盖主题或外观样式。"
+
+msgid "Use deprecated styling options from older versions of QSM."
+msgstr "使用旧版 QSM 中已弃用的样式选项。"
+
+msgid "Use the"
+msgstr "使用"
+
+msgid "Use the toggle to switch between Draft and Published."
+msgstr "使用切换开关在“草稿”与“已发布”之间切换。"
+
+msgid "Use these dynamic variables to personalize your quiz or survey. Simply copy and paste one or more variables into your content templates—they’ll be automatically replaced with real values when a user takes the quiz."
+msgstr "使用这些动态变量来个性化您的测验或问卷。只需将一个或多个变量复制粘贴到内容模板中，用户作答时它们会自动替换为真实值。"
+
+msgid "Use this image"
+msgstr "使用此图片"
+
+msgid "Use this section to control evaluation and learner feedback."
+msgstr "使用此分区控制评分与学习者反馈。"
+
+msgid "Useful Resources"
+msgstr "实用资源"
+
+msgid "User Comments"
+msgstr "用户评论"
+
+msgid "User Detail"
+msgstr "用户详情"
+
+msgid "User ID"
+msgstr "用户ID"
+
+msgid "User Name"
+msgstr "用户名"
+
+msgid "User not found"
+msgstr "未找到用户"
+
+msgid "Validate license"
+msgstr "验证许可证"
+
+msgid "Variables"
+msgstr "变量"
+
+msgid "Version: %1$s"
+msgstr "版本：%1$s"
+
+msgid "View "
+msgstr "查看 "
+
+msgid "View Category"
+msgstr "查看分类"
+
+msgid "View Details"
+msgstr "查看详情"
+
+msgid "View Results"
+msgstr "查看结果"
+
+msgid "View count."
+msgstr "浏览次数。"
+
+msgid "View our privacy policy"
+msgstr "查看我们的隐私政策"
+
+msgid "Views"
+msgstr "浏览次数"
+
+msgid "Visit out public Roadmap to checkout what's in the development pipepline of QSM."
+msgstr "访问我们的公开路线图，了解 QSM 正在开发中的内容。"
+
+msgid "Visitor"
+msgstr "访客"
+
+msgid "Wanna get more out of Quiz and Survey Master, but not yet ready to spend the cash? Get one free addon today!"
+msgstr "想要从测试和调查中得到更多，但还没有准备好花钱吗?今天得到一个免费的插件"
+
+msgid "Warning!"
+msgstr "警告！"
+
+msgid "We are open your suggestions on how to improve QSM. Please visit our ideas page to share your thoughts."
+msgstr "我们欢迎您就如何改进 QSM 提出建议。请访问我们的想法页面分享您的看法。"
+
+msgid "We couldn't load the required data, contact our support team for assistance, or you can still create a quiz."
+msgstr "无法加载所需数据，请联系我们的支持团队寻求帮助，或者您仍然可以创建测验。"
+
+msgid "We detected %d result that has fallen back to legacy format during database migration. Running the migration again may resolve this issue."
+msgid_plural "We detected %d results that have fallen back to legacy format during database migration. Running the migration again may resolve this issue."
+msgstr[0] "%d 条结果在数据库迁移过程中被检测到已回退为旧版格式。重新运行迁移可能会解决此问题。"
+
+msgid "We recommend downloading the latest version of the QSM Installer for a seamless quiz and survey creation experience."
+msgstr "我们建议下载最新版本的 QSM 安装包，以获得顺畅的测验与问卷创建体验。"
+
+msgid "Webserver : "
+msgstr "Web 服务器： "
+
+msgid "Weekly"
+msgstr "每周"
+
+msgid "What's Next"
+msgstr "下一步"
+
+msgid "Where we send your data"
+msgstr "我们将您的信息发送到哪"
+
+msgid "WordPress Information"
+msgstr "WordPress 信息"
+
+msgid "Write the question you want to ask your users."
+msgstr "写下您想问用户的问题。"
+
+msgid "X = Question ID Note: only supported for multiple choice answers"
+msgstr "X =问题ID  注意：仅支持多选题答案"
+
+msgid "X: Answer value - This variable shows all questions and answers for questions where the user selected the matching answer."
+msgstr "X：答案值 - 此变量显示用户选择了匹配答案的题目及其全部答案。"
+
+msgid "X: Category name - The amount of points a specific category earned."
+msgstr "X：类别名称-特定类别获得的积分数量。"
+
+msgid "X: Category name - The average amount of points a specific category earned."
+msgstr "X：类别名称-特定类别获得的平均积分。"
+
+msgid "X: Category name - This variable displays the percentage achieved in the selected category."
+msgstr "X：分类名称 - 此变量显示所选分类的得分百分比。"
+
+msgid "X: Page name, Display time taken by user."
+msgstr "X：页面名称，显示用户花费的时间。"
+
+msgid "X: Points range and message e.g. ( CUSTOM_MESSAGE_POINTS_loser:0-49;winner:50-100; ) - Shows a custom message based on the amount of points a user has earned."
+msgstr "X：分数区间与消息，例如 ( CUSTOM_MESSAGE_POINTS_loser:0-49;winner:50-100; ) - 根据用户获得的分数显示自定义消息。"
+
+msgid "X: Question ID, Display the answers barchart."
+msgstr "X：题目 ID，显示答案柱状图。"
+
+msgid "X: Question ID, Display the answers piechart."
+msgstr "X：题目 ID，显示答案饼图。"
+
+msgid "X: Score range and message e.g. ( CUSTOM_MESSAGE_POINTS_loser:0-49;winner:50-100; ) - Shows a custom message based on the score a user has earned."
+msgstr "X：得分区间与消息，例如 ( CUSTOM_MESSAGE_POINTS_loser:0-49;winner:50-100; ) - 根据用户获得的得分显示自定义消息。"
+
+msgid "X:Category Name - This variable displays the max points of any selected category can earn in the total quiz score."
+msgstr "X：分类名称 - 此变量显示所选分类在测验总分中可获得的最大分数。"
+
+msgid "X:Category Name - This variable displays the percentage of any selected category out of the total quiz score."
+msgstr "X：分类名称 - 此变量显示所选分类在测验总分中所占的百分比。"
+
+msgid "X:Category Name - This variable displays the percentage of points that earned for that category."
+msgstr "X：分类名称 - 此变量显示该分类所获分数的百分比。"
+
+msgid "You also need to set Limit Number of questions"
+msgstr "您还需要设置“题目数量上限”"
+
+msgid "You are not allowed to edit this quiz, You need higher permission!"
+msgstr "您无权编辑此测验，需要更高的权限！"
+
+msgid "You are not allowed to edit this quiz."
+msgstr "您无权编辑此测验。"
+
+msgid "You are not allowed to import questions into this quiz."
+msgstr "您无权向此测验导入题目。"
+
+msgid "You are not allowed to import questions."
+msgstr "您无权导入题目。"
+
+msgid "You are not allowed to manage quiz categories."
+msgstr "您无权管理测验分类。"
+
+msgid "You can not add more than 2 answer for Polar Question type"
+msgstr "极性问题类型的答案不能超过 2 个"
+
+msgid "You can set timer in each page using Advanced Timer Add-on. "
+msgstr "您可以使用高级计时器附加组件为每个页面设置计时器。 "
+
+msgid "You do not have any quizzes or surveys yet"
+msgstr "您目前还没有任何测验或问卷"
+
+msgid "You do not have permission to access this page."
+msgstr "您没有访问此页面的权限。"
+
+msgid "You do not have permission to delete questions. Please contact the site administrator."
+msgstr "您没有删除题目的权限。请联系站点管理员。"
+
+msgid "You do not have permission to view questions."
+msgstr "您没有查看题目的权限。"
+
+msgid "You do not have permission to view this result."
+msgstr "您没有查看此结果的权限。"
+
+msgid "You have currently not installed any addons. Explore our addons repository with 40+ addons to make your quiz even better."
+msgstr "您当前尚未安装任何附加组件。浏览我们的附加组件库，40 多个附加组件让您的测验更出色。"
+
+msgid "You must not restrict number of quiz attempts when this option is enabled."
+msgstr "启用此选项时，不得限制测验尝试次数。"
+
+msgid "You're already subscribed!"
+msgstr "您已经订阅过了！"
+
+msgid "Your Advanced Timer Settings are not saved successfully. "
+msgstr "您的高级计时器设置未能成功保存。 "
+
+msgid "Your advanced settings have been saved successfully."
+msgstr "您的高级设置已成功保存。"
+
+msgid "Your contact fields have been saved!"
+msgstr "您的联系字段已保存！"
+
+msgid "Your data will remain safe during migration"
+msgstr "您的数据在迁移期间是安全的"
+
+msgid "Your data will remain safe during migration. However, we strongly recommend taking a full database backup as a precaution to prevent any potential data loss."
+msgstr "您的数据在迁移期间是安全的。不过我们强烈建议先完整备份数据库以防万一，避免任何潜在的数据丢失。"
+
+msgid "Your email address is invalid."
+msgstr "您的邮箱地址无效。"
+
+msgid "Your feedback helps other users discover the plugin and helps us keep improving it."
+msgstr "您的反馈能帮助其他用户发现本插件，也有助于我们持续改进。"
+
+msgid "Your list ID is invalid."
+msgstr "您的列表 ID 无效。"
+
+msgid "Your new question!"
+msgstr "您的新题目！"
+
+msgid "Your new quiz or survey has been created successfully. To begin editing, click the Edit link."
+msgstr "您的新测验或调查已成功创建。 要开始编辑，请单击“编辑”链接。"
+
+msgid "Your question is ready with basic settings."
+msgstr "您的题目已具备基础设置。"
+
+msgid "Your quiz has been created, you can now start adding questions."
+msgstr "您的测验已创建，现在可以开始添加题目了。"
+
+msgid "Your quiz or survey has been deleted successfully."
+msgstr "您的测验或调查已成功删除。"
+
+msgid "Your quiz or survey has been duplicated successfully."
+msgstr "您的测验或调查已成功复制。"
+
+msgid "Your results has been deleted successfully."
+msgstr "你的成绩已经删除"
+
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr "您的会话已过期。请刷新页面后重试。"
+
+msgid "Your site is using PHP version"
+msgstr "您的站点正在使用 PHP 版本"
+
+msgid "Your subscription could not be saved. Please try again."
+msgstr "您的订阅无法保存。请重试。"
+
+msgid "Your subscription has been successful."
+msgstr "您的订阅已成功。"
+
+msgid "You’ve updated to QSM 11"
+msgstr "您已升级到 QSM 11"
+
+msgid "already exists in database"
+msgstr "在数据库中已存在"
+
+msgid "and extend your quiz features."
+msgstr "并扩展您的测验功能。"
+
+msgid "and mark the"
+msgstr "并标记"
+
+msgid "bounce"
+msgstr "弹跳"
+
+msgid "buttons to add or remove answers."
+msgstr "用于添加或删除答案的按钮。"
+
+msgid "can't save quiz"
+msgstr "无法保存测验"
+
+msgid "click to insert the variable"
+msgstr "点击以插入该变量"
+
+msgid "correct answer"
+msgstr "正确答案"
+
+msgid "editor"
+msgstr "编辑器"
+
+msgid "flash"
+msgstr "flash"
+
+msgid "global defaults"
+msgstr "全局默认值"
+
+msgid "heartBeat"
+msgstr "心跳"
+
+msgid "hour"
+msgstr "小时"
+
+msgid "jello"
+msgstr "果冻"
+
+msgid "label"
+msgstr "标签"
+
+msgid "least popular quiz"
+msgstr "最不受欢迎的测验"
+
+msgid "minute"
+msgstr "分钟"
+
+msgid "most popular quiz"
+msgstr "最热门的测验"
+
+msgid "or watch the below video to get started"
+msgstr "或观看下方视频以快速上手"
+
+msgid "points"
+msgstr "分"
+
+msgid "pulse"
+msgstr "脉冲"
+
+msgid "quizzes taken last 120 days"
+msgstr "过去4个月进行的测验"
+
+msgid "quizzes taken last 30 days"
+msgstr "过去一个月进行的测验"
+
+msgid "quizzes taken last 7 days"
+msgstr "过去七天进行的测验"
+
+msgid "quizzes taken today"
+msgstr "今天进行的测验"
+
+msgid "read the documentation."
+msgstr "阅读文档。"
+
+msgid "rubberBand"
+msgstr "橡皮筋"
+
+msgid "second"
+msgstr "秒"
+
+msgid "seconds"
+msgstr "秒"
+
+msgid "select file"
+msgstr "选择文件"
+
+msgid "shake"
+msgstr "抖动"
+
+msgid "slash command"
+msgstr "斜杠命令"
+
+msgid "swing"
+msgstr "摇摆"
+
+msgid "tada"
+msgstr "tada"
+
+msgid "this setting"
+msgstr "此设置"
+
+msgid "to save the settings. "
+msgstr "以保存设置。 "
+
+msgid "total active questions"
+msgstr "所有有效的问题"
+
+msgid "total active quizzes"
+msgstr "所有有效的测验"
+
+msgid "wobble"
+msgstr "摇晃"
+
+msgid "you want to import this question again?"
+msgstr "您想再次导入此题目吗？"
+
+msgid "⭐ Leave a review"
+msgstr "⭐ 留下评价"
+
+msgid "🎉 %1$sNice work!%2$s You’ve already collected over %3$s quiz responses with Quiz & Survey Master."
+msgstr "🎉 %1$s干得漂亮！%2$s 您已通过 Quiz & Survey Master 收集了超过 %3$s 份测验回答。"
