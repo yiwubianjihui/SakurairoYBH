@@ -4114,6 +4114,27 @@ $prefix = 'iro_options';
         'default' => 82,
       ),
 
+      array(
+        'type'    => 'subheading',
+        'content' => __('管理后台','sakurairo_csf'),
+      ),
+
+      array(
+        'id' => 'ybh_admin_skin',
+        'type' => 'switcher',
+        'title' => __('后台美化','sakurairo_csf'),
+        'label' => __('默认开启：把管理后台的菜单、列表、卡片、表单与通知统一到与前台一致的圆角/阴影/主题色体系（只改观感，不影响任何功能与布局）','sakurairo_csf'),
+        'default' => true
+      ),
+
+      array(
+        'id' => 'ybh_quick_post',
+        'type' => 'switcher',
+        'title' => __('投稿快捷入口','sakurairo_csf'),
+        'label' => __('默认开启：管理条增加「投稿」按钮（前后台都可见），仪表盘增加快捷面板，文章菜单里把「写文章」置顶','sakurairo_csf'),
+        'default' => true
+      ),
+
     )
   ) );
 
@@ -4148,7 +4169,7 @@ $prefix = 'iro_options';
       array(
         'type'    => 'submessage',
         'style'   => 'normal',
-        'content' => sprintf(__('Theme Sakurairo Version %s | Internal Version %s | <a href="https://github.com/mirai-mamori/Sakurairo">Project Address</a>','sakurairo_csf'), IRO_VERSION, INT_VERSION), 
+        'content' => sprintf(__('Theme SakurairoYBH Version %s | Internal Version %s | <a href="https://github.com/yiwubianjihui/SakurairoYBH" target="_blank">Project Address</a> | <a href="https://github.com/mirai-mamori/Sakurairo" target="_blank">Upstream: Sakurairo by Fuukei</a>','sakurairo_csf'), IRO_VERSION, INT_VERSION), 
       ),
 
       array(

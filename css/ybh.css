@@ -496,7 +496,10 @@
   unicode-range: U+0000-007E,U+100000-101AFF,U+102000-10437B,U+105000-10C7B7;
 }
 
-/* ---------- 字体：霞鹜文楷（子集优先，全量兜底；同一字体声明 italic 面，中文斜体不再合成歪斜） ---------- */
+/* ---------- 字体：霞鹜文楷（子集优先，全量兜底） ----------
+   这四块由 _probe_dir/font_css.py 维护（它按 'sarasa/…' 与 '/lxgw/…' 两种 src 做定位改写），
+   结构请勿随意调整。当前没有任何 font-family 列表直接引用 'LXGW WenKai' ——
+   「中文斜体」是在下方以 Sarasa UI SC 的 CJK 斜体面形式落地的（见该段说明）。 */
 @font-face {
   font-family: 'LXGW WenKai';
   src: url('https://www.yibianhui.cn/wp-content/uploads/ybh-fonts/slice/LXGWWenKai-Regular.subset.woff2') format('woff2');
@@ -545,13 +548,47 @@
   font-family: 'Sarasa UI K', 'PingFang SC', 'Microsoft YaHei', 'TH-Tshyn', sans-serif;
 }
 
-/* ---------- 中文斜体 = 霞鹜文楷（楷体作为斜体“声音”；代码块内不劫持） ---------- */
-i, em, cite, var, dfn {
-  font-family: 'LXGW WenKai', 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'TH-Tshyn', sans-serif;
+/* ---------- 中文斜体 = 霞鹜文楷（楷体作为斜体“声音”） ----------
+   为什么不是 `i, em { font-family: 'LXGW WenKai', … }`：
+   上面那组 `:lang(zh…):not(…)` 规则特指度是 (0,8,0)，而 `i, em` 只有 (0,0,1)。本站
+   <html lang="zh-Hans">，于是前者必然胜出 —— 那条写法**从写下起就没生效过**
+   （实测 <em> 的计算样式仍是 "Sarasa UI SC"，中文斜体一直是无衬线斜体）。
+   改成 !important 能赢，但会连带打掉所有用 <i> 承载的图标字体（FontAwesome / Dashicons /
+   remixicon / iconfont 全套都靠 <i>），也越权压掉后来者对 em 的字体设定。
+
+   换一条不打架的路：**直接给「中文正文所用族」补一个 CJK 限定的斜体面**。
+   @font-face 的规则是「同族同名 + 字重字型一致时，后声明者胜」，下面两块把
+   'Sarasa UI SC' 的 400/700 斜体面在 CJK 码位上换成霞鹜文楷；再靠 unicode-range
+   把西文与数字让出去 —— 它们会顺着 font-family 列表落回 Sarasa 的真·Italic
+   （Sarasa 全套有真斜体面），不会像原先设想的那样被楷体的西文（衬线 + 字幅偏窄）吃掉。
+   图标字体是另外的族，完全不受影响；非中文语境也不会被误伤。
+   本块路径与 font_css.py 的改写目标不冲突（它只认 'sarasa/…' 与 '/lxgw/…' 两种 src）。 */
+
+/* 霞鹜文楷只有直立字形，直接声明成 italic 面 ⇒ 汉字斜体不会被浏览器「合成倾斜」，
+   楷体笔画保持端正（这正是用楷体当斜体的意义）。 */
+@font-face {
+  font-family: 'Sarasa UI SC';
+  src: url('https://www.yibianhui.cn/wp-content/uploads/ybh-fonts/slice/LXGWWenKai-Regular.subset.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+00B7,U+2000-206F,U+2E80-2EFF,U+3000-303F,U+3040-30FF,
+    U+3100-312F,U+31A0-31BF,U+31C0-31EF,U+3400-4DBF,U+4E00-9FFF,
+    U+F900-FAFF,U+FE10-FE1F,U+FE30-FE4F,U+FE50-FE6F,U+FF00-FFEF;
 }
-code i, code em, pre i, pre em, kbd i, kbd em, samp i, samp em {
-  font-family: inherit;
+/* <strong><em> 的粗斜体同样交给楷体（否则会落到 Sarasa 的 700 斜体，中文又变无衬线）。 */
+@font-face {
+  font-family: 'Sarasa UI SC';
+  src: url('https://www.yibianhui.cn/wp-content/uploads/ybh-fonts/slice/LXGWWenKai-Regular.subset.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+00B7,U+2000-206F,U+2E80-2EFF,U+3000-303F,U+3040-30FF,
+    U+3100-312F,U+31A0-31BF,U+31C0-31EF,U+3400-4DBF,U+4E00-9FFF,
+    U+F900-FAFF,U+FE10-FE1F,U+FE30-FE4F,U+FE50-FE6F,U+FF00-FFEF;
 }
+/* 注：只覆盖 SC（本站 lang=zh-Hans）。若日后要出 zh-TW / zh-HK 版式，
+   照抄上面两块、把族名换成 'Sarasa UI TC' / 'Sarasa UI HC' 即可。 */
 
 /* ---------- 默认样式烘焙（与站点「额外 CSS」一致，作为主题默认值；额外 CSS 仍可随时覆盖） ---------- */
 /* 段落排版：取消段首缩进，改回「段间距」形式（沿用主题内容样式原本的 margin-bottom: 10px） */
@@ -1143,4 +1180,473 @@ nav .menu > li .sub-menu a:visited,
 .mobile-nav a:visited,
 #colophon a:visited {
   color: var(--theme-skin, #505050);
+}
+
+/* ============================================================
+   YBH 2.0 · Modern UI 视觉层
+   ------------------------------------------------------------
+   方案来源：EquinoxXawa（分支 EquinoxX-ver，commit 0fb99936
+   “feat(YBH 2.0): modern UI 视觉改版”）。经逐项比对后，本节采纳其
+   下列实现（其余条目本站已有更贴合需求的实现，故保留原方案不重复引入）：
+
+     ✓ 圆角遮罩 mask-image —— 消除不同缩放比下的圆角黑边/锯齿（我方原
+       方案只处理封面裁切，此为更通用的解法，故采用）
+     ✓ 设计令牌体系（--ybh-radius-* / --ybh-shadow-* / 玻璃底色）
+     ✓ 卡片与展台统一圆角、阴影体系与悬浮层次
+     ✓ 统计胶囊 / 分页按钮 / 区块标题 / 焦点区 / 悬浮页脚的现代观感
+
+     ✗ 元信息条“换行 + 右对齐收缩到 calc(100% - 164px)”——不采纳：
+       本站要求“遮罩随内容长度自适应”，现用 .post-topbar 弹性行
+       + 胶囊 flex:0 1 auto + 省略号收口，更贴合该需求
+     ✗ 标题 hover 字距锁死、顶栏 visited 锁色 —— 本站 v1.2.0 已实现
+
+   与视觉层配套：本节所有动效都走「动效令牌」，
+   低端设备 / prefers-reduced-motion 下自动收敛（见本节末尾第 10 段）。
+   ============================================================ */
+
+/* ---------- 0. 设计令牌 ---------- */
+body {
+  --ybh-radius-lg: 20px;
+  --ybh-radius-md: 16px;
+  --ybh-radius-sm: 12px;
+  --ybh-ring: rgba(255, 255, 255, 0.55);
+  --ybh-shadow-1: 0 10px 30px -16px rgba(24, 32, 42, 0.20);
+  --ybh-shadow-2: 0 18px 44px -20px rgba(24, 32, 42, 0.32);
+  --ybh-accent: var(--theme-skin-matching, #6c8cff);
+  /* 玻璃拟态：底色与模糊强度都令牌化，降级时只改变量即可 */
+  --ybh-glass-bg: rgba(255, 255, 255, 0.84);
+  --ybh-glass-bg-strong: rgba(255, 255, 255, 0.94);
+  --ybh-glass-edge: rgba(255, 255, 255, 0.65);
+  --ybh-glass-blur: blur(14px) saturate(170%);
+  /* 动效令牌：hover 位移量与过渡时长集中在此 */
+  --ybh-hover-lift: -6px;
+  --ybh-hover-lift-sm: -2px;
+  --ybh-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ybh-dur: 0.25s;
+}
+body.dark {
+  --ybh-radius-lg: 18px;
+  --ybh-ring: rgba(255, 255, 255, 0.09);
+  --ybh-shadow-1: 0 12px 30px -18px rgba(0, 0, 0, 0.55);
+  --ybh-shadow-2: 0 22px 48px -22px rgba(0, 0, 0, 0.70);
+  --ybh-glass-bg: rgba(22, 23, 28, 0.78);
+  --ybh-glass-bg-strong: rgba(28, 29, 35, 0.92);
+  --ybh-glass-edge: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- 1. 圆角遮罩：消除缩放渲染下的黑边 / 锯齿 ----------
+   mask-image 会把元素的绘制结果裁剪到圆角内，使圆角外的背景/
+   渐变不再“溢出”成深色描边 —— 这是部分设备（尤其 Win 缩放渲染）
+   出现卡片黑边的根因。isolation 隔开层叠上下文避免与父级混合。 */
+body .post-list-thumb,
+body .bento-item {
+  border-radius: var(--ybh-radius-lg);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+  isolation: isolate;
+}
+
+/* ---------- 2. 文章卡 ---------- */
+body .post-list-thumb {
+  background-color: var(--ybh-glass-bg);
+  box-shadow: var(--ybh-shadow-1);
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease);
+}
+body .post-list-thumb:hover {
+  transform: translateY(var(--ybh-hover-lift));
+  box-shadow: var(--ybh-shadow-2);
+}
+/* 封面图悬浮微放大（只动 transform / filter，不触发重排） */
+body .post-list-thumb .post-thumb a img {
+  transition: transform 0.7s var(--ybh-ease), filter 0.7s ease;
+  filter: saturate(1.02);
+}
+body .post-list-thumb:hover .post-thumb a img {
+  transform: scale(1.045);
+}
+/* 标题面板：玻璃拟态 */
+body .post-list-thumb .post-title {
+  border-radius: var(--ybh-radius-md);
+  background-color: var(--ybh-glass-bg);
+  border-color: var(--ybh-glass-edge);
+  padding: 12px 18px;
+  box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.40);
+  transition: background-color var(--ybh-dur) ease,
+              box-shadow var(--ybh-dur) ease;
+}
+body .post-list-thumb .post-title:hover {
+  background-color: var(--ybh-glass-bg-strong);
+  box-shadow: 0 14px 34px -18px rgba(0, 0, 0, 0.45);
+}
+/* 元信息胶囊：本站自 v1.2.5 起用 .post-topbar 弹性行 + 内容自适应宽度，
+   这里只补视觉（玻璃底 + 描边 + 文字投影），不改布局与宽度策略。 */
+body .post-list-thumb .post-topbar > .post-date,
+body .post-list-thumb .post-topbar > .post-meta {
+  border-radius: 10px;
+  background-color: rgba(20, 22, 28, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: var(--ybh-glass-blur);
+  backdrop-filter: var(--ybh-glass-blur);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+}
+
+/* ---------- 3. 展台 Bento ---------- */
+body .bento-item {
+  background-color: var(--ybh-glass-bg);
+  box-shadow: var(--ybh-shadow-1);
+  border-color: var(--ybh-ring);
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease);
+}
+body .bento-item:hover {
+  transform: translateY(var(--ybh-hover-lift));
+  box-shadow: var(--ybh-shadow-2);
+}
+body .bento-item .card-image,
+body .bento-item .card-image img {
+  border-radius: var(--ybh-radius-lg);
+}
+body.ybh-exhibit-compact .bento-grid {
+  gap: 14px;
+}
+body.ybh-exhibit-compact .card-title-wrapper {
+  border-radius: var(--ybh-radius-lg) var(--ybh-radius-lg) 0 0;
+}
+body .bento-card-title {
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+body .card-info .card-description {
+  letter-spacing: 0.01em;
+}
+
+/* ---------- 4. 统计胶囊 ---------- */
+body .stat-capsule {
+  border-radius: 999px;
+  border: 1px solid var(--ybh-ring);
+  box-shadow: 0 8px 20px -12px rgba(24, 32, 42, 0.18);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+  transition: transform var(--ybh-dur) ease, box-shadow var(--ybh-dur) ease;
+}
+body .stat-capsule:hover {
+  transform: translateY(var(--ybh-hover-lift-sm));
+  box-shadow: 0 12px 26px -14px rgba(24, 32, 42, 0.25);
+}
+body.dark .stat-capsule {
+  background: rgba(34, 35, 42, 0.86);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- 5.「更早的文章」：现代胶囊按钮 ---------- */
+body #pagination {
+  display: block;
+  text-align: center;
+  margin: 36px 0 60px;
+  padding: 8px 0;
+}
+body #pagination a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-width: 200px;
+  padding: 13px 34px;
+  border-radius: 999px;
+  border: 1px solid var(--ybh-glass-edge);
+  background: var(--ybh-glass-bg);
+  color: var(--theme-skin, #454b52);
+  box-shadow: 0 10px 26px -16px rgba(24, 32, 42, 0.35);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  font-weight: 600;
+  transition: color var(--ybh-dur) ease, background-color var(--ybh-dur) ease,
+              transform var(--ybh-dur) ease, box-shadow var(--ybh-dur) ease;
+}
+body #pagination a:hover {
+  color: #fff;
+  background-color: var(--ybh-accent);
+  border-color: transparent;
+  transform: translateY(var(--ybh-hover-lift-sm));
+  box-shadow: 0 14px 30px -12px var(--ybh-accent);
+}
+body #pagination a:active {
+  transform: translateY(0);
+}
+/* 加载态：保留主题加载图，隐藏文字避免闪烁 */
+body #pagination a.loading {
+  color: transparent;
+  pointer-events: none;
+  background-color: transparent;
+  background-image: var(--load_nextpage_svg, none);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: auto 80%;
+  border-color: transparent;
+  box-shadow: none;
+}
+body.dark #pagination a {
+  background: rgba(40, 41, 49, 0.75);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #e6e7ec;
+}
+
+/* ---------- 6. 首页焦点区 ---------- */
+body .focusinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+}
+body .center-text {
+  line-height: 1.16;
+  letter-spacing: 0.05em;
+}
+body .focusinfo .header-info {
+  border-radius: 18px;
+  box-shadow: 0 14px 40px -18px rgba(0, 0, 0, 0.45);
+}
+body .top-social {
+  list-style: none;
+}
+body .top-social .socialIconWithInner {
+  display: inline-flex;
+  list-style: none;
+}
+body .top-social a {
+  display: inline-flex;
+  transition: transform 0.22s ease;
+}
+body .top-social a:hover {
+  transform: translateY(-4px);
+}
+body .top-social a i {
+  transition: transform 0.22s ease, color 0.22s ease;
+}
+body .top-social a:hover i {
+  color: var(--ybh-accent);
+}
+
+/* ---------- 7. 区块标题：图标收纳为色块芯片 ---------- */
+body h1.fes-title,
+body h1.posts-area-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 30px 0 18px;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+body h1.fes-title i,
+body h1.posts-area-title i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1em;
+  height: 2.1em;
+  font-size: 0.68em;
+  border-radius: 12px;
+  color: var(--ybh-accent);
+  background: rgba(127, 127, 127, 0.14);
+  background: color-mix(in srgb, var(--ybh-accent) 15%, transparent);
+}
+
+/* ---------- 8. 悬浮页脚 ---------- */
+body .site-footer {
+  border-radius: 22px 22px 0 0;
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 -12px 34px -16px rgba(24, 32, 42, 0.28);
+}
+
+/* ---------- 9. 顶栏 / 移动导航：点击反馈与 visited 兜底 ---------- */
+body .site-header .menu a,
+body .mobile-nav .menu a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================
+   10. 动效降级层（低端设备 / 减少动效偏好）
+   ------------------------------------------------------------
+   分层策略：
+     · 视觉层（圆角、玻璃底色、阴影、配色）—— 所有设备保留，界面不退化；
+     · 动效层（位移、缩放、模糊、过渡）—— 按设备能力逐级削弱。
+   低端设备由 bootstrap 注入的极简探测脚本在 <html> 上打 ybh-lite
+   （见 inc/ybh/bootstrap.php 的 ybh_lowend_probe）；同时尊重系统级
+   prefers-reduced-motion。两条路径共用同一组令牌，改一处即可。
+   ============================================================ */
+
+/* 10.1 依据「减少动效」偏好（无障碍，含 iOS/Android 的低电量省电模式） */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    --ybh-hover-lift: 0px;
+    --ybh-hover-lift-sm: 0px;
+    --ybh-dur: 0.01ms;
+  }
+  body .post-list-thumb .post-thumb a img,
+  body .post-list-thumb:hover .post-thumb a img {
+    transition: none;
+    transform: none;
+  }
+  body .top-social a:hover,
+  body .top-social a:hover i,
+  body .site-header .menu a,
+  body .mobile-nav .menu a {
+    transform: none;
+  }
+}
+
+/* 10.2 低端设备（由 JS 探测后给 <html> 加 .ybh-lite） */
+html.ybh-lite body {
+  /* 玻璃拟态改不透明实底：backdrop-filter 是移动端 GPU 最大的开销来源 */
+  --ybh-glass-bg: rgba(255, 255, 255, 0.97);
+  --ybh-glass-bg-strong: #fff;
+  --ybh-glass-blur: none;
+  --ybh-hover-lift: 0px;
+  --ybh-hover-lift-sm: 0px;
+  --ybh-dur: 0.01ms;
+}
+html.ybh-lite body.dark {
+  --ybh-glass-bg: rgba(22, 23, 28, 0.97);
+  --ybh-glass-bg-strong: #1c1d23;
+}
+/* 关闭一切 backdrop-filter（含主题自带），并把半透明蒙底替换为实色，
+   否则玻璃底消失后封面上的文字会因对比不足而看不清 */
+html.ybh-lite body .post-list-thumb .post-topbar > .post-date,
+html.ybh-lite body .post-list-thumb .post-topbar > .post-meta {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: rgba(20, 22, 28, 0.72);
+}
+html.ybh-lite body .stat-capsule,
+html.ybh-lite body .site-footer,
+html.ybh-lite body #pagination a,
+html.ybh-lite body .focusinfo .header-info,
+html.ybh-lite body .nav-search-wrapper,
+html.ybh-lite body * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+/* 位移与微缩放动效全部取消（保留颜色/阴影过渡作为操作反馈） */
+html.ybh-lite body .post-list-thumb:hover,
+html.ybh-lite body .bento-item:hover,
+html.ybh-lite body .stat-capsule:hover,
+html.ybh-lite body #pagination a:hover,
+html.ybh-lite body .top-social a:hover {
+  transform: none;
+}
+html.ybh-lite body .post-list-thumb:hover .post-thumb a img {
+  transform: none;
+  filter: none;
+}
+/* 展台封面的常驻 saturate 滤镜也一并去掉（低端设备逐帧滤镜代价高） */
+html.ybh-lite body .post-list-thumb .post-thumb a img {
+  filter: none;
+}
+html.ybh-lite body .post-list-thumb .post-thumb a img,
+html.ybh-lite body .top-social a,
+html.ybh-lite body .top-social a i {
+  transition: none;
+}
+
+/* ============================================================
+   11. 文章卡片上的标签缩小 + 控制台「紧凑」模式
+   ------------------------------------------------------------
+   11.1 是全站默认（比主题默认更小一档，压在封面上的视觉重量更轻）；
+   11.2 由右下角控制台（#changskin → .skin-menu）的「紧凑」按钮切换，
+        html.ybh-compact 生效后可一屏显示更多文章。
+   ============================================================ */
+
+/* ---------- 11.1 卡片上的时间 / 分类 / 标签胶囊：收小一档 ----------
+   主题默认：.post-date 12px、胶囊 padding 5px 10px。
+   这里统一压到 11px / padding 2px 7px（本站 v1.2.5 已是 3px 8px·11.5px，
+   再收一档），并把内部的分类、标签链接一并跟随，避免外框小了字还大。 */
+.post-list-thumb .post-topbar > .post-date,
+.post-list-thumb .post-topbar > .post-meta {
+  padding: 2px 7px;
+  font-size: 11px;
+  line-height: 16px;
+  border-radius: 7px;
+}
+.post-list-thumb .post-topbar > .post-meta a,
+.post-list-thumb .post-topbar > .post-meta span,
+.post-list-thumb .post-topbar > .post-meta i {
+  font-size: inherit;
+  line-height: inherit;
+}
+/* 元信息内部的项间距同步收紧（默认由主题按 em 分配） */
+.post-list-thumb .post-topbar > .post-meta > span + span {
+  margin-left: 7px;
+}
+.post-list-thumb .post-topbar .post-top {
+  font-size: 11px;
+}
+
+/* ---------- 11.2 紧凑模式 ----------
+   目标：同样的视口高度里多放文章。
+   手段是成比例地缩小「卡片高度 / 封面上的标题面板 / 卡片间距 / 胶囊」，
+   同时保留封面可辨识的观感，不做极端压缩。 */
+html.ybh-compact body .post-list-thumb {
+  height: 232px;
+  margin: 9px 0;
+}
+html.ybh-compact body.ybh-postlist-2col #primary .site-main:has(> .post-list-thumb) {
+  gap: 0 12px;
+}
+/* 标题面板：更小的内边距与字号，位置略微下移以留出封面呼吸感 */
+html.ybh-compact body .post-list-thumb .post-title {
+  padding: 8px 14px;
+  bottom: 8%;
+}
+html.ybh-compact body .post-list-thumb .post-title h3 {
+  font-size: 15px;
+  letter-spacing: 1px;
+  line-height: 1.35;
+}
+html.ybh-compact body .post-list-thumb .post-title h3:hover {
+  /* 紧凑模式下同样保持字距恒定，避免 hover 抖动 */
+  letter-spacing: 1px;
+}
+/* 胶囊再收一档 */
+html.ybh-compact body .post-list-thumb .post-topbar {
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  gap: 6px;
+}
+html.ybh-compact body .post-list-thumb .post-topbar > .post-date,
+html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
+  padding: 2px 6px;
+  font-size: 10.5px;
+  line-height: 15px;
+}
+/* 紧凑模式下元信息允许占更宽，保证分类名不被过早省略 */
+html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
+  max-width: 68%;
+}
+/* 窄屏下的紧凑模式：卡片再矮一点，避免小屏上高度占比过高 */
+@media (max-width: 860px) {
+  html.ybh-compact body .post-list-thumb {
+    height: 210px;
+    margin: 8px 0;
+  }
+  html.ybh-compact body .post-list-thumb .post-title h3 {
+    font-size: 14px;
+  }
+}
+
+/* ---------- 11.3 控制台按钮 ----------
+   结构与日/夜模式一致（.menu-list > li），复用既有图标按钮观感；
+   .selected 表示紧凑模式已开启。 */
+.skin-menu .ybh-compact-list li {
+  cursor: pointer;
+}
+.skin-menu .ybh-compact-list li.selected {
+  opacity: 1;
+}
+.skin-menu .ybh-compact-list li:not(.selected) {
+  opacity: 0.55;
 }

@@ -1,0 +1,350 @@
+/* ============================================================
+   SakurairoYBH · 后台美化层（ybh-admin.css）
+   只作用于 WordPress 管理后台与登录后可见的前台管理条。
+   设计令牌与前台「YBH Modern UI」层同源，保持前后台观感一致。
+   由 inc/ybh/admin.php 入队；站点主题色通过内联变量 --ybh-a 注入。
+   ------------------------------------------------------------
+   原则：
+   1) 只改「观感」（圆角/阴影/间距/过渡/强调色），不动布局与交互逻辑；
+   2) 不覆盖 WordPress 的信息层级与可访问性（焦点环、对比度保留）；
+   3) 少用 !important —— 仅在与核心高特指度规则冲突处使用，且逐条注明原因。
+   ============================================================ */
+
+:root {
+  --ybh-a: #ff69b4;                 /* 站点主题色，由 PHP 覆盖 */
+  --ybh-a-soft: rgba(255, 105, 180, 0.10);
+  --ybh-a-ring: rgba(255, 105, 180, 0.28);
+  --ybh-r-lg: 14px;
+  --ybh-r-md: 10px;
+  --ybh-r-sm: 7px;
+  --ybh-sh-1: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --ybh-sh-2: 0 4px 14px -4px rgba(16, 24, 40, 0.12), 0 2px 6px -2px rgba(16, 24, 40, 0.07);
+  --ybh-line: #e5e7eb;
+  --ybh-ease: cubic-bezier(0.07, 0.53, 0.65, 0.95);
+  --ybh-dur: 0.22s;
+}
+
+/* ---------- 1. 侧栏菜单 ---------- */
+#adminmenuwrap #adminmenu a {
+  border-radius: var(--ybh-r-sm);
+  transition: background-color var(--ybh-dur) var(--ybh-ease),
+              color var(--ybh-dur) var(--ybh-ease);
+}
+/* 主菜单容器内边距：默认菜单项是整行贴边的，加圆角后需要留出左右留白 */
+#adminmenu {
+  padding-left: 6px;
+  padding-right: 6px;
+  box-sizing: border-box;
+}
+#adminmenu li.menu-top {
+  margin: 2px 0;
+}
+#adminmenu li.current a.menu-top,
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
+  background: var(--ybh-a);
+  color: #fff;
+}
+#adminmenu li.current a.menu-top:hover,
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu:hover {
+  background: var(--ybh-a);
+}
+#adminmenu .wp-submenu {
+  border-radius: 0 var(--ybh-r-sm) var(--ybh-r-sm) 0;
+}
+#adminmenu .wp-menu-image:before {
+  transition: color var(--ybh-dur) var(--ybh-ease);
+}
+
+/* YBH：投稿快捷入口（见 inc/ybh/admin.php），在菜单里做成一个高亮项 */
+#adminmenu li.ybh-menu-post a.menu-top {
+  background: var(--ybh-a-soft);
+  font-weight: 600;
+}
+#adminmenu li.ybh-menu-post a.menu-top:hover {
+  background: var(--ybh-a);
+  color: #fff;
+}
+
+/* ---------- 2. 页面标题区 ---------- */
+.wrap > h1,
+.wrap > h1.wp-heading-inline {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--ybh-line);
+  margin-bottom: 1em;
+}
+.wrap .page-title-action {
+  border-radius: var(--ybh-r-sm);
+  border-color: transparent;
+  background: var(--ybh-a);
+  color: #fff;
+  box-shadow: var(--ybh-sh-1);
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease);
+}
+.wrap .page-title-action:hover,
+.wrap .page-title-action:focus {
+  background: var(--ybh-a);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--ybh-sh-2);
+}
+
+/* ---------- 3. 列表表格（文章/页面/评论…） ---------- */
+.wp-list-table {
+  border: 1px solid var(--ybh-line);
+  border-radius: var(--ybh-r-md);
+  overflow: hidden;
+  box-shadow: var(--ybh-sh-1);
+  background: #fff;
+}
+/* 表头吸顶时圆角会被裁掉，这里只给首行加底色，不破坏 sticky */
+.wp-list-table thead th,
+.wp-list-table thead td {
+  background: #fafafa;
+  font-weight: 600;
+  border-bottom: 1px solid var(--ybh-line);
+}
+.wp-list-table tbody tr {
+  transition: background-color var(--ybh-dur) var(--ybh-ease);
+}
+.wp-list-table tbody tr:hover {
+  background: var(--ybh-a-soft);
+}
+.wp-list-table .row-actions {
+  color: #6b7280;
+}
+.wp-list-table .row-actions a {
+  color: var(--ybh-a);
+}
+
+/* ---------- 4. 卡片 / 面板（编辑页 metabox、仪表盘小工具） ---------- */
+.postbox,
+#dashboard-widgets .postbox,
+.widgets-holder-wrap {
+  border: 1px solid var(--ybh-line);
+  border-radius: var(--ybh-r-md);
+  box-shadow: var(--ybh-sh-1);
+  overflow: hidden;
+}
+.postbox .postbox-header,
+#dashboard-widgets .postbox .postbox-header {
+  border-bottom: 1px solid var(--ybh-line);
+  background: #fafafa;
+}
+.postbox-header .hndle {
+  font-weight: 600;
+}
+#dashboard-widgets .postbox:hover {
+  box-shadow: var(--ybh-sh-2);
+}
+
+/* ---------- 5. 按钮 ---------- */
+.wp-core-ui .button,
+.wp-core-ui .button-secondary,
+.wp-core-ui .button-primary {
+  border-radius: var(--ybh-r-sm);
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease),
+              background-color var(--ybh-dur) var(--ybh-ease);
+}
+.wp-core-ui .button:hover,
+.wp-core-ui .button-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ybh-sh-1);
+}
+.wp-core-ui .button-primary {
+  background: var(--ybh-a);
+  border-color: transparent;
+  text-shadow: none;
+}
+.wp-core-ui .button-primary:hover,
+.wp-core-ui .button-primary:focus {
+  background: var(--ybh-a);
+  border-color: transparent;
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: var(--ybh-sh-2);
+}
+
+/* ---------- 6. 表单控件 ---------- */
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="url"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  border-radius: var(--ybh-r-sm);
+  border-color: var(--ybh-line);
+  transition: border-color var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease);
+}
+/* 焦点环：保留可访问性，只换成主题色。
+   WordPress 核心对 input:focus 用的是 box-shadow + border-color，特指度不高，
+   但在部分核心样式（如 .wp-core-ui input[type=text]:focus）下需要 !important 才稳。 */
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--ybh-a) !important;
+  box-shadow: 0 0 0 1px var(--ybh-a) !important;
+  outline: 2px solid transparent;
+}
+
+/* ---------- 7. 通知条（notice） ---------- */
+.notice,
+div.updated,
+div.error {
+  border-radius: var(--ybh-r-sm);
+  border-left-width: 4px;
+  box-shadow: var(--ybh-sh-1);
+}
+.notice-info,
+.notice-success {
+  border-left-color: var(--ybh-a);
+}
+
+/* ---------- 8. 顶栏 ---------- */
+#wpadminbar {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+#wpadminbar .ab-item,
+#wpadminbar a.ab-item {
+  transition: background-color var(--ybh-dur) var(--ybh-ease);
+}
+/* YBH：顶栏「投稿」按钮（前后台都可见） */
+#wpadminbar .ybh-ab-post > .ab-item {
+  font-weight: 600;
+}
+#wpadminbar .ybh-ab-post > .ab-item .ab-icon:before {
+  top: 2px;
+  color: var(--ybh-a);
+}
+#wpadminbar .ybh-ab-post:hover > .ab-item,
+#wpadminbar .ybh-ab-post > .ab-item:hover {
+  background: var(--ybh-a);
+  color: #fff;
+}
+#wpadminbar .ybh-ab-post:hover > .ab-item .ab-icon:before {
+  color: #fff;
+}
+
+/* ---------- 9. 仪表盘：YBH 快捷投稿面板 ---------- */
+/* 只在本主题提供的 .ybh-quickpost 面板内生效，不干扰其它小工具。 */
+.ybh-quickpost .inside {
+  margin: 0;
+  padding: 16px 18px 18px;
+}
+.ybh-qp-lead {
+  margin: 0 0 14px;
+  color: #50575e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.ybh-qp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.ybh-qp-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 15px;
+  border: 1px solid var(--ybh-line);
+  border-radius: var(--ybh-r-md);
+  background: #fff;
+  color: #1d2327;
+  text-decoration: none;
+  box-shadow: var(--ybh-sh-1);
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease),
+              border-color var(--ybh-dur) var(--ybh-ease);
+}
+.ybh-qp-card:hover,
+.ybh-qp-card:focus {
+  color: #1d2327;
+  border-color: var(--ybh-a);
+  transform: translateY(-2px);
+  box-shadow: var(--ybh-sh-2);
+  outline: none;
+}
+.ybh-qp-card .dashicons {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: var(--ybh-a);
+  flex: none;
+}
+.ybh-qp-card b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.ybh-qp-card small {
+  display: block;
+  color: #6b7280;
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+/* 主卡片（写文章）：整块用主题色，最先被看到 */
+.ybh-qp-card.is-primary {
+  background: var(--ybh-a);
+  border-color: transparent;
+  color: #fff;
+}
+.ybh-qp-card.is-primary .dashicons,
+.ybh-qp-card.is-primary b,
+.ybh-qp-card.is-primary small {
+  color: #fff;
+}
+.ybh-qp-card.is-primary small {
+  opacity: 0.85;
+}
+.ybh-qp-card.is-primary:hover,
+.ybh-qp-card.is-primary:focus {
+  color: #fff;
+  filter: brightness(0.96);
+}
+
+/* ---------- 10. 页脚 ---------- */
+#wpfooter {
+  border-top: 1px solid var(--ybh-line);
+}
+#wpfooter p {
+  color: #6b7280;
+}
+#wpfooter .ybh-admin-credit a {
+  color: var(--ybh-a);
+}
+
+/* ---------- 11. 登录页：与主题色小幅对齐（只在核心没覆盖到位的地方补） ---------- */
+.login .button-primary {
+  border-radius: var(--ybh-r-sm);
+}
+
+/* ---------- 12. 低端/省电设备：跟随系统偏好去掉过渡 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #adminmenu a,
+  .wp-list-table tbody tr,
+  .wp-core-ui .button,
+  .ybh-qp-card,
+  input[type="text"],
+  textarea,
+  select {
+    transition: none !important;
+  }
+  .wp-core-ui .button:hover,
+  .ybh-qp-card:hover {
+    transform: none !important;
+  }
+}

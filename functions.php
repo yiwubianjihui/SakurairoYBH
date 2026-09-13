@@ -1852,7 +1852,7 @@ function theme_admin_notice_callback()
     }
 
     // 显示通知
-    $theme_name = 'Sakurairo';
+    $theme_name = 'SakurairoYBH';
     switch (get_user_locale()) {
         case 'zh_CN':
             $thankyou = '感谢你使用 ' . $theme_name . ' 主题！这里有一些需要你的许可的东西(*/ω＼*)';

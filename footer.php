@@ -15,7 +15,7 @@ $reception_background = iro_opt('reception_background');
   <?php comments_template('', true); ?>
 </div><!-- #page Pjax container-->
   <footer id="colophon" class="site-footer" role="contentinfo">
-    <div class="site-info" theme-info="Sakurairo v<?php echo esc_html(IRO_VERSION); ?>">
+    <div class="site-info" theme-info="SakurairoYBH v<?php echo esc_html(IRO_VERSION); ?>"><?php /* YBH fork：署名改为 SakurairoYBH，避免与上游 Sakurairo 混淆 */ ?>
       <div class="img-preload" style="display:none">
         <img alt="loading_svg" src="<?php echo esc_url(iro_opt('load_nextpage_svg')); ?>">
       </div>
@@ -58,8 +58,9 @@ $reception_background = iro_opt('reception_background');
               </svg>
             </div>
           <?php endif; ?>
+        <?php /* YBH fork：明确写出来源 —— 本主题是 Sakurairo 的二次开发，非上游原版 */ ?>
         <a href="https://github.com/yiwubianjihui/SakurairoYBH" rel="noopener" target="_blank">Theme SakurairoYBH</a>
-        <a href="https://github.com/mirai-mamori/Sakurairo" rel="noopener" target="_blank">based on Sakurairo by Fuukei</a>
+        <a href="https://github.com/mirai-mamori/Sakurairo" rel="noopener" target="_blank">forked from Sakurairo by Fuukei</a>
       </div>
     </div><!-- .site-info -->
   </footer><!-- #colophon -->
@@ -138,6 +139,13 @@ $reception_background = iro_opt('reception_background');
         </button>
       </div>
     <?php endif; ?>
+    <?php /* YBH：紧凑模式开关 —— 缩小文章卡尺寸，让一屏显示更多文章。
+             沿用日/夜模式的 .menu-list>li 结构，选中态用 .selected。 */ ?>
+    <ul class="menu-list ybh-compact-list">
+      <li class="ybh-compact-toggle" title="<?php esc_attr_e('Compact mode: smaller cards, more posts per screen', 'sakurairo'); ?>">
+        <i class="fa-solid fa-table-cells-large"></i>
+      </li>
+    </ul>
   </div>
 </div>
 <?php if (iro_opt('aplayer_server') != 'off'): ?>

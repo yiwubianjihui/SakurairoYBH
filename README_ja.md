@@ -2,7 +2,14 @@
 
 [![image](https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/banner-en-jp.webp)](https://github.com/mirai-mamori/Sakurairo)
 
-<h1 align="left">Theme Sakurairo </h1>
+<h1 align="left">Theme SakurairoYBH</h1>
+
+> **SakurairoYBH は [Sakurairo](https://github.com/mirai-mamori/Sakurairo) のフォーク（二次開発版）です。**
+> [Yibianhui](https://www.yibianhui.cn/) が https://www.yibianhui.cn 向けに保守しています。
+> 上流の Sakurairo は AI 読み上げ支援機能を備えた WordPress テーマで、本フォークはその機能を
+> すべて引き継いだうえで、中国語組版・フォント読み込み性能・管理画面の使い勝手を改善しています。
+> 系譜：Sakurairo（作者 Fuukei）→ [Sakura V3 Series](https://github.com/mashirozx/sakura/tree/3.x)。
+> 変更点と貢献者の一覧は[中国語 README](README.md)をご覧ください。
 
 > AIが読み上げをアシストするWordPressテーマ。カラフルで親しみやすく、機能が充実しています。
 

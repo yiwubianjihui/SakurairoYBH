@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.2.6');
+define('YBH_VERSION', '1.2.7');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -220,6 +220,13 @@ require_once get_template_directory() . '/inc/ybh/home-tags.php';
 require_once get_template_directory() . '/inc/ybh/cookie-banner.php';
 
 /**
+ * 8.6) 后台层：后台美化（css/ybh-admin.css）+ 更易用的投稿入口
+ *      （管理条「投稿」按钮 / 仪表盘快捷面板 / 文章菜单置顶）。
+ *      两项均可在「YBH 魔改」设置区开关：ybh_admin_skin / ybh_quick_post。
+ */
+require_once get_template_directory() . '/inc/ybh/admin.php';
+
+/**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
  *
  *    原先走主题内建 REST（/wp-json/sakura/v1/gallery?img=w）：每次请求都要**完整启动
@@ -397,3 +404,98 @@ add_filter('password_reset_expiration', function ($expiration) {
     // 用 max()：若安全插件已经把有效期放宽得更长，就不要反而缩短它。
     return max((int) $expiration, $days * DAY_IN_SECONDS);
 }, 20);
+
+/* ---------------------------------------------------------------------------
+ * 10) 低端设备探测：在 <html> 上打 ybh-lite，交给 CSS 削弱/移除动效
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 为什么必须是内联脚本：
+ * 若等外部 JS 加载后再加类，页面会先按「完整动效」渲染一帧再切换，
+ * 低端设备上这一帧恰好最贵（毛玻璃 + 滤镜 + 位移动画同时上演），
+ * 观感是明显的闪烁与卡顿。所以放在 wp_head 最靠前的位置同步执行。
+ *
+ * 判定依据（任一命中即降级）：
+ *   · navigator.deviceMemory ≤ 4       —— 设备内存小（仅 Chromium 系支持）
+ *   · navigator.hardwareConcurrency ≤ 2 —— 极低端兜底（非 Chromium 时唯一可用信号）
+ *   · connection.saveData              —— 用户主动开启省流
+ *   · effectiveType 为 2g             —— 网络极慢
+ * 不把「4 核」单独当作低端依据：桌面四核（i3 / 老 U）配 8G 内存并不算低端，
+ * 只看核心数会误伤一大批正常设备。
+ *
+ * 逃生舱：localStorage['ybh_force_full'] = '1' 强制完整动效，
+ * '0' 强制降级 —— 便于按设备实测对比。
+ */
+add_action('wp_head', 'ybh_client_prefs', 1);
+function ybh_client_prefs()
+{
+    if (is_admin() || is_feed() || is_robots()) {
+        return;
+    }
+    ?>
+    <script>
+    (function () {
+      var h = document.documentElement;
+      /* --- 11) 紧凑模式：必须同步应用，否则会先按大卡片渲染一帧再跳变 --- */
+      try {
+        if (localStorage.getItem('ybh_compact') === '1') h.classList.add('ybh-compact');
+      } catch (e) {}
+
+      /* --- 10) 低端设备探测 --- */
+      try {
+        var force = null;
+        try { force = localStorage.getItem('ybh_force_full'); } catch (e) {}
+        if (force === '1') { h.classList.remove('ybh-lite'); return; }
+        if (force === '0') { h.classList.add('ybh-lite'); return; }
+
+        var nav = navigator;
+        var mem = nav.deviceMemory || 0;                 // 仅 Chromium 系
+        var cores = nav.hardwareConcurrency || 0;
+        var conn = nav.connection || nav.mozConnection || nav.webkitConnection || {};
+        var et = conn.effectiveType || '';
+
+        var lite = (mem && mem <= 4) ||
+                   (cores && cores <= 2) ||
+                   conn.saveData === true ||
+                   /(^|-)2g$/.test(et);
+        if (lite) h.classList.add('ybh-lite');
+      } catch (e) { /* 探测失败则维持完整动效，不干扰页面 */ }
+    })();
+    </script>
+    <?php
+}
+
+/**
+ * 紧凑模式开关：右下角控制台（#changskin → .skin-menu）里的按钮。
+ *
+ * 为什么不改 js/app.js：那是 webpack 打包的压缩产物，手改会在下次
+ * 构建/升级时被覆盖，也无法在源码层维护。这里用一小段独立脚本绑定，
+ * 与字体/日夜模式共用同一套 localStorage 记忆习惯（ybh_compact）。
+ */
+add_action('wp_footer', 'ybh_compact_toggle_script', 99);
+function ybh_compact_toggle_script()
+{
+    if (is_admin() || is_feed() || is_robots()) {
+        return;
+    }
+    ?>
+    <script>
+    (function () {
+      var btn = document.querySelector('.skin-menu .ybh-compact-toggle');
+      var h = document.documentElement;
+      if (!btn) return;
+
+      function sync() {
+        btn.classList.toggle('selected', h.classList.contains('ybh-compact'));
+      }
+      sync();
+
+      btn.addEventListener('click', function () {
+        var on = h.classList.toggle('ybh-compact');
+        try { localStorage.setItem('ybh_compact', on ? '1' : '0'); } catch (e) {}
+        sync();
+      });
+    })();
+    </script>
+    <?php
+}

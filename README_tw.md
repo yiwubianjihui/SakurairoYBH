@@ -2,7 +2,14 @@
 
 [![image](https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/banner-cn.webp)](https://github.com/mirai-mamori/Sakurairo)
 
-<h1 align="left">Theme Sakurairo </h1>
+<h1 align="left">Theme SakurairoYBH</h1>
+
+> **SakurairoYBH 是 [Sakurairo](https://github.com/mirai-mamori/Sakurairo) 的二次開發分支（fork）**，
+> 由 [Yibianhui](https://www.yibianhui.cn/) 維護，用於 https://www.yibianhui.cn 。
+> 上游 Sakurairo 是一款具有 AI 輔助閱讀功能的 WordPress 主題；本分支保留其全部能力，
+> 並針對中文排版、字型載入效能與後台易用性做了增補。血脈：Sakurairo（作者 Fuukei）
+> 基於 [Sakura V3 Series](https://github.com/mashirozx/sakura/tree/3.x)。
+> 完整改動清單與貢獻者請見[簡體中文 README](README.md)。
 
 > 一款具有 AI 輔助閱讀功能的 WordPress 主題，多彩、友善、功能全面、體驗完善。
 

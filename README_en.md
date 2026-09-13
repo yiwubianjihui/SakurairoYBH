@@ -2,7 +2,14 @@
 
 [![image](https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/banner-en-jp.webp)](https://github.com/mirai-mamori/Sakurairo)
 
-<h1 align="left">Theme Sakurairo </h1>
+<h1 align="left">Theme SakurairoYBH</h1>
+
+> **SakurairoYBH is a fork of [Sakurairo](https://github.com/mirai-mamori/Sakurairo)**, maintained by
+> [Yibianhui](https://www.yibianhui.cn/) for https://www.yibianhui.cn .
+> Upstream Sakurairo is a WordPress theme built with AI-assisted reading features. This fork keeps all of it
+> and adds Chinese typography tuning, font-loading performance work and admin usability improvements.
+> Inherited from Sakurairo, which is based on [Sakura V3 Series](https://github.com/mashirozx/sakura/tree/3.x).
+> See the [Chinese README](README.md) for the full change list and contributors.
 
 > A WordPress theme that is built with AI-assisted reading features, colorful, user-friendly, well-rounded, and rich in functionalities. 
 
