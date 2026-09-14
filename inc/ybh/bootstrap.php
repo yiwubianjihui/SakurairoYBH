@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.4');
+define('YBH_VERSION', '1.3.5');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -267,6 +267,13 @@ require_once get_template_directory() . '/inc/ybh/quick-save.php';
  *       手机端放大点击区（样式见 css/ybh.css 第 14 节，调用点在 index.php）。
  */
 require_once get_template_directory() . '/inc/ybh/home-cta.php';
+
+/**
+ * 8.11) 右下角控制台的首次访问引导气泡（T34）：
+ *       控制台只有图标且默认 scale(0) 隐藏，访客（连站长）都容易忽略它。
+ *       首次访问弹一次气泡并给按钮加呼吸光环，点一下即开控制台。
+ */
+require_once get_template_directory() . '/inc/ybh/console-hint.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
@@ -509,10 +516,14 @@ function ybh_client_prefs()
     (function () {
       var h = document.documentElement;
       /* --- 11) 紧凑模式：必须同步应用，否则会先按大卡片渲染一帧再跳变 ---
-         T26 起默认开启：只有访客显式关过（存过 '0'）才不加类。
-         老访客存过的 '1'/'0' 都被尊重，新访客/隐身窗口首访即紧凑。 */
+         T26 起默认开启；T34 起「默认值」做成了后台设置项
+         （「YBH 魔改 → 文章列表 → 默认启用紧凑模式」，选项名 ybh_compact_default）。
+         优先级：访客在控制台里显式点过（存了 '1'/'0'）＞ 站点设置里的默认值。
+         这样站长可以决定新访客的第一印象，而老访客的自选不会被覆盖。 */
       try {
-        if (localStorage.getItem('ybh_compact') !== '0') h.classList.add('ybh-compact');
+        var savedC = localStorage.getItem('ybh_compact');
+        var defC = <?php echo iro_opt('ybh_compact_default', true) ? "'1'" : "'0'"; ?>;
+        if (savedC === '1' || ((savedC === null || savedC === '') && defC === '1')) h.classList.add('ybh-compact');
       } catch (e) {}
 
       /* --- 10) 低端设备探测 --- */

@@ -4059,6 +4059,14 @@ $prefix = 'iro_options';
       ),
 
       array(
+        'id' => 'ybh_compact_default',
+        'type' => 'switcher',
+        'title' => __('默认启用紧凑模式','sakurairo_csf'),
+        'label' => __('默认开启：新访客首次进入时卡片更矮、一行放更多文章。访客在右下角控制台自己点过「紧凑」的话，以他自己的选择为准（本项不影响老访客）；关闭本项则新访客默认看到大卡片','sakurairo_csf'),
+        'default' => true
+      ),
+
+      array(
         'type'    => 'subheading',
         'content' => __('导航栏','sakurairo_csf'),
       ),

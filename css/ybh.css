@@ -1804,9 +1804,15 @@ html.ybh-compact body .post-list-thumb {
    它是主题 Customizer「文章标题字号」项写出的 `16px !important`
    （inc/decorate.php:326 → iro_opt('post_title_font_size')，内联 <style>，
    特指度 (0,2,1) 但带 !important）。同层 !important 的作者声明优先于任何
-   普通声明 —— 特指度再高也压不过，所以下面这条 15px 会被 16px 盖掉。
-   不改成 !important：那是站长为卡片标题定的字号，紧凑模式不该篡改它。
-   若将来把该设置调小、或改走「自定义 CSS」，这里的 15px 会自动接管。 */
+   普通声明 —— 特指度再高也压不过。 */
+/* T34：用户明确要求「文章卡片标题字号缩小一点」，因此这里改成带 !important 的
+   显式覆盖（本站自定义 CSS 那条 16px !important 从此不再决定卡片标题字号）。
+   特指度 body .post-list-thumb .post-title h3 = (0,2,2) > 自定义 CSS 的 (0,2,1)，
+   两条都是 !important 时特指度高者胜，所以确实能盖住。
+   取 15px：比原来的 16px 收一档，长标题在 265px 卡宽下更容易两行放下。 */
+body .post-list-thumb .post-title h3 {
+  font-size: 15px !important;
+}
 html.ybh-compact body .post-list-thumb .post-title {
   padding: 8px 14px;
   bottom: 8%;
@@ -1815,7 +1821,7 @@ html.ybh-compact body .post-list-thumb .post-title {
 /* 标题限 2 行并加省略号：3 列后卡宽只有 265px，长标题会顶到面板外缘。
    （原来是整块 34% 裁切，会出现半行残字） */
 html.ybh-compact body .post-list-thumb .post-title h3 {
-  font-size: 15px;
+  font-size: 14px !important;
   letter-spacing: 1px;
   line-height: 1.35;
   display: -webkit-box;
@@ -1866,7 +1872,7 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
     bottom: 6%;
   }
   html.ybh-compact body .post-list-thumb .post-title h3 {
-    font-size: 14px;
+    font-size: 13.5px !important;
   }
   /* 半宽卡片上「日期 + 元信息」两个胶囊会吃掉整行（实测 375px 下
      日期 79px / 卡宽 168px，元信息只能靠省略号收口成无意义残字），
@@ -2035,11 +2041,13 @@ body .ybh-home-cta {
 
 .ybh-cta-inner {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* T34 起首页是 6 个入口（投稿/全部文章/随机文章/换个封面/加入/赞助）：
+     桌面 3 列 × 2 行，手机上 2 列 × 3 行 */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
-/* 只有两个按钮时（如「我要投稿」页里的入口）不要留出四个空位 */
+/* 只有两个按钮时（如「我要投稿」页里的入口）不要留出多余空位 */
 .ybh-cta-inner--two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -2062,11 +2070,27 @@ body .ybh-home-cta {
   color: inherit;
   text-align: center;
   text-decoration: none;
+  /* 「换个封面」是真 <button>，把浏览器默认外观清掉，与 <a> 版完全一致 */
+  font: inherit;
+  width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
   transition: transform var(--ybh-dur) var(--ybh-ease),
               box-shadow var(--ybh-dur) var(--ybh-ease),
               background-color var(--ybh-dur) ease,
               color var(--ybh-dur) ease,
               border-color var(--ybh-dur) ease;
+}
+
+/* 触发器反馈：点中时轻微按下，目标不存在时（非首页/封面关闭）闪一下边框 */
+.ybh-cta-btn.is-active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.ybh-cta-btn.is-failed {
+  border-color: #d63638;
+  box-shadow: 0 0 0 2px rgba(214, 54, 56, 0.18);
 }
 
 .ybh-cta-btn i {
@@ -2168,6 +2192,150 @@ body.dark .ybh-cta-btn--primary {
 @media (prefers-reduced-motion: reduce) {
   .ybh-cta-btn {
     transition: none;
+  }
+}
+
+/* ============================================================
+   15. 右下角控制台的首次访问引导（T34）
+   ------------------------------------------------------------
+   控制台（#changskin）只有图标、没有文字，而且主题默认 `transform: scale(0)`
+   把它藏起来、要滚动 20px 以上才淡入 —— 访客（连站长自己）都容易完全忽略它。
+   首次访问时做两件事：
+     · 给按钮加一圈呼吸光环，并在它上方弹一个气泡说明用途；
+     · **临时把控制台强制显示出来**（.ybh-console-hint-on #changskin），
+       否则气泡会指着一个看不见的按钮 —— 这也是"看不到"的根源。
+   只提示一次（localStorage ybh_console_hint_v1），点气泡就直接打开控制台；
+   prefers-reduced-motion 与 html.ybh-lite 下不做呼吸动画（气泡照常出现）。 */
+
+/* JS 用 hidden 控制显隐，必须让 [hidden] 生效（本元素是 display:flex） */
+.ybh-console-hint[hidden] {
+  display: none !important;
+}
+
+.ybh-console-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  right: 14px;
+  bottom: 86px;                    /* 落在控制台上方；也在 T34 吸底操作条上方 */
+  z-index: 200;                    /* 高于控制台(99)，低于 Cookie 同意横幅 */
+  max-width: min(310px, calc(100vw - 28px));
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--ybh-glass-edge);
+  border-radius: var(--ybh-radius-md);
+  background: var(--ybh-glass-bg-strong);
+  -webkit-backdrop-filter: var(--ybh-glass-blur);
+  backdrop-filter: var(--ybh-glass-blur);
+  box-shadow: var(--ybh-shadow-2);
+  color: inherit;
+  text-align: left;
+  animation: ybh-console-hint-in 0.28s var(--ybh-ease) both;
+}
+
+.ybh-console-hint__title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.ybh-console-hint__text {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  opacity: 0.75;
+}
+
+.ybh-console-hint__close {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--ybh-glass-edge);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ybh-accent);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.ybh-console-hint__close:hover {
+  background: var(--ybh-accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* 指向右下角按钮的小箭头 */
+.ybh-console-hint__arrow {
+  position: absolute;
+  right: 22px;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--ybh-glass-bg-strong);
+  border-right: 1px solid var(--ybh-glass-edge);
+  border-bottom: 1px solid var(--ybh-glass-edge);
+  transform: rotate(45deg);
+}
+
+@keyframes ybh-console-hint-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 引导期间强制显示控制台并加呼吸光环 */
+.ybh-console-hint-on #changskin {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.ybh-console-hint-on #changskin::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--ybh-accent);
+  pointer-events: none;
+  animation: ybh-console-ring 1.7s ease-out infinite;
+}
+
+@keyframes ybh-console-ring {
+  0%   { transform: scale(0.85); opacity: 0.9; }
+  70%  { transform: scale(1.4);  opacity: 0; }
+  100% { transform: scale(1.4);  opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ybh-console-hint {
+    animation: none;
+  }
+  .ybh-console-hint-on #changskin::after {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+
+/* 低端设备：去掉毛玻璃与动画（与主题既有降级规则一致） */
+html.ybh-lite body .ybh-console-hint {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: none;
+}
+
+html.ybh-lite .ybh-console-hint-on #changskin::after {
+  animation: none;
+  opacity: 0.75;
+}
+
+/* 窄屏再收一点，避免挡住内容 */
+@media (max-width: 480px) {
+  .ybh-console-hint {
+    right: 10px;
+    bottom: 82px;
+    max-width: calc(100vw - 84px);   /* 给右下角控制台留出位置 */
+    padding: 10px 12px;
   }
 }
 

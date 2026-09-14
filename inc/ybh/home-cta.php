@@ -73,17 +73,35 @@ function ybh_render_home_cta()
             'primary' => true,
         ),
         array(
-            'url'     => ybh_cta_page_url('join-ybh', '/join-ybh/'),
-            'icon'    => 'fa-solid fa-user-plus',
-            'label'   => '加入 YBH',
-            'sub'     => '成为义务编辑会一员',
-            'primary' => false,
-        ),
-        array(
             'url'     => ybh_cta_page_url('all-articles', '/all-articles/'),
             'icon'    => 'fa-solid fa-book-open',
             'label'   => '全部文章',
             'sub'     => '按时序与分类浏览',
+            'primary' => false,
+        ),
+        // T34：随机文章 —— 直接复用主题既有的 /?random_post=1（template_redirect 302）。
+        // 不用 JS，中键/新窗口打开也能用；爬虫看到的是 302 不会索引。
+        array(
+            'url'     => add_query_arg('random_post', '1', home_url('/')),
+            'icon'    => 'fa-solid fa-shuffle',
+            'label'   => '随机文章',
+            'sub'     => '让命运替你挑一篇',
+            'primary' => false,
+        ),
+        // T34：换个封面 —— 复用主题既有的骰子按钮 #bg-next（换封面逻辑在主题打包 JS 里，
+        // 与其重写一份不如点它一下）。所以这一项不是链接，而是"触发器"。
+        array(
+            'trigger' => 'bg-next',
+            'icon'    => 'fa-solid fa-dice',
+            'label'   => '换个封面',
+            'sub'     => '首页封面随机换一张',
+            'primary' => false,
+        ),
+        array(
+            'url'     => ybh_cta_page_url('join-ybh', '/join-ybh/'),
+            'icon'    => 'fa-solid fa-user-plus',
+            'label'   => '加入 YBH',
+            'sub'     => '成为义务编辑会一员',
             'primary' => false,
         ),
         array(
@@ -95,9 +113,9 @@ function ybh_render_home_cta()
         ),
     );
 
-    // 掉链的按钮直接剔除（宁可少一个，也不给读者一个 404）
+    // 掉链的按钮直接剔除（宁可少一个，也不给读者一个 404）；触发器项不参与该判断
     $items = array_values(array_filter($items, function ($it) {
-        return !empty($it['url']);
+        return !empty($it['trigger']) || !empty($it['url']);
     }));
 
     if (!$items) {
@@ -107,17 +125,70 @@ function ybh_render_home_cta()
     <section class="ybh-home-cta" aria-label="快捷入口">
         <div class="ybh-cta-inner">
             <?php foreach ($items as $it) : ?>
-                <a class="ybh-cta-btn<?php echo $it['primary'] ? ' ybh-cta-btn--primary' : ''; ?>"
-                   href="<?php echo esc_url($it['url']); ?>">
-                    <i class="<?php echo esc_attr($it['icon']); ?>" aria-hidden="true"></i>
-                    <span class="ybh-cta-label"><?php echo esc_html($it['label']); ?></span>
-                    <?php if (!empty($it['sub'])) : ?>
-                        <span class="ybh-cta-sub"><?php echo esc_html($it['sub']); ?></span>
-                    <?php endif; ?>
-                </a>
+                <?php if (!empty($it['trigger'])) : ?>
+                    <button type="button"
+                            class="ybh-cta-btn<?php echo $it['primary'] ? ' ybh-cta-btn--primary' : ''; ?>"
+                            data-ybh-trigger="<?php echo esc_attr($it['trigger']); ?>">
+                        <i class="<?php echo esc_attr($it['icon']); ?>" aria-hidden="true"></i>
+                        <span class="ybh-cta-label"><?php echo esc_html($it['label']); ?></span>
+                        <?php if (!empty($it['sub'])) : ?>
+                            <span class="ybh-cta-sub"><?php echo esc_html($it['sub']); ?></span>
+                        <?php endif; ?>
+                    </button>
+                <?php else : ?>
+                    <a class="ybh-cta-btn<?php echo $it['primary'] ? ' ybh-cta-btn--primary' : ''; ?>"
+                       href="<?php echo esc_url($it['url']); ?>">
+                        <i class="<?php echo esc_attr($it['icon']); ?>" aria-hidden="true"></i>
+                        <span class="ybh-cta-label"><?php echo esc_html($it['label']); ?></span>
+                        <?php if (!empty($it['sub'])) : ?>
+                            <span class="ybh-cta-sub"><?php echo esc_html($it['sub']); ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
+        <?php ybh_render_cta_trigger_script(); ?>
     </section>
+    <?php
+}
+
+/**
+ * 触发器按钮（如「换个封面」）的行为。
+ *
+ * 做法：找到目标元素（#bg-next）并点它一下 —— 换封面的逻辑在主题打包的 app.js 里，
+ * 重写一份既会重复也会随主题升级失效，这里只做"代为点击"。
+ * 目标不存在（非首页/封面关闭）时给出明确提示，而不是静默无反应。
+ * 用事件委托绑定，避免脚本执行时站台还没输出的时序问题。
+ */
+function ybh_render_cta_trigger_script()
+{
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+    ?>
+    <script>
+    (function () {
+      document.addEventListener('click', function (e) {
+        var el = e.target;
+        var btn = (el && el.closest) ? el.closest('[data-ybh-trigger]') : null;
+        if (!btn) { return; }
+        e.preventDefault();
+        var id = btn.getAttribute('data-ybh-trigger');
+        var target = document.getElementById(id);
+        if (!target) {
+          // 封面在非首页/被关掉时不渲染该按钮，明确说一句比什么都不发生好
+          btn.classList.add('is-failed');
+          setTimeout(function () { btn.classList.remove('is-failed'); }, 1200);
+          return;
+        }
+        btn.classList.add('is-active');
+        setTimeout(function () { btn.classList.remove('is-active'); }, 400);
+        target.click();
+      });
+    })();
+    </script>
     <?php
 }
 
