@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.2');
+define('YBH_VERSION', '1.3.6');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -257,6 +257,25 @@ require_once get_template_directory() . '/inc/ybh/footnotes.php';
 require_once get_template_directory() . '/inc/ybh/typography.php';
 
 /**
+ * 8.9) 经典编辑器「就地保存」AJAX 端点（T33）：Ctrl+S 就地保存、不离开编辑器。
+ *      前端在 js/ybh-post-editor.js，工具栏与入队逻辑在 inc/ybh/editor.php。
+ */
+require_once get_template_directory() . '/inc/ybh/quick-save.php';
+
+/**
+ * 8.10) 主页行动按钮（T33）：投稿 / 加入 / 全部文章 / 赞助 四个入口，
+ *       手机端放大点击区（样式见 css/ybh.css 第 14 节，调用点在 index.php）。
+ */
+require_once get_template_directory() . '/inc/ybh/home-cta.php';
+
+/**
+ * 8.11) 右下角控制台的首次访问引导气泡（T34）：
+ *       控制台只有图标且默认 scale(0) 隐藏，访客（连站长）都容易忽略它。
+ *       首次访问弹一次气泡并给按钮加呼吸光环，点一下即开控制台。
+ */
+require_once get_template_directory() . '/inc/ybh/console-hint.php';
+
+/**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
  *
  *    原先走主题内建 REST（/wp-json/sakura/v1/gallery?img=w）：每次请求都要**完整启动
@@ -291,6 +310,36 @@ function ybh_cover_api_endpoint($value)
     $value['random_graphs_link']        = $base . '?img=w';   // 桌面：横图
     $value['random_graphs_mts']         = true;
     $value['random_graphs_link_mobile'] = $base . '?img=l';   // 移动：竖图（与原内建分支一致）
+
+    return $value;
+}
+
+/**
+ * 9.5) 取消「更早的文章」自动加载（滚动到页面底部不再自动翻页）
+ *
+ *     现象：滚到页脚就会自动 AJAX 追加下一批文章，页脚被不断顶走 ⇒ 无法与页脚交互。
+ *     根因：`js/app.js` 里有个 IntersectionObserver 观察 `.footer-content`，一旦进入视口，
+ *     就读 `#add_post_time` 的 title 当作延时 —— `title="0"` 等于「立刻加载」。
+ *     title 的值来自后台选项 `page_auto_load`；主题**默认值本就是 `233`**
+ *     （后台下拉里的「do not autoload」，见 opt/options/theme-options.php），
+ *     但本站数据库里存的是 `0`，于是每次滚到底都秒加载。
+ *
+ *     处理：在 `option_iro_options` 过滤器里把 `page_auto_load` 强制回 `233`。
+ *     app.js 的回调读到 title="233" 即不再挂 setTimeout ⇒ 自动加载被关闭；
+ *     而**手动**点击（绑在 `#pagination` 上的 h 处理，调用 m()）是在 f() 里**无条件**注册的，
+ *     所以「更早的文章」按钮照常可用，只是不再自动触发。
+ *
+ *     需要恢复自动加载：删掉本段 add_filter 即可（后台「下一页自动加载」选项保持原样）。
+ *     顺带一提：本文件第 10 节已把 app.js 的延时解析由 parseInt 改成 parseFloat，
+ *     使后台可填小数（如 0.5 秒）—— 与本次改动互不影响。
+ */
+add_filter('option_iro_options', 'ybh_disable_auto_load');
+function ybh_disable_auto_load($value)
+{
+    if (!is_array($value)) {
+        return $value;
+    }
+    $value['page_auto_load'] = '233';   // 主题内建哨兵值：do not autoload
 
     return $value;
 }
@@ -467,10 +516,14 @@ function ybh_client_prefs()
     (function () {
       var h = document.documentElement;
       /* --- 11) 紧凑模式：必须同步应用，否则会先按大卡片渲染一帧再跳变 ---
-         T26 起默认开启：只有访客显式关过（存过 '0'）才不加类。
-         老访客存过的 '1'/'0' 都被尊重，新访客/隐身窗口首访即紧凑。 */
+         T26 起默认开启；T34 起「默认值」做成了后台设置项
+         （「YBH 魔改 → 文章列表 → 默认启用紧凑模式」，选项名 ybh_compact_default）。
+         优先级：访客在控制台里显式点过（存了 '1'/'0'）＞ 站点设置里的默认值。
+         这样站长可以决定新访客的第一印象，而老访客的自选不会被覆盖。 */
       try {
-        if (localStorage.getItem('ybh_compact') !== '0') h.classList.add('ybh-compact');
+        var savedC = localStorage.getItem('ybh_compact');
+        var defC = <?php echo iro_opt('ybh_compact_default', true) ? "'1'" : "'0'"; ?>;
+        if (savedC === '1' || ((savedC === null || savedC === '') && defC === '1')) h.classList.add('ybh-compact');
       } catch (e) {}
 
       /* --- 10) 低端设备探测 --- */
@@ -563,3 +616,16 @@ function ybh_compact_toggle_script()
  * 细节与「为什么优先级是 1000」见 inc/ybh/avatar.php 的文件头注释。
  */
 require_once get_template_directory() . '/inc/ybh/avatar.php';
+
+/* ---------------------------------------------------------------------------
+ * 12) 前台个人资料页（T34）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 新建一个页面写 `[ybh_profile]` 即成资料页（默认 slug `profile`）：
+ * 头像 / 昵称 / 显示名 / 个人网站 / 个人简介 / 修改密码 / 我的投稿。
+ *
+ * 顶部用户菜单原先指向 wp-admin/profile.php，现已改指本页；
+ * 页面本身**强制不缓存**（登录用户专属内容，缓存会把别人的资料露出去）。
+ */
+require_once get_template_directory() . '/inc/ybh/profile.php';

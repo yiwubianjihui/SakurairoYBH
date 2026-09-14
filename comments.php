@@ -192,7 +192,19 @@ function get_smilies_panel() {
                                             ' . wp_nonce_field('sakurairo_ajax_comment', 'sakurairo_comment_nonce', true, false) . '
                                         </div>',
                 'comment_notes_after'  => '',
+                /*
+                 * ⚠️ 入口挂在 `logged_in_as` 而**不是** `comment_notes_before`。
+                 * WP 核心只有在**未登录**时才输出 comment_notes_before
+                 * （见 wp-includes/comment-template.php 的注释：
+                 *  "a message displayed before the comment fields if the user is not logged in"），
+                 * 登录用户走的是 logged_in_as 分支。第一版挂错了地方，
+                 * 结果是「登录后才需要看到的入口」永远不显示。
+                 *
+                 * 顺带的好处：核心默认的 logged_in_as 里那个「编辑资料」链接指向
+                 * wp-admin/profile.php，我们整个替换掉，用户就不会被带回后台。
+                 */
                 'comment_notes_before' => '',
+                'logged_in_as'         => function_exists('ybh_profile_comment_hint') ? ybh_profile_comment_hint() : '',
                 'fields'            => (!is_user_logged_in()?apply_filters('comment_form_default_fields', array(
                     'avatar' => '<div class="cmt-info-container"><div class="comment-user-avatar">
                                     <img alt="comment_user_avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzgwODA4MCIgZD0iTTM5OSAzODQuMkMzNzYuOSAzNDUuOCAzMzUuNCAzMjAgMjg4IDMyMGwtNjQgMGMtNDcuNCAwLTg4LjkgMjUuOC0xMTEgNjQuMmMzNS4yIDM5LjIgODYuMiA2My44IDE0MyA2My44czEwNy44LTI0LjcgMTQzLTYzLjh6TTAgMjU2YTI1NiAyNTYgMCAxIDEgNTEyIDBBMjU2IDI1NiAwIDEgMSAwIDI1NnptMjU2IDE2YTcyIDcyIDAgMSAwIDAtMTQ0IDcyIDcyIDAgMSAwIDAgMTQ0eiIvPjwvc3ZnPg==">

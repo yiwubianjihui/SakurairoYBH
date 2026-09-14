@@ -597,6 +597,12 @@
   text-indent: 0;
   line-height: 2;
 }
+/* 段首缩进（T33 第 4 项）：由编辑器工具栏「首行缩进」按钮给段落加 .ybh-indent。
+   默认不加（本站是"空行分段"版式）；作者想缩进时逐段点按钮，
+   只作用于第一行，不动段间距 —— 与 css/editor-style.css 里的编辑期预览同源。 */
+.entry-content .ybh-indent {
+  text-indent: 2em;
+}
 :root {
   text-autospace: normal;
   text-spacing-trim: trim-start;
@@ -1715,6 +1721,7 @@ html.ybh-lite body .post-list-thumb:hover,
 html.ybh-lite body .bento-item:hover,
 html.ybh-lite body .stat-capsule:hover,
 html.ybh-lite body #pagination a:hover,
+html.ybh-lite body .ybh-cta-btn:hover,
 html.ybh-lite body .top-social a:hover {
   transform: none;
 }
@@ -1797,9 +1804,15 @@ html.ybh-compact body .post-list-thumb {
    它是主题 Customizer「文章标题字号」项写出的 `16px !important`
    （inc/decorate.php:326 → iro_opt('post_title_font_size')，内联 <style>，
    特指度 (0,2,1) 但带 !important）。同层 !important 的作者声明优先于任何
-   普通声明 —— 特指度再高也压不过，所以下面这条 15px 会被 16px 盖掉。
-   不改成 !important：那是站长为卡片标题定的字号，紧凑模式不该篡改它。
-   若将来把该设置调小、或改走「自定义 CSS」，这里的 15px 会自动接管。 */
+   普通声明 —— 特指度再高也压不过。 */
+/* T34：用户明确要求「文章卡片标题字号缩小一点」，因此这里改成带 !important 的
+   显式覆盖（本站自定义 CSS 那条 16px !important 从此不再决定卡片标题字号）。
+   特指度 body .post-list-thumb .post-title h3 = (0,2,2) > 自定义 CSS 的 (0,2,1)，
+   两条都是 !important 时特指度高者胜，所以确实能盖住。
+   取 15px：比原来的 16px 收一档，长标题在 265px 卡宽下更容易两行放下。 */
+body .post-list-thumb .post-title h3 {
+  font-size: 15px !important;
+}
 html.ybh-compact body .post-list-thumb .post-title {
   padding: 8px 14px;
   bottom: 8%;
@@ -1808,7 +1821,7 @@ html.ybh-compact body .post-list-thumb .post-title {
 /* 标题限 2 行并加省略号：3 列后卡宽只有 265px，长标题会顶到面板外缘。
    （原来是整块 34% 裁切，会出现半行残字） */
 html.ybh-compact body .post-list-thumb .post-title h3 {
-  font-size: 15px;
+  font-size: 14px !important;
   letter-spacing: 1px;
   line-height: 1.35;
   display: -webkit-box;
@@ -1859,7 +1872,7 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
     bottom: 6%;
   }
   html.ybh-compact body .post-list-thumb .post-title h3 {
-    font-size: 14px;
+    font-size: 13.5px !important;
   }
   /* 半宽卡片上「日期 + 元信息」两个胶囊会吃掉整行（实测 375px 下
      日期 79px / 卡宽 168px，元信息只能靠省略号收口成无意义残字），
@@ -2000,4 +2013,820 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
 .ybh-legal-sep {
   margin: 0 7px;
   opacity: 0.35;
+}
+
+/* ============================================================
+   14. 主页行动按钮（T33 第 5 项）
+   ------------------------------------------------------------
+   背景：站点最关键的四个入口（我要投稿 / 加入 YBH / 全部文章 / 请给我们钱）
+   此前只存在于顶栏里，而顶栏在手机上会折叠成汉堡菜单 —— 读者与学生作者
+   基本看不到它们。这一节把四者做成首页顶部的按钮阵列：
+
+     桌面      一行四个
+     ≤860px    两列
+     ≤480px    两列且放大点击区，「我要投稿」通栏成为首屏最显眼的一块
+
+   视觉语言沿用站内既有的「玻璃卡片 + 大圆角 + 悬浮位移」，
+   配色走设计令牌（--ybh-*），深浅色自动各自成立。
+   注意：只有主按钮用实底色 —— 用 --ybh-accent（= --theme-skin-matching），
+   这是站内已经在用的按钮底色令牌；不直接用 --theme-skin（运行时派生色，
+   明度不可控，当底会翻车，见 README 的坑 5）。
+   ============================================================ */
+body .ybh-home-cta {
+  margin: 20px auto 8px;
+  padding: 0 16px;
+  max-width: 1080px;
+  box-sizing: border-box;
+}
+
+.ybh-cta-inner {
+  display: grid;
+  /* T34 起首页是 6 个入口（投稿/全部文章/随机文章/换个封面/加入/赞助）：
+     桌面 3 列 × 2 行，手机上 2 列 × 3 行 */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* 只有两个按钮时（如「我要投稿」页里的入口）不要留出多余空位 */
+.ybh-cta-inner--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ybh-cta-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 88px;
+  padding: 14px 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--ybh-glass-edge);
+  border-radius: var(--ybh-radius-md);
+  background: var(--ybh-glass-bg);
+  -webkit-backdrop-filter: var(--ybh-glass-blur);
+  backdrop-filter: var(--ybh-glass-blur);
+  box-shadow: var(--ybh-shadow-1);
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+  /* 「换个封面」是真 <button>，把浏览器默认外观清掉，与 <a> 版完全一致 */
+  font: inherit;
+  width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: transform var(--ybh-dur) var(--ybh-ease),
+              box-shadow var(--ybh-dur) var(--ybh-ease),
+              background-color var(--ybh-dur) ease,
+              color var(--ybh-dur) ease,
+              border-color var(--ybh-dur) ease;
+}
+
+/* 触发器反馈：点中时轻微按下，目标不存在时（非首页/封面关闭）闪一下边框 */
+.ybh-cta-btn.is-active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.ybh-cta-btn.is-failed {
+  border-color: #d63638;
+  box-shadow: 0 0 0 2px rgba(214, 54, 56, 0.18);
+}
+
+.ybh-cta-btn i {
+  font-size: 19px;
+  line-height: 1;
+  color: var(--ybh-accent);
+  transition: color var(--ybh-dur) ease;
+}
+
+.ybh-cta-label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.ybh-cta-sub {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.66;
+}
+
+.ybh-cta-btn:hover {
+  transform: translateY(var(--ybh-hover-lift-sm));
+  box-shadow: var(--ybh-shadow-2);
+  border-color: var(--ybh-accent);
+}
+
+.ybh-cta-btn:active {
+  transform: translateY(0);
+}
+
+/* 主按钮：投稿 —— 唯一实底色，第一眼就落在它身上 */
+.ybh-cta-btn--primary {
+  background: var(--ybh-accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.ybh-cta-btn--primary i {
+  color: #fff;
+}
+
+.ybh-cta-btn--primary .ybh-cta-sub {
+  opacity: 0.88;
+}
+
+.ybh-cta-btn--primary:hover {
+  border-color: transparent;
+  filter: brightness(1.06);
+}
+
+body.dark .ybh-cta-btn {
+  color: #e6e7ec;
+}
+
+body.dark .ybh-cta-btn--primary {
+  color: #fff;
+}
+
+@media (max-width: 860px) {
+  .ybh-cta-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* 手机端：点击区放大，主按钮通栏 —— 用户明确要求"特别是手机端"要更明显 */
+@media (max-width: 480px) {
+  body .ybh-home-cta {
+    margin: 14px auto 4px;
+    padding: 0 12px;
+  }
+
+  .ybh-cta-btn {
+    min-height: 96px;
+    padding: 12px 8px;
+  }
+
+  .ybh-cta-label {
+    font-size: 16px;
+  }
+
+  .ybh-cta-sub {
+    font-size: 11.5px;
+  }
+
+  .ybh-cta-btn--primary {
+    grid-column: 1 / -1;
+    min-height: 72px;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .ybh-cta-btn--primary .ybh-cta-sub {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ybh-cta-btn {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   15. 右下角控制台的首次访问引导（T34）
+   ------------------------------------------------------------
+   控制台（#changskin）只有图标、没有文字，而且主题默认 `transform: scale(0)`
+   把它藏起来、要滚动 20px 以上才淡入 —— 访客（连站长自己）都容易完全忽略它。
+   首次访问时做两件事：
+     · 给按钮加一圈呼吸光环，并在它上方弹一个气泡说明用途；
+     · **临时把控制台强制显示出来**（.ybh-console-hint-on #changskin），
+       否则气泡会指着一个看不见的按钮 —— 这也是"看不到"的根源。
+   只提示一次（localStorage ybh_console_hint_v1），点气泡就直接打开控制台；
+   prefers-reduced-motion 与 html.ybh-lite 下不做呼吸动画（气泡照常出现）。 */
+
+/* JS 用 hidden 控制显隐，必须让 [hidden] 生效（本元素是 display:flex） */
+.ybh-console-hint[hidden] {
+  display: none !important;
+}
+
+.ybh-console-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  right: 14px;
+  bottom: 86px;                    /* 落在控制台上方；也在 T34 吸底操作条上方 */
+  z-index: 200;                    /* 高于控制台(99)，低于 Cookie 同意横幅 */
+  max-width: min(310px, calc(100vw - 28px));
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--ybh-glass-edge);
+  border-radius: var(--ybh-radius-md);
+  background: var(--ybh-glass-bg-strong);
+  -webkit-backdrop-filter: var(--ybh-glass-blur);
+  backdrop-filter: var(--ybh-glass-blur);
+  box-shadow: var(--ybh-shadow-2);
+  color: inherit;
+  text-align: left;
+  animation: ybh-console-hint-in 0.28s var(--ybh-ease) both;
+}
+
+.ybh-console-hint__title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.ybh-console-hint__text {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  opacity: 0.75;
+}
+
+.ybh-console-hint__close {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--ybh-glass-edge);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ybh-accent);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.ybh-console-hint__close:hover {
+  background: var(--ybh-accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* 指向右下角按钮的小箭头 */
+.ybh-console-hint__arrow {
+  position: absolute;
+  right: 22px;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--ybh-glass-bg-strong);
+  border-right: 1px solid var(--ybh-glass-edge);
+  border-bottom: 1px solid var(--ybh-glass-edge);
+  transform: rotate(45deg);
+}
+
+@keyframes ybh-console-hint-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 引导期间强制显示控制台并加呼吸光环 */
+.ybh-console-hint-on #changskin {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.ybh-console-hint-on #changskin::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--ybh-accent);
+  pointer-events: none;
+  animation: ybh-console-ring 1.7s ease-out infinite;
+}
+
+@keyframes ybh-console-ring {
+  0%   { transform: scale(0.85); opacity: 0.9; }
+  70%  { transform: scale(1.4);  opacity: 0; }
+  100% { transform: scale(1.4);  opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ybh-console-hint {
+    animation: none;
+  }
+  .ybh-console-hint-on #changskin::after {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+
+/* 低端设备：去掉毛玻璃与动画（与主题既有降级规则一致） */
+html.ybh-lite body .ybh-console-hint {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: none;
+}
+
+html.ybh-lite .ybh-console-hint-on #changskin::after {
+  animation: none;
+  opacity: 0.75;
+}
+
+/* 窄屏再收一点，避免挡住内容 */
+@media (max-width: 480px) {
+  .ybh-console-hint {
+    right: 10px;
+    bottom: 82px;
+    max-width: calc(100vw - 84px);   /* 给右下角控制台留出位置 */
+    padding: 10px 12px;
+  }
+}
+
+/* ---------- 14.1 手机端吸底操作条 ----------
+   上面那排按钮在首页封面之下 —— 而封面是整屏高（100vh），
+   手机上第一屏根本看不到它（实测：390×844 时按钮区 top ≈ 859，正好在折线下方）。
+   所以手机端再给一条**常驻吸底**的操作条，保证关键入口任何时候都点得到；
+   ≥861px 不显示（桌面顶栏本来就完整可见，不需要）。
+
+   避让关系（都在同一屏底部，必须排好队）：
+     · 右下角控制台 #changskin / #moblieGoTop 是 z-index 99 且贴右下 → 右侧留出 72px；
+     · Cookie 同意横幅占着底部 → 它可见时本操作条整体隐藏（body:has 判定，主题已在用 :has）；
+     · 页脚法务入口在文档流末尾 → 首页手机端给页脚加底部内边距，别被本操作条压住。 */
+.ybh-mobile-actions {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .ybh-mobile-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    position: fixed;
+    left: 8px;
+    right: 72px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    padding: 6px;
+    box-sizing: border-box;
+    border: 1px solid var(--ybh-glass-edge);
+    border-radius: 16px;
+    background: var(--ybh-glass-bg-strong);
+    -webkit-backdrop-filter: var(--ybh-glass-blur);
+    backdrop-filter: var(--ybh-glass-blur);
+    box-shadow: var(--ybh-shadow-2);
+  }
+
+  .ybh-ma-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 6px;
+    border-radius: 11px;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .ybh-ma-btn i {
+    font-size: 15px;
+    color: var(--ybh-accent);
+  }
+
+  .ybh-ma-btn--primary {
+    background: var(--ybh-accent);
+    color: #fff;
+  }
+
+  .ybh-ma-btn--primary i {
+    color: #fff;
+  }
+
+  body.dark .ybh-ma-btn {
+    color: #e6e7ec;
+  }
+
+  body.dark .ybh-ma-btn--primary {
+    color: #fff;
+  }
+
+  /* 同意横幅还在时让路（两条底栏叠一起会互相遮挡） */
+  body:has(#ybh-consent:not([hidden])) .ybh-mobile-actions {
+    display: none;
+  }
+
+  /* 首页手机端：页脚别被吸底操作条压住（页脚里有隐私政策等法务入口） */
+  body.home .site-footer {
+    padding-bottom: 76px;
+  }
+}
+
+/* 低端降级：去掉毛玻璃（与主题既有规则一致） */
+html.ybh-lite body .ybh-mobile-actions {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ============================================================
+   前台个人资料页（T34）
+   ------------------------------------------------------------
+   顺带补上 T24 头像短代码的样式 —— 它此前**一个样式都没有**：
+   当时只留了短代码用法，页面一直没建，所以谁也没发现上传按钮是裸的。
+
+   色彩一律走 ybh.css 既有令牌（--ybh-glass-* / --ybh-radius-* /
+   --ybh-shadow-* / --ybh-accent），明暗两套自动跟随；
+   分隔线用 rgba(127,127,127,·) 这种"中间灰"，在浅色与深色下都不刺眼。
+   ============================================================ */
+
+.ybh-pf {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- 卡片 ---------- */
+
+.ybh-pf-card {
+  background: var(--ybh-glass-bg, rgba(255, 255, 255, 0.84));
+  -webkit-backdrop-filter: var(--ybh-glass-blur, blur(14px) saturate(170%));
+  backdrop-filter: var(--ybh-glass-blur, blur(14px) saturate(170%));
+  border: 1px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  border-radius: var(--ybh-radius-lg, 20px);
+  box-shadow: var(--ybh-shadow-1);
+  padding: 20px 22px 22px;
+}
+
+.ybh-pf-title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ybh-pf-title i {
+  color: var(--ybh-accent);
+  font-size: 15px;
+}
+
+/* ---------- 表单 ---------- */
+
+.ybh-pf-row {
+  margin-bottom: 15px;
+}
+
+.ybh-pf-row label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  opacity: 0.88;
+}
+
+.ybh-pf-req {
+  color: #d93025;
+  font-weight: 700;
+}
+
+.ybh-pf-row input[type="text"],
+.ybh-pf-row input[type="password"],
+.ybh-pf-row textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-family: inherit;
+  color: inherit;
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.24);
+  border-radius: var(--ybh-radius-sm, 12px);
+  transition: border-color var(--ybh-dur, 0.25s) ease,
+              background-color var(--ybh-dur, 0.25s) ease,
+              box-shadow var(--ybh-dur, 0.25s) ease;
+}
+
+.ybh-pf-row input:focus,
+.ybh-pf-row textarea:focus {
+  outline: none;
+  background: rgba(127, 127, 127, 0.12);
+  border-color: var(--ybh-accent, #6c8cff);
+  box-shadow: 0 0 0 3px rgba(108, 140, 255, 0.16);
+}
+
+.ybh-pf-row textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+
+.ybh-pf-hint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  opacity: 0.62;
+}
+
+.ybh-pf-actions {
+  margin: 18px 0 0;
+}
+
+/* ---------- 按钮 ---------- */
+
+.ybh-pf-btn {
+  display: inline-block;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.4;
+  color: inherit;
+  background: rgba(127, 127, 127, 0.14);
+  border: 0;
+  border-radius: var(--ybh-radius-sm, 12px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              box-shadow var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              background-color var(--ybh-dur, 0.25s) ease;
+}
+
+.ybh-pf-btn:hover {
+  transform: translateY(var(--ybh-hover-lift-sm, -2px));
+  box-shadow: var(--ybh-shadow-1);
+}
+
+.ybh-pf-btn.primary {
+  background: var(--ybh-accent, #6c8cff);
+  color: #fff;
+}
+
+/* ---------- 结果提示 ---------- */
+
+.ybh-pf-msg {
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: var(--ybh-radius-sm, 12px);
+  border-left: 3px solid transparent;
+  background: rgba(127, 127, 127, 0.10);
+}
+
+.ybh-pf-msg.ok {
+  background: rgba(52, 168, 83, 0.13);
+  border-left-color: #34a853;
+}
+
+.ybh-pf-msg.err {
+  background: rgba(217, 48, 37, 0.13);
+  border-left-color: #d93025;
+}
+
+/* ---------- 我的投稿 ---------- */
+
+.ybh-pf-subs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ybh-pf-subs li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  border-bottom: 1px dashed rgba(127, 127, 127, 0.24);
+}
+
+.ybh-pf-subs li:last-child {
+  border-bottom: 0;
+}
+
+.ybh-pf-sub-status {
+  flex: none;
+  padding: 2px 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.ybh-pf-sub-status.pub {
+  background: rgba(52, 168, 83, 0.16);
+  color: #2e8b57;
+}
+
+.ybh-pf-sub-status.wait {
+  background: rgba(240, 173, 78, 0.18);
+  color: #b8791a;
+}
+
+.ybh-pf-sub-status.draft {
+  background: rgba(127, 127, 127, 0.18);
+}
+
+.ybh-pf-sub-main {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ybh-pf-sub-date {
+  flex: none;
+  font-size: 12.5px;
+  opacity: 0.55;
+}
+
+.ybh-pf-sub-act {
+  flex: none;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.ybh-pf-empty {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* ---------- 头像框（T24 短代码的补课） ---------- */
+
+.ybh-avatar-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.ybh-avatar-preview {
+  flex: none;
+}
+
+.ybh-avatar-preview img {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  box-shadow: var(--ybh-shadow-1);
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.ybh-avatar-form {
+  flex: 1;
+  min-width: 220px;
+}
+
+.ybh-avatar-file input[type="file"] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 13px;
+  color: inherit;
+}
+
+.ybh-avatar-hint,
+.ybh-avatar-tip {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  opacity: 0.62;
+}
+
+.ybh-avatar-actions {
+  margin: 14px 0 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ybh-avatar-actions button {
+  display: inline-block;
+  padding: 9px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: var(--ybh-accent, #6c8cff);
+  border: 0;
+  border-radius: var(--ybh-radius-sm, 12px);
+  cursor: pointer;
+  transition: transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              box-shadow var(--ybh-dur, 0.25s) var(--ybh-ease, ease);
+}
+
+.ybh-avatar-actions button:hover {
+  transform: translateY(var(--ybh-hover-lift-sm, -2px));
+  box-shadow: var(--ybh-shadow-1);
+}
+
+/* 「恢复默认」是次要操作，别和主按钮抢注意力 */
+.ybh-avatar-actions button.ybh-avatar-del {
+  color: inherit;
+  background: rgba(127, 127, 127, 0.16);
+}
+
+.ybh-avatar-msg {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  border-radius: var(--ybh-radius-sm, 12px);
+  border-left: 3px solid transparent;
+}
+
+.ybh-avatar-msg.ok {
+  background: rgba(52, 168, 83, 0.13);
+  border-left-color: #34a853;
+}
+
+.ybh-avatar-msg.err {
+  background: rgba(217, 48, 37, 0.13);
+  border-left-color: #d93025;
+}
+
+/* ---------- 评论区入口 ---------- */
+
+.ybh-pf-cmt-hint {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: var(--ybh-radius-sm, 12px);
+  background: rgba(127, 127, 127, 0.09);
+}
+
+.ybh-pf-cmt-hint img {
+  flex: none;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.ybh-pf-cmt-hint a {
+  margin-left: auto;
+  flex: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- 未登录 ---------- */
+
+.ybh-pf-guest {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  text-align: center;
+  background: var(--ybh-glass-bg, rgba(255, 255, 255, 0.84));
+  border: 1px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  border-radius: var(--ybh-radius-lg, 20px);
+  box-shadow: var(--ybh-shadow-1);
+}
+
+/* ---------- 窄屏 ---------- */
+
+@media (max-width: 600px) {
+  .ybh-pf-card {
+    padding: 17px 16px 19px;
+    border-radius: var(--ybh-radius-md, 16px);
+  }
+
+  .ybh-avatar-box {
+    gap: 14px;
+  }
+
+  .ybh-avatar-preview img {
+    width: 88px;
+    height: 88px;
+  }
+
+  .ybh-avatar-form {
+    min-width: 100%;
+  }
+
+  .ybh-pf-subs li {
+    flex-wrap: wrap;
+  }
+
+  .ybh-pf-sub-main {
+    white-space: normal;
+  }
+}
+
+/* 低端降级：与 ybh.css 既有做法一致，去掉毛玻璃 */
+html.ybh-lite .ybh-pf-card,
+html.ybh-lite .ybh-pf-guest {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--ybh-glass-bg-strong, rgba(255, 255, 255, 0.94));
 }
