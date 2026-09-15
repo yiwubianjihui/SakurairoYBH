@@ -80,7 +80,28 @@ $pick = $pool[random_int(0, count($pool) - 1)];
 // 索引里存的是 /iro_gallery/img/... 这样的相对路径，拼绝对地址
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host   = $_SERVER['HTTP_HOST'] ?? 'www.yibianhui.cn';
-$target = $scheme . '://' . $host . '/wp-content/uploads' . $pick;
+
+/**
+ * ⚠️ Location 头必须是**纯 ASCII**（RFC 7230）。
+ *
+ * 图库目录名是中文（`杂图` / `风景现实` / `风景二次元`），索引里的路径因此带非 ASCII 字节。
+ * 直接把原始 UTF-8 塞进 Location，浏览器与 curl 容错能过，但**严格的 HTTP 客户端会拒绝**：
+ * Flutter/Dart 的 HttpClient 就是直接失败，表现为「封面图永远加载不出来、只剩兜底背景」
+ * （App 侧真机上实测撞到过）。
+ *
+ * 所以逐段做规范化编码：先 rawurldecode 再 rawurlencode ——
+ * ① 只编码段内容、保留 `/` 分隔符；② 索引里已是 %XX 的不会被二次编码；③ 幂等。
+ */
+$encode_path = static function (string $path): string {
+    $segments = explode('/', $path);
+    $out = [];
+    foreach ($segments as $seg) {
+        $out[] = rawurlencode(rawurldecode($seg));
+    }
+    return implode('/', $out);
+};
+
+$target = $scheme . '://' . $host . '/wp-content/uploads' . $encode_path($pick);
 
 header('Location: ' . $target, true, 302);
 exit;
