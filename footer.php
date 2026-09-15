@@ -63,17 +63,26 @@ $reception_background = iro_opt('reception_background');
         <a href="https://github.com/mirai-mamori/Sakurairo" rel="noopener" target="_blank">forked from Sakurairo by Fuukei</a>
         <?php
         /*
-         * YBH · 更新日志入口（N2）
+         * YBH · 这里原先还有一个「更新日志」入口（N2），**已移除**。
          *
-         * 与上面两条同处「关于本站」这一组：更新日志讲的正是这个站点/主题改了什么。
-         * 同样按 slug 解析且**只输出已发布的页面** —— 页面被删或转成草稿时自动消失，
-         * 页脚不会留下死链。
+         * 移除原因（用户反馈）：位置不佳 —— 它夹在「主题署名」与「法务链接」两段之间，
+         * 既不属于署名、也不属于法务，看着像个孤儿；而且站长已经把入口放进了
+         * **顶部导航菜单**，页脚再放一个就是重复入口。
+         *
+         * 更新日志页本身（/changelog/，正文短代码 [ybh_changelog]）**仍然在**，
+         * 只是入口改由菜单提供，见 inc/ybh/changelog.php。
+         *
+         * 要把页脚这个入口加回来，解开下面这段即可（按 slug 解析、
+         * 只输出已发布的页面 —— 页面被删或转草稿时自动消失，不会留死链）：
+         *
+         *   $ybh_cl_page = get_page_by_path('changelog');
+         *   if ($ybh_cl_page && 'publish' === get_post_status($ybh_cl_page->ID)) :
+         *     ?>
+         *     <a href="<?php echo esc_url(get_permalink($ybh_cl_page->ID)); ?>">更新日志</a>
+         *     <?php
+         *   endif;
          */
-        $ybh_cl_page = get_page_by_path('changelog');
-        if ($ybh_cl_page && 'publish' === get_post_status($ybh_cl_page->ID)) :
-          ?>
-          <a href="<?php echo esc_url(get_permalink($ybh_cl_page->ID)); ?>">更新日志</a>
-        <?php endif; ?>
+        ?>
       <?php
       /*
        * YBH · 页脚法务入口（T29 / v1.3.1）
