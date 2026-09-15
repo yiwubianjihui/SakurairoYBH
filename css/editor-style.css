@@ -8,7 +8,7 @@
  * 以及脚注标记 `.ybh-fn-chip` 的可视化样式（T31，v1.3.1）。
  */
 
-/* ---------- 编辑区画布：让一行装下更多文字 ----------
+/* ---------- 编辑区画布 ----------
    v1.3.1 起（任务清单第 8 项）：**去掉 820px 的上限**，正文随编辑器宽度铺满。
 
    为什么原来一行只有 820px：
@@ -16,18 +16,20 @@
      编辑器 iframe 宽 1200px 时，左右各空出约 190px —— 用户说的「页边距太大、
      一行显示不了几个字」指的就是这两块留白。
 
+   v1.3.8 起（本轮）：**左右各留 2 汉字宽（2em）的页边距**。
+     上一版把左右内边距压到 0，一行能装的字确实多了，但正文紧贴编辑区边缘，
+     角标、脚注徽章、行末标点贴着边框看着很挤；长串溢出时也直接顶到边上，
+     看不出"已经超出去了"。留 2em 既不浪费多少横向空间，
+     又给正文一个清楚的边界。2em = 两个汉字宽，正是需求里说的量。
+
    顺带核实过（别被"内边距"误导）：
      · `wp-includes/js/tinymce/skins/wordpress/wp-content.css` 里有
        `body.wp-autoresize { padding-left: 0 !important; padding-right: 0 !important }`
-       —— 左右内边距**本来就是 0**，不存在可压缩的左右内边距；
+       —— 上游默认的左右内边距**本来就是 0**；
      · 同一文件还有 `body { margin: 9px 10px; max-width: 100% }`，被本规则
        以更高特指度（body#tinymce）覆盖为 margin: 0。
-   所以"减页边距"的正确做法就是解除宽度上限，而不是去调 padding。
-   下面那条 padding 带 `!important`：wp-autoresize 的 padding 是 `!important` 声明，
-   普通声明压不过；`body#tinymce`(1,0,1) 的 !important 高于 `body.wp-autoresize`(0,1,1)，
-   因此这条能生效 —— 只为了给文末留一点呼吸空间，左右仍是 0。
+   所以 v1.3.1"减页边距"的正确做法是解除宽度上限，而不是去调 padding。
 
-   只动编辑器外壳；**前台正文宽度不动**（那是主题布局，不属本任务）。
    注意：本文件与 css/ybh.css 都挂在编辑器里，且 ybh.css 声明在后，
    所以这里不要写任何与 ybh.css 同选择器的正文排版规则（会被盖掉）。 */
 body#tinymce,
@@ -35,8 +37,34 @@ body.mce-content-body {
   max-width: none;
   width: auto;
   margin: 0;
-  padding: 1px 0 24px !important;
+  /* 左右 2em = 两个汉字宽的页边距（见上方说明）；上 1px 让首行不贴顶 */
+  padding: 1px 2em 24px !important;
   background: transparent;
+  /* 长串（URL / 长英文 / 连续标点）在编辑区里也不许顶破容器：
+     编辑时看不到溢出，作者就不会去处理，发出来才发现手机上跑出屏幕。 */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ---------- 角标（<sup> / <sub>）----------
+   与脚注徽章刻意区分：脚注在编辑区是「带底色的圆形编号徽章」（见下面的 .ybh-fn-chip），
+   角标只是**普通的升降小字**，没有底色也没有边框。
+   line-height: 0 是为了不让角标把行高撑开（编辑区行距同样是 2）。 */
+body#tinymce sup,
+body#tinymce sub,
+body.mce-content-body sup,
+body.mce-content-body sub {
+  font-size: 0.72em;
+  line-height: 0;
+}
+body#tinymce sup,
+body.mce-content-body sup {
+  vertical-align: super;
+}
+body#tinymce sub,
+body.mce-content-body sub {
+  vertical-align: sub;
 }
 
 /* ---------- 脚注（[fn]…[/fn]）的编辑器内可视化（T33 第 2 项重做） ----------

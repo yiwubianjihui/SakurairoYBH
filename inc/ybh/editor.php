@@ -150,6 +150,9 @@ add_filter('mce_buttons', function ($buttons) {
         'formatselect',   // 段落 / 各级标题 / 引用 / 代码
         'bold', 'italic', 'underline', 'strikethrough',
         'bullist', 'numlist', 'blockquote',
+        // 角标：上标 / 下标。放在「引用」之后、「脚注」之前 ——
+        // 与脚注相邻但图标完全不同（脚注用文字标签），避免混淆（见 js/ybh-editor.js）。
+        'ybh_sup', 'ybh_sub',
         // YBH 脚注：按钮本体注册在 js/ybh-editor.js（mce_external_plugins），
         // 名字必须写在这个数组里 —— 本过滤器 prio 999 会**整体替换**工具栏，
         // 另挂一个低优先级过滤器去追加是无效的。

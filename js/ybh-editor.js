@@ -311,6 +311,36 @@
     }
 
     /* ==================================================================
+     * 角标：上标 / 下标（<sup> / <sub>）
+     * ================================================================ */
+
+    /**
+     * 切换角标。直接用 TinyMCE 自带的 superscript / subscript 命令 ——
+     * 它们本来就是 <sup>/<sub> 的包装，而且**自带「再点一次取消」的语义**，
+     * 不用自己判断光标处有没有角标（自己实现很容易在「选中半个角标」时出错）。
+     *
+     * ⚠️ 与脚注的区别（工具栏上必须让人一眼分得清）：
+     *   · 角标 = 纯排版标记，存的就是 <sup>/<sub>，前台原样显示；
+     *   · 脚注 = <span class="ybh-fn-chip">，保存时还原成 [fn]…[/fn]，
+     *            前台渲染成**带自动编号的上标链接**，并在文末生成注释列表。
+     *   两者在视觉上都可能出现在文字右上角，但用途完全不同，所以
+     *   脚注按钮不用图标、改用文字「脚注」标出（见下面的按钮注册）。
+     */
+    function toggleScript(which) {
+      editor.execCommand(which === 'sub' ? 'subscript' : 'superscript');
+      editor.nodeChanged();
+    }
+
+    /** 光标处是否处于该角标状态（给按钮做高亮） */
+    function scriptState(which) {
+      try {
+        return !!editor.queryCommandState(which === 'sub' ? 'subscript' : 'superscript');
+      } catch (e) {
+        return false;
+      }
+    }
+
+    /* ==================================================================
      * 按钮注册（TinyMCE 4 / 5 双兼容）
      * ================================================================ */
 
@@ -354,9 +384,27 @@
       }
     }
 
-    addBtn('ybh_footnote', {
+    addBtn('ybh_sup', {
       icon: 'superscript',
-      tooltip: '插入脚注（保存后前台显示为上标编号，文末自动生成注释列表）',
+      tooltip: '上标 / 角标（如 x²、注①）　Ctrl+Shift+=',
+      action: function () { toggleScript('sup'); },
+      state: function () { return scriptState('sup'); }
+    });
+
+    addBtn('ybh_sub', {
+      icon: 'subscript',
+      tooltip: '下标 / 角标（如 H₂O）　Ctrl+=',
+      action: function () { toggleScript('sub'); },
+      state: function () { return scriptState('sub'); }
+    });
+
+    addBtn('ybh_footnote', {
+      // ⚠️ 这里**刻意不用图标**：脚注原先借用的是 superscript 图标，
+      // 和上面的「上标」按钮撞脸，作者根本分不清点下去会插入脚注还是打个上标。
+      // 改成文字标签后与「首行缩进」「查找」两个按钮风格一致，
+      // 而且不依赖 TinyMCE 图标字体、在任意后台配色方案下都清晰可辨。
+      text: '脚注',
+      tooltip: '插入脚注（正文处显示上标编号，文末自动生成注释列表）',
       action: insertFootnote
     });
 
@@ -399,12 +447,21 @@
 
       var isF = (key === 'f' || code === 70);
       var isH = (key === 'h' || code === 72);
-      if (!isF && !isH) {
+      if (isF || isH) {
+        e.preventDefault();
+        e.stopPropagation();
+        openFindReplace(isH);
         return;
       }
-      e.preventDefault();
-      e.stopPropagation();
-      openFindReplace(isH);
+
+      // 角标快捷键：Ctrl+Shift+= 上标 / Ctrl+= 下标（Word、Google Docs 同款约定）。
+      // ⚠️ 必须看 e.shiftKey 而不是只看 key：按住 Shift 打等号时 key 就是 '+'，
+      // 用它判断会把「上标」误判成「下标」。
+      if (key === '=' || key === '+' || code === 187) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleScript(e.shiftKey ? 'sup' : 'sub');
+      }
     });
   });
 })();

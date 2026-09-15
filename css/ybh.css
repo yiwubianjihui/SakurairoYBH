@@ -603,6 +603,41 @@
 .entry-content .ybh-indent {
   text-indent: 2em;
 }
+/* ---------- 长串不许顶破容器 ----------
+   起因：正文里出现长 URL、长英文单词、连续标点时，整段会被撑宽、**横向溢出**，
+   手机上尤其明显（表现为「文字跑到屏幕外」）。此前全站没有任何换行兜底。
+   overflow-wrap 只在必要时才断（正常文字仍按正常规则折行，不影响观感）；
+   word-break 是给老浏览器的兜底写法。
+   注：pre/code 不受影响 —— 它们要么本来就是 white-space: pre（不折行），
+   要么已有 overflow-x: auto 自己滚，两种情况都不需要这里兜。 */
+.entry-content,
+.entry-content p,
+.entry-content li,
+.entry-content blockquote,
+.entry-content td,
+.entry-content th,
+.ybh-footnotes {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ---------- 角标（<sup> / <sub>）----------
+   与脚注上标刻意区分：脚注是「带浅底的小圆角方块」（见 12.1 的 sup.ybh-fnref），
+   角标则是**纯排版标记** —— 不加底色、不加边框，就是普通的升降小字。
+   line-height: 0 很关键：正文行距是 2，若不让它归零，角标会把整行撑高，
+   整段看起来一跳一跳的。 */
+.entry-content sup,
+.entry-content sub {
+  font-size: 0.72em;
+  line-height: 0;
+}
+.entry-content sup {
+  vertical-align: super;
+}
+.entry-content sub {
+  vertical-align: sub;
+}
 :root {
   text-autospace: normal;
   text-spacing-trim: trim-start;

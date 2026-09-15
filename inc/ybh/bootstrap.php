@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.7');
+define('YBH_VERSION', '1.3.8');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -261,6 +261,14 @@ require_once get_template_directory() . '/inc/ybh/changelog.php';
  *      编辑器侧的可视化与按钮在 js/ybh-editor.js（由 editor.php 注册）。
  */
 require_once get_template_directory() . '/inc/ybh/footnotes.php';
+
+/**
+ * 8.7b) 投稿者改稿 + 二次审核（本轮）：
+ *       给 contributor 补上 `edit_published_posts`（**只补这一条**，因此只能改
+ *       自己已发布的文章，改不了别人的），并在他改完之后把文章退回「待审核」。
+ *       开关与全部守卫见该文件头部说明。
+ */
+require_once get_template_directory() . '/inc/ybh/contributor-edit.php';
 
 /**
  * 8.8) 中文排版小工具：CJK 标点后的「可选换行点」(`<wbr>`)。
