@@ -61,6 +61,19 @@ $reception_background = iro_opt('reception_background');
         <?php /* YBH fork：明确写出来源 —— 本主题是 Sakurairo 的二次开发，非上游原版 */ ?>
         <a href="https://github.com/yiwubianjihui/SakurairoYBH" rel="noopener" target="_blank">Theme SakurairoYBH</a>
         <a href="https://github.com/mirai-mamori/Sakurairo" rel="noopener" target="_blank">forked from Sakurairo by Fuukei</a>
+        <?php
+        /*
+         * YBH · 更新日志入口（N2）
+         *
+         * 与上面两条同处「关于本站」这一组：更新日志讲的正是这个站点/主题改了什么。
+         * 同样按 slug 解析且**只输出已发布的页面** —— 页面被删或转成草稿时自动消失，
+         * 页脚不会留下死链。
+         */
+        $ybh_cl_page = get_page_by_path('changelog');
+        if ($ybh_cl_page && 'publish' === get_post_status($ybh_cl_page->ID)) :
+          ?>
+          <a href="<?php echo esc_url(get_permalink($ybh_cl_page->ID)); ?>">更新日志</a>
+        <?php endif; ?>
       <?php
       /*
        * YBH · 页脚法务入口（T29 / v1.3.1）

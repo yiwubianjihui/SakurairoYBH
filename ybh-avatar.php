@@ -18,30 +18,35 @@
  * 取值优先链（自上而下，命中即返回）
  *
  *   1. uploads/ybh-avatars/u{user_id}.webp     ← 用户自己上传的（最高优先）
- *   2. uploads/ybh-avatars/{hash}.webp         ← 本端点回源后落盘的
- *   3. 回源 cravatar.com（d=404）：
- *        · HTTP 200 → 转 webp 落盘 → 输出
- *        · HTTP 404 → 该邮箱**确实没有头像** → 记 .miss 标记 → 输出站点默认图
- *   4. 站点默认图 img/ybh-default-avatar.webp   ← 阿卡林；替代 WP 的 mystery
+ *   2. uploads/ybh-avatars/{hash}.webp         ← 历史上已抓取落盘的
+ *   3. 站点默认图 img/ybh-default-avatar.webp   ← 阿卡林；替代 WP 的 mystery
  *                                                 与 Cravatar 的 d=mm 占位图
  *
- * ⚠️ `d=404` 是整套方案的判据：Cravatar 对**没有头像**的邮箱返回 HTTP 404，
- *    对**有头像**的返回 200。实测（2026-09-13，三次复现）稳定可靠。
- *    注意参数必须**小写 404** —— 写成 `d=D404` 会被当成未知取值而静默返回默认图，
- *    这个坑曾让第一轮验证得出「d=404 不可靠」的错误结论。
+ * 🔴 **本端点永不发起任何外部请求**（2026-09-14 起，见下）。
+ *
+ *    原设计第 3 步是回源 `cravatar.com/avatar/<md5>?d=404`（404＝该邮箱无头像），
+ *    按用户要求**已彻底取消**：头像只可能来自「用户自己传的」与「已经在本地的」，
+ *    其它一律给站点默认图。好处是首字节不再受境外站点可用性影响，
+ *    也不会再把访客的邮箱 md5 交给第三方。
+ *
+ *    因此 `{hash}.webp` 只会**减少不会增加**；要新增某个邮箱的真头像，
+ *    只有两条路：本人在「个人资料」上传，或管理员手工把图片放进缓存目录。
+ *
+ * ⚠️ 保留 `ybh_av_fetch()` 但当前**没有调用方** —— 它记录了「带 d=404 判据的
+ *    回源」该怎么正确实现（参数必须**小写 404**，写成 `d=D404` 会被当成未知取值
+ *    而静默返回默认图，这个坑曾让第一轮验证得出「d=404 不可靠」的错误结论）。
+ *    日后若要做「可选的外部头像源」，从这里接着写，别重新踩一遍。
  *
  * ---------------------------------------------------------------
  * 缓存策略（配合 inc/ybh/avatar.php 生成的 URL）
  *
- *   用户**自己上传**的真头像 → `max-age=31536000, immutable`
+ *   用户**自己上传**的真头像 → `max-age=31536000`
  *      换头像时 URL 上的 `v` 会变（见 ybh_avatar_url），所以可以放心长缓存。
- *   本端点**已抓取落盘**的真头像 → `max-age=604800`（7 天）
- *      这类 URL 上没有 `v`，无法主动失效；7 天是「少回源」与「对方换头像后
- *      能在合理时间内跟上」之间的折中。
+ *   历史上**已落盘**的真头像 → `max-age=604800`（7 天）
+ *      这类 URL 上没有 `v`，无法主动失效。由于已不再回源，7 天纯粹是
+ *      「少一次条件请求」的考虑，可以放心调长。
  *   默认图 / .miss → `max-age=3600`
- *      用户随时可能去 Gravatar 注册头像，缓存短一点以尽快发现。
- *   回源失败（网络抖动）→ `max-age=300`，不写 .miss，几分钟后自动重试。
- *   GD 不可用、只能原样透传字节时 → `max-age=3600`。
+ *      用户随时可能上传头像，缓存短一点以尽快发现。
  *
  * ---------------------------------------------------------------
  * 安全
@@ -74,16 +79,28 @@ define('YBH_AV_MISS', YBH_AV_CACHE . '/.miss');
 define('YBH_AV_DEFAULT', YBH_AV_THEME_DIR . '/img/ybh-default-avatar.webp');
 define('YBH_AV_DEFAULT_PNG', YBH_AV_THEME_DIR . '/img/ybh-default-avatar.png');
 
-/** 回源站点。Cravatar 是 Gravatar 的国内镜像，对不存在头像的邮箱会返回 404 */
-define('YBH_AV_SOURCE', 'https://cravatar.com/avatar/');
+/**
+ * 外部头像源（**已停用**）。
+ *
+ * 2026-09-14 起本端点不再回源：头像只来自「用户上传」与「本地已有」。
+ * 常量保留但值为空串，任何残留的 `YBH_AV_SOURCE . $hash` 拼出来都是相对路径，
+ * 不会意外打到第三方；同时让「这里曾经有个源」这件事在代码里看得见。
+ */
+define('YBH_AV_SOURCE', '');
 
-/** 回源超时（秒）。宁可降级成本地占位图，也不要让访客等在白屏上 */
+/** 抓取超时（秒，仅 ybh_av_fetch 使用；该函数当前无调用方） */
 define('YBH_AV_TIMEOUT', 4);
 
 /** 抓取/生成的基准边长 */
 define('YBH_AV_BASE_SIZE', 256);
 
-/** .miss 标记的存活时间（秒）。到期后允许再回源一次，以便发现「后注册的头像」 */
+/**
+ * `.miss` 标记的存活时间（秒）。
+ *
+ * 语义已变：以前它表示「回源确认过没有头像，N 天内不再回源」，
+ * 现在没有回源了，它只剩一个作用 —— 让「这个邮箱没有头像」这件事**可被统计**，
+ * 供后台「头像体检」报表用。所以这个值不参与任何缓存判据。
+ */
 define('YBH_AV_MISS_TTL', 259200); // 3 天
 
 /**
@@ -315,6 +332,15 @@ function ybh_av_variant(string $baseFile, int $size): ?string
  *
  * @return array{0:int,1:string}
  */
+/**
+ * 抓取远端图片（当前**无调用方**）。
+ *
+ * 保留原因见文件头：它把「带 `d=404` 判据的回源」的正确写法固定下来，
+ * 包括「404 = 确实没有头像」以及与 Cravatar 打交道的参数坑。
+ * 若日后要加一个**显式开启**的外部头像源，从这里接着写。
+ *
+ * @internal 目前没有调用方，端点本身不再访问任何外部站点。
+ */
 function ybh_av_fetch(string $url): array
 {
     $ua = 'YBH-Avatar/1.0 (+https://www.yibianhui.cn)';
@@ -436,45 +462,30 @@ if ($hash === '') {
     ybh_av_send_default();
 }
 
-/* ---------- 2) 本端点已抓取落盘的 ---------- */
+/* ---------- 2) 本地已落盘的 ---------- */
 
 $cached = YBH_AV_CACHE . '/' . $hash . '.webp';
 if (is_file($cached) && filesize($cached) > 0) {
     ybh_av_send(ybh_av_variant($cached, $size) ?: $cached, 604800);
 }
 
-/* ---------- 3) 已知无头像：默认图 ---------- */
+/* ---------- 3) 没有本地文件 ⇒ 站点默认图 ---------- */
 
-if (ybh_av_is_missed($hash)) {
-    ybh_av_send_default();
-}
-
-/* ---------- 4) 回源 ---------- */
-
-list($code, $body) = ybh_av_fetch(YBH_AV_SOURCE . $hash . '?s=' . YBH_AV_BASE_SIZE . '&d=404&r=g');
-
-if ($code === 404) {
-    // 该邮箱确实没有头像 ⇒ 记住，避免每次都回源
+/*
+ * 🔴 2026-09-14（T24b）：**不再回源任何第三方头像站**。
+ *
+ * 原来这里会去 cravatar.com 抓一次（`d=404` 判据），拿不到就给默认图。
+ * 按用户要求取消之后，「无本地文件」就是**终点** —— 直接给阿卡林，并且：
+ *   · 首次请求从「几百毫秒 + 一次境外网络往返」变成一次本地读盘；
+ *   · 访客的邮箱 md5 不再发给任何第三方；
+ *   · 境外站挂了也不会再拖慢本站评论区的首屏。
+ *
+ * 顺带记一个 .miss 标记：它不再影响取值（下面已经没有任何分支会读它），
+ * 只是留给后台「头像体检」统计「有多少人是默认图」。
+ * ⚠️ 只在**还没有标记**时写盘 —— 默认图是现在最常见的分支，
+ *    每次请求都 `file_put_contents` 会把这个热路径变成写盘路径。
+ */
+if (!ybh_av_is_missed($hash)) {
     ybh_av_mark_miss($hash);
-    ybh_av_send_default();
 }
-
-if ($code === 200 && $body !== '' && ybh_av_gd_ok()) {
-    // 落盘。写失败也不影响本次输出（直接把字节吐给浏览器）。
-    $ok = ybh_av_write_square_webp($body, $cached);
-    if ($ok) {
-        ybh_av_send(ybh_av_variant($cached, $size) ?: $cached, 604800);
-    }
-}
-
-if ($code === 200 && $body !== '') {
-    // 有图但 GD 不可用：原样透传，至少别退回第三方默认图
-    header('Content-Type: image/webp');
-    header('Cache-Control: public, max-age=3600');
-    header('X-YBH-Avatar: passthrough');
-    echo $body;
-    exit;
-}
-
-// 网络抖动 / 超时 / 其他异常：给默认图，但**不写 .miss**，让下次请求重试
-ybh_av_send_default(300);
+ybh_av_send_default(3600);

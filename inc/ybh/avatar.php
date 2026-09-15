@@ -947,116 +947,76 @@ function ybh_avatar_collect_targets(): array
 }
 
 /**
- * 预热：把指定邮箱的头像抓到本地。
+ * 头像体检（原「预热」，2026-09-14 起不再访问任何外部站点）。
  *
- * 直接从服务器发起回源（与 ybh-avatar.php 走同一套判据：`d=404` 表示无头像），
- * 因此**不依赖访客浏览器**去访问 cravatar —— 这在「用户侧访问境外站不稳」的
- * 环境下尤其重要。
+ * 原文是「把指定邮箱的头像从 Cravatar 抓到本地」。按用户要求取消外部头像源后，
+ * 这个函数改为**只统计与清理**，一件外部请求都不发：
  *
- * @param int $limit 本次最多处理多少个（避免单次请求超时）
+ *   · 统计：多少人有真头像（自传 / 历史落盘）、多少人会看到默认图；
+ *   · 清理：删掉「尺寸变体」里 mtime 已对不上的陈旧文件
+ *     （命名约定 `<base>-<mtime>-<size>.webp`，源文件换了 mtime，旧变体就永远不会再被命中，
+ *      留着只是占地方；用户 2 那种传过好几次头像的，最容易攒出一堆）。
+ *
  * @return array 统计
  */
-function ybh_avatar_prewarm(int $limit = 50): array
+function ybh_avatar_audit(): array
 {
-    $stat  = array('total' => 0, 'fetched' => 0, 'miss' => 0, 'skip' => 0, 'fail' => 0, 'users' => 0);
-    $dir   = wp_upload_dir();
+    $stat = array(
+        'targets' => 0, 'uploaded' => 0, 'cached' => 0, 'default' => 0,
+        'variants' => 0, 'pruned' => 0, 'bytes' => 0,
+    );
+
+    $dir = wp_upload_dir();
     if (empty($dir['basedir'])) {
         return $stat;
     }
     $base = trailingslashit($dir['basedir']) . 'ybh-avatars';
-    if (!is_dir($base)) {
-        wp_mkdir_p($base);
-    }
-    if (!is_dir($base . '/.miss')) {
-        wp_mkdir_p($base . '/.miss');
-    }
 
-    $targets = ybh_avatar_collect_targets();
-    $done    = 0;
-
-    foreach ($targets as $email => $meta) {
-        if ($done >= $limit) {
-            break;
-        }
-        $done++;
-        $stat['total']++;
-
-        $hash = md5($email);
+    /* ---- 1) 覆盖度：每个已知邮箱落到哪一档 ---- */
+    foreach (ybh_avatar_collect_targets() as $email => $meta) {
+        $stat['targets']++;
         $uid  = (int) $meta['user_id'];
+        $hash = md5($email);
 
-        // 用户传过头像的，不需要回源
         if ($uid > 0 && ybh_avatar_user_has_file($uid)) {
-            $stat['skip']++;
-            continue;
-        }
-        $cacheFile = $base . '/' . $hash . '.webp';
-        if (is_file($cacheFile) && filesize($cacheFile) > 0) {
-            $stat['skip']++;
-            continue;
-        }
-
-        $res = wp_remote_get(
-            'https://cravatar.com/avatar/' . $hash . '?s=256&d=404&r=g',
-            array('timeout' => 6, 'redirection' => 3, 'sslverify' => false, 'user-agent' => 'YBH-Avatar/1.0')
-        );
-
-        if (is_wp_error($res)) {
-            $stat['fail']++;
-            continue;
-        }
-        $code = (int) wp_remote_retrieve_response_code($res);
-
-        if ($code === 404) {
-            @file_put_contents($base . '/.miss/' . $hash, (string) time());
-            $stat['miss']++;
-            continue;
-        }
-        if ($code !== 200) {
-            $stat['fail']++;
-            continue;
-        }
-
-        $body = (string) wp_remote_retrieve_body($res);
-        if ($body === '' || !function_exists('imagecreatefromstring')) {
-            $stat['fail']++;
-            continue;
-        }
-
-        $src = @imagecreatefromstring($body);
-        if (!$src) {
-            $stat['fail']++;
-            continue;
-        }
-        $w    = imagesx($src);
-        $h    = imagesy($src);
-        $side = min($w, $h);
-        $sx   = (int) (($w - $side) / 2);
-        $sy   = (int) (($h - $side) / 2);
-
-        $dst   = imagecreatetruecolor(256, 256);
-        $white = imagecolorallocate($dst, 255, 255, 255);
-        imagefilledrectangle($dst, 0, 0, 256, 256, $white);
-        imagecopyresampled($dst, $src, 0, 0, $sx, $sy, 256, 256, $side, $side);
-
-        $ok = @imagewebp($dst, $cacheFile, 88);
-        imagedestroy($dst);
-        imagedestroy($src);
-
-        if ($ok) {
-            $stat['fetched']++;
-            if ($uid > 0) {
-                $stat['users']++;
-            }
+            $stat['uploaded']++;
+        } elseif (is_file($base . '/' . $hash . '.webp') && filesize($base . '/' . $hash . '.webp') > 0) {
+            $stat['cached']++;
         } else {
-            $stat['fail']++;
+            $stat['default']++;
         }
+    }
+
+    /* ---- 2) 清理陈旧尺寸变体 ---- */
+    foreach ((array) glob($base . '/*.webp') as $f) {
+        $name = basename($f);
+        // 只处理带 `-<mtime>-<size>` 的变体
+        if (!preg_match('/^(.+)-(\d{9,11})-(\d{2,3})\.webp$/', $name, $m)) {
+            continue;
+        }
+        $stat['variants']++;
+        $src = $base . '/' . $m[1] . '.webp';
+        $srcMtime = is_file($src) ? (int) @filemtime($src) : 0;
+        // 源文件不在了，或 mtime 与变体名里的对不上 ⇒ 这个变体永远不会再被命中
+        if ($srcMtime === 0 || (string) $srcMtime !== $m[2]) {
+            if (@unlink($f)) {
+                $stat['pruned']++;
+            }
+        }
+    }
+
+    /* ---- 3) 体积 ---- */
+    foreach ((array) glob($base . '/*.webp') as $f) {
+        $stat['bytes'] += (int) @filesize($f);
     }
 
     return $stat;
 }
 
 /**
- * 后台一键重建（面向日后维护）：`/wp-admin/admin-post.php?action=ybh_avatar_rebuild`
+ * 后台一键「头像体检」：`/wp-admin/admin-post.php?action=ybh_avatar_rebuild`
+ *
+ * 不再抓取任何外部头像（见 ybh_avatar_audit 的说明），只统计覆盖度并清理陈旧变体。
  */
 add_action('admin_post_ybh_avatar_rebuild', 'ybh_avatar_rebuild_handle');
 function ybh_avatar_rebuild_handle()
@@ -1065,14 +1025,15 @@ function ybh_avatar_rebuild_handle()
         wp_die('权限不足。');
     }
     check_admin_referer('ybh_avatar_rebuild');
-    $stat = ybh_avatar_prewarm(200);
+    $stat = ybh_avatar_audit();
     wp_safe_redirect(add_query_arg(
         array(
             'ybh_avatar_done' => 1,
-            'f' => $stat['fetched'],
-            'm' => $stat['miss'],
-            's' => $stat['skip'],
-            'e' => $stat['fail'],
+            't' => $stat['targets'],
+            'u' => $stat['uploaded'],
+            'c' => $stat['cached'],
+            'd' => $stat['default'],
+            'p' => $stat['pruned'],
         ),
         admin_url('profile.php')
     ));

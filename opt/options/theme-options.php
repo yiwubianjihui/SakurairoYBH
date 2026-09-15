@@ -4143,6 +4143,14 @@ $prefix = 'iro_options';
         'default' => true
       ),
 
+      array(
+        'id' => 'ybh_simple_admin',
+        'type' => 'switcher',
+        'title' => __('精简后台（面向投稿者）','sakurairo_csf'),
+        'label' => __('默认开启：对**没有「编辑他人文章」能力**的账号（本站即投稿者 / 作者）整块隐藏左侧菜单，改用顶部一条极简导航（写文章 / 我的文章 / 待审核 / 媒体库 / 资料 / 回到站点 / 退出），仪表盘只保留投稿面板。编辑与管理员不受影响。判定用能力而非角色名，改角色或装插件新增角色都自动适配','sakurairo_csf'),
+        'default' => true
+      ),
+
     )
   ) );
 

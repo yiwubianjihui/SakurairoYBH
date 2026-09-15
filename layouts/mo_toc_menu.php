@@ -31,7 +31,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                         <?php endif; ?>
 
-                        <a href="<?php echo esc_url( get_edit_profile_url( $current_user->ID ) ); ?>" target="_blank"><?php _e( 'Profile', 'sakurairo' ); /*个人资料*/ ?></a>
+                        <?php // T34：个人资料改到前台（原来进 wp-admin/profile.php，对投稿同学太重） ?>
+                        <a href="<?php echo esc_url( function_exists( 'ybh_profile_url' ) ? ybh_profile_url() : get_edit_profile_url( $current_user->ID ) ); ?>"><?php _e( 'Profile', 'sakurairo' ); /*个人资料*/ ?></a>
                         <a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" target="_top" data-no-pjax><?php _e( 'Sign out', 'sakurairo' ); /*退出登录*/ ?></a>
                     
                     </div>

@@ -2426,3 +2426,407 @@ html.ybh-lite body .ybh-mobile-actions {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+/* ============================================================
+   前台个人资料页（T34）
+   ------------------------------------------------------------
+   顺带补上 T24 头像短代码的样式 —— 它此前**一个样式都没有**：
+   当时只留了短代码用法，页面一直没建，所以谁也没发现上传按钮是裸的。
+
+   色彩一律走 ybh.css 既有令牌（--ybh-glass-* / --ybh-radius-* /
+   --ybh-shadow-* / --ybh-accent），明暗两套自动跟随；
+   分隔线用 rgba(127,127,127,·) 这种"中间灰"，在浅色与深色下都不刺眼。
+   ============================================================ */
+
+.ybh-pf {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- 卡片 ---------- */
+
+.ybh-pf-card {
+  background: var(--ybh-glass-bg, rgba(255, 255, 255, 0.84));
+  -webkit-backdrop-filter: var(--ybh-glass-blur, blur(14px) saturate(170%));
+  backdrop-filter: var(--ybh-glass-blur, blur(14px) saturate(170%));
+  border: 1px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  border-radius: var(--ybh-radius-lg, 20px);
+  box-shadow: var(--ybh-shadow-1);
+  padding: 20px 22px 22px;
+}
+
+.ybh-pf-title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ybh-pf-title i {
+  color: var(--ybh-accent);
+  font-size: 15px;
+}
+
+/* ---------- 表单 ---------- */
+
+.ybh-pf-row {
+  margin-bottom: 15px;
+}
+
+.ybh-pf-row label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  opacity: 0.88;
+}
+
+.ybh-pf-req {
+  color: #d93025;
+  font-weight: 700;
+}
+
+.ybh-pf-row input[type="text"],
+.ybh-pf-row input[type="password"],
+.ybh-pf-row textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-family: inherit;
+  color: inherit;
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.24);
+  border-radius: var(--ybh-radius-sm, 12px);
+  transition: border-color var(--ybh-dur, 0.25s) ease,
+              background-color var(--ybh-dur, 0.25s) ease,
+              box-shadow var(--ybh-dur, 0.25s) ease;
+}
+
+.ybh-pf-row input:focus,
+.ybh-pf-row textarea:focus {
+  outline: none;
+  background: rgba(127, 127, 127, 0.12);
+  border-color: var(--ybh-accent, #6c8cff);
+  box-shadow: 0 0 0 3px rgba(108, 140, 255, 0.16);
+}
+
+.ybh-pf-row textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+
+.ybh-pf-hint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  opacity: 0.62;
+}
+
+.ybh-pf-actions {
+  margin: 18px 0 0;
+}
+
+/* ---------- 按钮 ---------- */
+
+.ybh-pf-btn {
+  display: inline-block;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.4;
+  color: inherit;
+  background: rgba(127, 127, 127, 0.14);
+  border: 0;
+  border-radius: var(--ybh-radius-sm, 12px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              box-shadow var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              background-color var(--ybh-dur, 0.25s) ease;
+}
+
+.ybh-pf-btn:hover {
+  transform: translateY(var(--ybh-hover-lift-sm, -2px));
+  box-shadow: var(--ybh-shadow-1);
+}
+
+.ybh-pf-btn.primary {
+  background: var(--ybh-accent, #6c8cff);
+  color: #fff;
+}
+
+/* ---------- 结果提示 ---------- */
+
+.ybh-pf-msg {
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: var(--ybh-radius-sm, 12px);
+  border-left: 3px solid transparent;
+  background: rgba(127, 127, 127, 0.10);
+}
+
+.ybh-pf-msg.ok {
+  background: rgba(52, 168, 83, 0.13);
+  border-left-color: #34a853;
+}
+
+.ybh-pf-msg.err {
+  background: rgba(217, 48, 37, 0.13);
+  border-left-color: #d93025;
+}
+
+/* ---------- 我的投稿 ---------- */
+
+.ybh-pf-subs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ybh-pf-subs li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  border-bottom: 1px dashed rgba(127, 127, 127, 0.24);
+}
+
+.ybh-pf-subs li:last-child {
+  border-bottom: 0;
+}
+
+.ybh-pf-sub-status {
+  flex: none;
+  padding: 2px 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.ybh-pf-sub-status.pub {
+  background: rgba(52, 168, 83, 0.16);
+  color: #2e8b57;
+}
+
+.ybh-pf-sub-status.wait {
+  background: rgba(240, 173, 78, 0.18);
+  color: #b8791a;
+}
+
+.ybh-pf-sub-status.draft {
+  background: rgba(127, 127, 127, 0.18);
+}
+
+.ybh-pf-sub-main {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ybh-pf-sub-date {
+  flex: none;
+  font-size: 12.5px;
+  opacity: 0.55;
+}
+
+.ybh-pf-sub-act {
+  flex: none;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.ybh-pf-empty {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* ---------- 头像框（T24 短代码的补课） ---------- */
+
+.ybh-avatar-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.ybh-avatar-preview {
+  flex: none;
+}
+
+.ybh-avatar-preview img {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  box-shadow: var(--ybh-shadow-1);
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.ybh-avatar-form {
+  flex: 1;
+  min-width: 220px;
+}
+
+.ybh-avatar-file input[type="file"] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 13px;
+  color: inherit;
+}
+
+.ybh-avatar-hint,
+.ybh-avatar-tip {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  opacity: 0.62;
+}
+
+.ybh-avatar-actions {
+  margin: 14px 0 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ybh-avatar-actions button {
+  display: inline-block;
+  padding: 9px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: var(--ybh-accent, #6c8cff);
+  border: 0;
+  border-radius: var(--ybh-radius-sm, 12px);
+  cursor: pointer;
+  transition: transform var(--ybh-dur, 0.25s) var(--ybh-ease, ease),
+              box-shadow var(--ybh-dur, 0.25s) var(--ybh-ease, ease);
+}
+
+.ybh-avatar-actions button:hover {
+  transform: translateY(var(--ybh-hover-lift-sm, -2px));
+  box-shadow: var(--ybh-shadow-1);
+}
+
+/* 「恢复默认」是次要操作，别和主按钮抢注意力 */
+.ybh-avatar-actions button.ybh-avatar-del {
+  color: inherit;
+  background: rgba(127, 127, 127, 0.16);
+}
+
+.ybh-avatar-msg {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  border-radius: var(--ybh-radius-sm, 12px);
+  border-left: 3px solid transparent;
+}
+
+.ybh-avatar-msg.ok {
+  background: rgba(52, 168, 83, 0.13);
+  border-left-color: #34a853;
+}
+
+.ybh-avatar-msg.err {
+  background: rgba(217, 48, 37, 0.13);
+  border-left-color: #d93025;
+}
+
+/* ---------- 评论区入口 ---------- */
+
+.ybh-pf-cmt-hint {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: var(--ybh-radius-sm, 12px);
+  background: rgba(127, 127, 127, 0.09);
+}
+
+.ybh-pf-cmt-hint img {
+  flex: none;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.ybh-pf-cmt-hint a {
+  margin-left: auto;
+  flex: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- 未登录 ---------- */
+
+.ybh-pf-guest {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  text-align: center;
+  background: var(--ybh-glass-bg, rgba(255, 255, 255, 0.84));
+  border: 1px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  border-radius: var(--ybh-radius-lg, 20px);
+  box-shadow: var(--ybh-shadow-1);
+}
+
+/* ---------- 窄屏 ---------- */
+
+@media (max-width: 600px) {
+  .ybh-pf-card {
+    padding: 17px 16px 19px;
+    border-radius: var(--ybh-radius-md, 16px);
+  }
+
+  .ybh-avatar-box {
+    gap: 14px;
+  }
+
+  .ybh-avatar-preview img {
+    width: 88px;
+    height: 88px;
+  }
+
+  .ybh-avatar-form {
+    min-width: 100%;
+  }
+
+  .ybh-pf-subs li {
+    flex-wrap: wrap;
+  }
+
+  .ybh-pf-sub-main {
+    white-space: normal;
+  }
+}
+
+/* 低端降级：与 ybh.css 既有做法一致，去掉毛玻璃 */
+html.ybh-lite .ybh-pf-card,
+html.ybh-lite .ybh-pf-guest {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--ybh-glass-bg-strong, rgba(255, 255, 255, 0.94));
+}

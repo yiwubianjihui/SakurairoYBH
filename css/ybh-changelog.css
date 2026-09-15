@@ -1,0 +1,284 @@
+/* ============================================================
+   SakurairoYBH · 更新日志页样式（ybh-changelog.css）
+   ------------------------------------------------------------
+   只在含 [ybh_changelog] 短代码的页面上加载（见 inc/ybh/changelog.php）。
+
+   配色自成一套，定义在 .ybh-cl 作用域内的 CSS 变量上；
+   深色模式走 body.dark 覆盖 —— 不去假设前台主题的变量一定存在，
+   这样换皮、换上游版本都不会让这一页失去可读性。
+   ============================================================ */
+
+.ybh-cl {
+  /* 浅色 */
+  --cl-text:        #2b2f36;
+  --cl-text-soft:   #6b7280;
+  --cl-text-faint:  #9aa0a6;
+  --cl-line:        #e6e8ec;
+  --cl-card:        #ffffff;
+  --cl-card-hover:  #fcfcfd;
+  --cl-accent:      var(--theme-skin, #ff69b4);
+
+  --cl-feat-bg:   rgba(16, 185, 129, .12);  --cl-feat-fg:   #067a55;
+  --cl-fix-bg:    rgba(245, 158, 11, .14);  --cl-fix-fg:    #92500e;
+  --cl-perf-bg:   rgba(59, 130, 246, .12);  --cl-perf-fg:   #1d4ed8;
+  --cl-content-bg:rgba(168, 85, 247, .12);  --cl-content-fg:#6d28d9;
+  --cl-ops-bg:    rgba(107, 114, 128, .14); --cl-ops-fg:    #4b5563;
+
+  max-width: 860px;
+  margin: 0 auto;
+  color: var(--cl-text);
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+body.dark .ybh-cl {
+  --cl-text:       #d8dade;
+  --cl-text-soft:  #a8adb6;
+  --cl-text-faint: #7d838c;
+  --cl-line:       rgba(255, 255, 255, .12);
+  --cl-card:       rgba(255, 255, 255, .045);
+  --cl-card-hover: rgba(255, 255, 255, .075);
+
+  --cl-feat-bg:   rgba(16, 185, 129, .18);  --cl-feat-fg:   #6ee7b7;
+  --cl-fix-bg:    rgba(245, 158, 11, .18);  --cl-fix-fg:    #fcd34d;
+  --cl-perf-bg:   rgba(59, 130, 246, .18);  --cl-perf-fg:   #93c5fd;
+  --cl-content-bg:rgba(168, 85, 247, .18);  --cl-content-fg:#d8b4fe;
+  --cl-ops-bg:    rgba(148, 163, 184, .16); --cl-ops-fg:    #cbd5e1;
+}
+
+/* ---------- 页头 ---------- */
+
+.ybh-cl-head { margin: 0 0 28px; }
+
+.ybh-cl-lead {
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  color: var(--cl-text-soft);
+}
+.ybh-cl-lead strong { color: var(--cl-text); }
+
+.ybh-cl-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--cl-card);
+  border: 1px solid var(--cl-line);
+  font-size: 13px;
+  color: var(--cl-text-soft);
+}
+.ybh-cl-stamp .dashicons { font-size: 15px; width: 15px; height: 15px; line-height: 15px; }
+.ybh-cl-stamp time { font-variant-numeric: tabular-nums; }
+
+/* ---------- 自动区块：最近站务动态 ---------- */
+
+.ybh-cl-recent {
+  margin: 0 0 34px;
+  padding: 16px 20px 18px;
+  border-radius: 14px;
+  background: var(--cl-card);
+  border: 1px solid var(--cl-line);
+}
+
+.ybh-cl-h2 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cl-text);
+}
+.ybh-cl-h2 .dashicons { font-size: 17px; width: 17px; height: 17px; line-height: 17px; color: var(--cl-accent); }
+.ybh-cl-h2 small {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--cl-text-faint);
+}
+
+.ybh-cl-recent-list { margin: 0; padding: 0; list-style: none; }
+.ybh-cl-recent-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 0;
+  border-top: 1px solid var(--cl-line);
+}
+.ybh-cl-recent-list li:first-child { border-top: 0; }
+.ybh-cl-recent-list a {
+  flex: 1;
+  color: var(--cl-text);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .18s ease, color .18s ease;
+}
+.ybh-cl-recent-list a:hover,
+.ybh-cl-recent-list a:focus {
+  color: var(--cl-accent);
+  border-bottom-color: currentColor;
+}
+.ybh-cl-recent-list time {
+  flex: none;
+  font-size: 12.5px;
+  color: var(--cl-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 主体：版本时间线 ---------- */
+
+.ybh-cl-timeline { position: relative; }
+
+/* 竖线：贴着左侧圆点中心 */
+.ybh-cl-timeline::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: var(--cl-line);
+  border-radius: 2px;
+}
+
+.ybh-cl-node {
+  position: relative;
+  padding: 0 0 22px 30px;
+}
+.ybh-cl-node:last-child { padding-bottom: 0; }
+
+.ybh-cl-dot {
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cl-card);
+  border: 3px solid var(--cl-accent);
+  box-sizing: border-box;
+}
+/* 最新一条的圆点实心，一眼能找到「到哪儿了」 */
+.ybh-cl-node:first-child .ybh-cl-dot { background: var(--cl-accent); }
+
+.ybh-cl-card {
+  padding: 14px 18px 6px;
+  border-radius: 14px;
+  background: var(--cl-card);
+  border: 1px solid var(--cl-line);
+  transition: background-color .18s ease;
+}
+.ybh-cl-node:hover .ybh-cl-card { background: var(--cl-card-hover); }
+
+/* --- 版本头 --- */
+
+.ybh-cl-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 8px;
+}
+
+.ybh-cl-ver {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--cl-accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ybh-cl-date {
+  font-size: 12.5px;
+  color: var(--cl-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.ybh-cl-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--cl-text);
+}
+
+/* --- 条目 --- */
+
+.ybh-cl-items { margin: 0; padding: 0; list-style: none; }
+
+.ybh-cl-item {
+  position: relative;
+  padding: 7px 0 7px 0;
+  border-top: 1px solid var(--cl-line);
+  color: var(--cl-text-soft);
+}
+.ybh-cl-item:first-child { border-top: 0; }
+
+.ybh-cl-tag {
+  display: inline-block;
+  min-width: 34px;
+  margin-right: 7px;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+  vertical-align: 1px;
+}
+.ybh-cl-item.is-feat    .ybh-cl-tag { background: var(--cl-feat-bg);    color: var(--cl-feat-fg); }
+.ybh-cl-item.is-fix     .ybh-cl-tag { background: var(--cl-fix-bg);     color: var(--cl-fix-fg); }
+.ybh-cl-item.is-perf    .ybh-cl-tag { background: var(--cl-perf-bg);    color: var(--cl-perf-fg); }
+.ybh-cl-item.is-content .ybh-cl-tag { background: var(--cl-content-bg); color: var(--cl-content-fg); }
+.ybh-cl-item.is-ops     .ybh-cl-tag { background: var(--cl-ops-bg);     color: var(--cl-ops-fg); }
+
+.ybh-cl-scope {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 12px;
+  color: var(--cl-text-faint);
+}
+.ybh-cl-scope::after { content: "·"; margin-left: 6px; }
+
+/* 条目里的 `code` 与 **强调** */
+.ybh-cl-item code {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(127, 127, 127, .13);
+  font-size: .9em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--cl-text);
+  word-break: break-word;
+}
+.ybh-cl-item strong { color: var(--cl-text); font-weight: 600; }
+
+/* ---------- 页脚 ---------- */
+
+.ybh-cl-foot {
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cl-line);
+  font-size: 13.5px;
+  color: var(--cl-text-faint);
+}
+.ybh-cl-foot p { margin: 0; }
+.ybh-cl-foot a { color: var(--cl-text-soft); border-bottom: 1px solid var(--cl-line); text-decoration: none; }
+.ybh-cl-foot a:hover { color: var(--cl-accent); border-bottom-color: currentColor; }
+
+/* ---------- 窄屏 ---------- */
+
+@media screen and (max-width: 600px) {
+  .ybh-cl { font-size: 14.5px; }
+  .ybh-cl-node { padding-left: 24px; }
+  .ybh-cl-timeline::before { left: 5px; }
+  .ybh-cl-dot { width: 12px; height: 12px; border-width: 2.5px; }
+  .ybh-cl-card { padding: 12px 14px 4px; border-radius: 12px; }
+  .ybh-cl-recent { padding: 14px 15px 16px; }
+  .ybh-cl-recent-list li { flex-direction: column; gap: 0; }
+  .ybh-cl-recent-list time { align-self: flex-start; }
+  /* 窄屏把类型标签与范围换行显示，避免正文被挤成两三个字一行的窄柱 */
+  .ybh-cl-tag { margin-bottom: 2px; }
+}

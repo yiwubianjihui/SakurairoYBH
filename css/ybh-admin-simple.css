@@ -1,0 +1,204 @@
+/* ============================================================
+   SakurairoYBH · 后台精简层样式（ybh-admin-simple.css）
+   ------------------------------------------------------------
+   只在「精简账号」下加载（判据见 inc/ybh/admin-simple.php）：
+   没有 edit_others_posts 能力的账号 —— 本站即投稿者/作者/订阅者。
+   编辑与管理员完全不加载本文件。
+
+   做两件事：
+     1. 把 WordPress 侧边栏整块隐藏，并把 #wpcontent / #wpfooter 的
+        左外边距归零（核心给 folded 态留了 36px，会变成一条空白带）；
+     2. 给顶部极简导航 .ybh-snav 上样式（与后台美化的圆角/主题色体系一致）。
+   ============================================================ */
+
+/* ---------- 1. 彻底藏掉侧边栏 ---------- */
+
+/* 三种状态都要覆盖：默认、folded（折叠）、auto-fold（窄屏自适应）。
+   核心在这三种状态下分别给 #wpcontent 设了 160/36/160px 的 margin-left，
+   只改一种会在某些断点下露出空白带。 */
+body.ybh-admin-simple #adminmenumain,
+body.ybh-admin-simple #adminmenuback,
+body.ybh-admin-simple #adminmenuwrap,
+body.ybh-admin-simple #collapse-button,
+body.ybh-admin-simple #wp-admin-bar-menu-toggle,
+body.ybh-admin-simple #wp-admin-bar-menu-toggle-wrap {
+  display: none !important;
+}
+
+body.ybh-admin-simple #wpcontent,
+body.ybh-admin-simple.folded #wpcontent,
+body.ybh-admin-simple.auto-fold #wpcontent {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+body.ybh-admin-simple #wpfooter {
+  left: 0 !important;
+}
+
+/* 窄屏下核心会把 #wpbody 整体右移来「抽屉式」展示侧栏；
+   侧栏已不存在，这个位移只会把内容推出屏幕。 */
+body.ybh-admin-simple #wpbody {
+  transform: none !important;
+}
+
+body.ybh-admin-simple #wpbody-content {
+  padding-bottom: 40px;
+}
+
+/* 欢迎面板（核心只给管理员看，这里兜底） */
+body.ybh-admin-simple #welcome-panel {
+  display: none !important;
+}
+
+/* ---------- 2. 顶部极简导航 ---------- */
+
+.ybh-snav {
+  position: sticky;
+  top: 32px; /* 让开固定的管理条 */
+  z-index: 90;
+  margin: 0 0 18px;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -14px rgba(16, 24, 40, 0.18);
+}
+
+/* 管理条在窄屏会变成 46px 高 */
+@media screen and (max-width: 782px) {
+  .ybh-snav { top: 46px; border-radius: 0; margin-left: -10px; margin-right: -10px; }
+}
+
+.ybh-snav-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+}
+
+/* --- 左侧：身份 --- */
+.ybh-snav-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 12px;
+  margin-right: 2px;
+  border-right: 1px solid #eceef2;
+}
+.ybh-snav-avatar,
+.ybh-snav-avatar img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: block;
+}
+.ybh-snav-idtext { display: flex; flex-direction: column; line-height: 1.25; }
+.ybh-snav-idtext b { font-size: 13px; color: #1f2328; font-weight: 600; }
+.ybh-snav-idtext small { font-size: 11px; color: #8a9099; }
+
+/* --- 中间：主导航 --- */
+.ybh-snav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+.ybh-snav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #3c434a;
+  text-decoration: none;
+  transition: background-color .18s ease, color .18s ease;
+}
+.ybh-snav-link .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+.ybh-snav-link:hover,
+.ybh-snav-link:focus {
+  background: #f2f4f7;
+  color: #1f2328;
+  box-shadow: none;
+}
+.ybh-snav-link.is-active {
+  background: var(--ybh-a-soft, rgba(255, 105, 180, .10));
+  color: var(--ybh-a, #ff69b4);
+  font-weight: 600;
+}
+.ybh-snav-link.is-primary {
+  background: var(--ybh-a, #ff69b4);
+  color: #fff;
+  font-weight: 600;
+}
+.ybh-snav-link.is-primary:hover,
+.ybh-snav-link.is-primary:focus {
+  background: var(--ybh-a, #ff69b4);
+  color: #fff;
+  filter: brightness(.94);
+}
+
+/* 待审核数量徽章 */
+.ybh-snav-badge {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  margin-left: 2px;
+  border-radius: 9px;
+  background: #f0b429;
+  color: #3a2a00;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* --- 右侧：次要入口 --- */
+.ybh-snav-tail {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  padding-left: 12px;
+}
+.ybh-snav-minor {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  text-decoration: none;
+}
+.ybh-snav-minor .dashicons {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+}
+.ybh-snav-minor:hover,
+.ybh-snav-minor:focus { background: #f2f4f7; color: #1f2328; box-shadow: none; }
+.ybh-snav-minor.is-quiet { color: #9aa0a6; }
+
+/* 窄屏：让二级入口换行到导航下方，避免把主导航挤到只剩图标 */
+@media screen and (max-width: 782px) {
+  .ybh-snav-tail { margin-left: 0; padding-left: 0; width: 100%; justify-content: flex-end; }
+  .ybh-snav-id { border-right: 0; padding-right: 0; }
+}
+
+/* ---------- 3. 精简账号下的内容区微调 ---------- */
+
+/* 页面标题与内容之间原本靠侧栏的视觉重量分隔，侧栏没了之后略松一点更好读 */
+body.ybh-admin-simple .wrap { margin: 0 20px 0 2px; }
+@media screen and (max-width: 782px) {
+  body.ybh-admin-simple .wrap { margin: 0 10px; }
+}
+
+/* 仪表盘只剩一张卡片，别让它撑成一整列高度 */
+body.ybh-admin-simple #dashboard-widgets .postbox-container { width: 100% !important; }
+body.ybh-admin-simple #dashboard-widgets-wrap { max-width: 1100px; }

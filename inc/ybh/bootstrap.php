@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.5');
+define('YBH_VERSION', '1.3.7');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -242,6 +242,19 @@ require_once get_template_directory() . '/inc/ybh/cookie-banner.php';
  *      两项均可在「YBH 魔改」设置区开关：ybh_admin_skin / ybh_quick_post。
  */
 require_once get_template_directory() . '/inc/ybh/admin.php';
+
+/**
+ * 8.6b) 后台精简层（N5）：对没有 `edit_others_posts` 能力的账号（本站即投稿者/作者）
+ *        **整块隐藏** WordPress 侧边栏，改用顶部一条极简导航；仪表盘只留投稿面板。
+ *        编辑与管理员完全不受影响。开关：ybh_simple_admin。
+ */
+require_once get_template_directory() . '/inc/ybh/admin-simplify.php';
+
+/**
+ * 8.6c) 更新日志页（N2）：新建页面写 `[ybh_changelog]` 即成「更新日志」页。
+ *        版本时间线来自模块内的结构化数据；另自动聚合「工作日志」分类的最新文章。
+ */
+require_once get_template_directory() . '/inc/ybh/changelog.php';
 
 /**
  * 8.7) 脚注（T31）：`[fn]注释文字[/fn]` → 正文上标 + 文末注释列表。
@@ -616,3 +629,16 @@ function ybh_compact_toggle_script()
  * 细节与「为什么优先级是 1000」见 inc/ybh/avatar.php 的文件头注释。
  */
 require_once get_template_directory() . '/inc/ybh/avatar.php';
+
+/* ---------------------------------------------------------------------------
+ * 12) 前台个人资料页（T34）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 新建一个页面写 `[ybh_profile]` 即成资料页（默认 slug `profile`）：
+ * 头像 / 昵称 / 显示名 / 个人网站 / 个人简介 / 修改密码 / 我的投稿。
+ *
+ * 顶部用户菜单原先指向 wp-admin/profile.php，现已改指本页；
+ * 页面本身**强制不缓存**（登录用户专属内容，缓存会把别人的资料露出去）。
+ */
+require_once get_template_directory() . '/inc/ybh/profile.php';
