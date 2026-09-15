@@ -500,7 +500,18 @@ if ($need_medals) {
                         <h3 class="bento-card-title"><?php echo esc_html($title); ?></h3>
                     </div>
                     <a href="<?php echo esc_url($link); ?>" target="_blank" rel="external nofollow" class="card-link">
-                        <div class="card-image">
+                        <?php
+                        /*
+                         * 把封面地址同时交给 CSS（--ybh-cover）。
+                         *
+                         * 为什么：开启「展台图片完整显示（防裁切）」后卡片图走 object-fit: contain，
+                         * 图片比例与卡片不一致时必然留白。留白想用「同一张图放大模糊」当底，
+                         * 就必须让 CSS 知道图片地址 —— 而 CSS 读不到 <img src>。
+                         * 这里服务端直接写进自定义属性，比用 JS 事后扫 DOM 补要可靠得多
+                         * （无脚本时也有底、也不会闪一下）。样式见 css/ybh.css 的 contain 段。
+                         */
+                        ?>
+                        <div class="card-image" style="--ybh-cover:url('<?php echo esc_url($img); ?>')">
                             <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
                         </div>
                         <div class="card-info">

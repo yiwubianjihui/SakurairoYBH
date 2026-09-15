@@ -846,15 +846,41 @@ body .bento-item .card-image img {
   object-position: 50% 35%;
 }
 
-/* contain 模式：整图完整显示，不裁切；底色用主题卡片底色，
-   兼容明暗两种模式；悬停放大禁用（contain 下放大会溢出） */
+/* contain 模式：整图完整显示，不裁切
+   ---------------------------------------------------------------
+   背景：转换脚本已改为**保持图片原始比例**（不再补透明边），
+   所以图片比例与卡片比例（约 1.4~2.2:1）不一致时必然留白。
+
+   留白不再拿一块纯色去填 —— 纯色看着像「图没加载全」；
+   改成**同一张图放大 + 模糊**当底：留白变成像是刻意的设计，
+   而且明暗两种模式都自动适配（底就是图本身，不必写两套颜色）。
+
+   图片地址由 exhibition.php 服务端写进 --ybh-cover
+   （CSS 读不到 <img src>）。取不到时退回原来的半透明底色，不会变空框。 */
 body.ybh-exhibit-contain .bento-item .card-image {
+  position: relative;
+  overflow: hidden;
   background: rgba(255, 255, 255, 0.65);
 }
 body.dark.ybh-exhibit-contain .bento-item .card-image {
   background: rgba(30, 30, 30, 0.65);
 }
+body.ybh-exhibit-contain .bento-item .card-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--ybh-cover, none);
+  background-size: cover;
+  background-position: center;
+  /* 先放大再模糊：模糊会把边缘往外“吸”出透明感，放大 1.18 倍刚好盖满 */
+  transform: scale(1.18);
+  filter: blur(16px) saturate(1.15);
+  /* 静态滤镜只在首次栅格化时算一次，不是逐帧开销；
+     真正贵的是「动画中的滤镜」，所以这里刻意不加任何 transition */
+}
 body.ybh-exhibit-contain .bento-item .card-image img {
+  position: relative;
+  z-index: 1;                 /* 压在模糊底之上 */
   object-fit: contain;
   object-position: center;
 }
@@ -2864,4 +2890,139 @@ html.ybh-lite .ybh-pf-guest {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   background: var(--ybh-glass-bg-strong, rgba(255, 255, 255, 0.94));
+}
+
+/* ============================================================
+   15) 主页文章列表的「传统分页」
+   ------------------------------------------------------------
+   背景：首页原先走 AJAX「显示更多文章」，现改为真分页
+   （开关在 inc/ybh/bootstrap.php 第 9.6 节），每页 12 篇。
+
+   ⚠️ 这段样式是**必须补的**：`paginate_links()` 输出的
+   `.traditional-pagination` 在主题里原本一处样式都没有
+   （全主题搜过，只有 index.php 里那个类名），切过去就是一排裸链接。
+
+   配色刻意**不用 --theme-skin**：那条变量按封面主色实时算出来，
+   深浅模式下明暗会翻转，做底色不稳（README 坑 #5，脚注那边也踩过）。
+   这里用一套自洽的灰阶，并给 body.dark 单独覆盖。
+
+   无障碍：当前页用 aria-current="page"（WP 自己会输出），
+   所以下面直接按那个属性选中，不必依赖类名顺序。
+   ============================================================ */
+
+.traditional-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 34px 0 8px;
+}
+
+.traditional-pagination .page-numbers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 41px;
+  height: 41px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid rgba(128, 128, 128, 0.26);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.62);
+  color: #4a4a4a;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    color 0.18s ease, transform 0.12s ease;
+}
+
+.traditional-pagination a.page-numbers:hover {
+  background: #ffffff;
+  border-color: rgba(128, 128, 128, 0.45);
+  color: #222222;
+}
+
+.traditional-pagination a.page-numbers:active {
+  transform: scale(0.96);
+}
+
+/* 当前页：实心、明显，但不刺眼 */
+.traditional-pagination .page-numbers[aria-current="page"],
+.traditional-pagination .page-numbers.current {
+  background: #4a4a4a;
+  border-color: #4a4a4a;
+  color: #ffffff;
+  cursor: default;
+}
+
+/* 省略号：不要边框和底色，否则一排方块里混一个很奇怪 */
+.traditional-pagination .page-numbers.dots {
+  min-width: auto;
+  padding: 0 2px;
+  border-color: transparent;
+  background: transparent;
+  letter-spacing: 1px;
+}
+
+/* 上一页 / 下一页：图标按钮。FontAwesome 已在全站加载（主题自带） */
+.traditional-pagination .prev.page-numbers,
+.traditional-pagination .next.page-numbers {
+  padding: 0;
+  font-size: 14px;
+}
+
+.traditional-pagination .prev.page-numbers i,
+.traditional-pagination .next.page-numbers i {
+  font-size: 14px;
+}
+
+/* ---------- 窄屏：缩小一档，免得一页页码换两三行 ---------- */
+@media (max-width: 560px) {
+  .traditional-pagination {
+    gap: 6px;
+    margin: 26px 0 6px;
+  }
+  .traditional-pagination .page-numbers {
+    min-width: 37px;
+    height: 37px;
+    padding: 0 9px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+}
+
+/* 极窄屏：页码多于 7 个时 paginate_links 自带省略号，这里只保证不挤在一起 */
+@media (max-width: 360px) {
+  .traditional-pagination .page-numbers {
+    min-width: 33px;
+    height: 33px;
+    padding: 0 7px;
+    font-size: 13px;
+  }
+}
+
+/* ---------- 深色模式 ---------- */
+body.dark .traditional-pagination .page-numbers {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+  color: #cfcfcf;
+}
+body.dark .traditional-pagination a.page-numbers:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.34);
+  color: #ffffff;
+}
+body.dark .traditional-pagination .page-numbers[aria-current="page"],
+body.dark .traditional-pagination .page-numbers.current {
+  background: #e6e6e6;
+  border-color: #e6e6e6;
+  color: #2b2b2b;
+}
+body.dark .traditional-pagination .page-numbers.dots {
+  border-color: transparent;
+  background: transparent;
 }

@@ -101,7 +101,45 @@ $encode_path = static function (string $path): string {
     return implode('/', $out);
 };
 
-$target = $scheme . '://' . $host . '/wp-content/uploads' . $encode_path($pick);
+$abs = static function (string $rel) use ($scheme, $host, $encode_path): string {
+    return $scheme . '://' . $host . '/wp-content/uploads' . $encode_path($rel);
+};
+
+/**
+ * 批量模式：`?n=10` → 一次返回 10 个**互不相同**的图片地址（JSON）。
+ *
+ * 为什么要它：网站的文章卡片是**服务端渲染**的，那边已经改成一页只抽一批
+ * （见 inc/ybh/covers.php），用不着这个接口。但有两处拿不到服务端抽好的池子：
+ *   · App —— 列表是客户端渲染的，原来每张卡各发一次请求；
+ *   · AJAX「更早的文章」—— 追加的卡片需要新的地址。
+ * 这两处用一个请求换一批，比一次一张省掉 N-1 个来回。
+ *
+ * 注意：返回的是**最终图片地址**，客户端拿到后直接加载即可，不必再走 302。
+ */
+$n = isset($_GET['n']) ? (int) $_GET['n'] : 0;
+if ($n > 1) {
+    $n = min($n, 60);                 // 一次最多 60 张，别让人拿它当爬虫用
+    $total = count($pool);
+    if ($n >= $total) {
+        shuffle($pool);
+        $keys = array_keys($pool);
+        $keys = array_slice(array_merge($keys, $keys), 0, $n);   // 不够就允许重复
+    } else {
+        $keys = (array) array_rand($pool, $n);
+    }
+
+    $urls = [];
+    foreach ($keys as $k) {
+        $urls[] = $abs((string) $pool[$k]);
+    }
+
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');   // 每次要都该是新的一批
+    echo json_encode(['urls' => $urls], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+$target = $abs($pick);
 
 header('Location: ' . $target, true, 302);
 exit;

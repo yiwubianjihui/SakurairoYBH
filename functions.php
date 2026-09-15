@@ -2481,6 +2481,26 @@ function DEFAULT_FEATURE_IMAGE()
         $url = iro_opt('post_cover');
         return $url ? get_random_url($url) : '';
     }
+
+    /*
+     * YBH：走「主题自带图库」时改用**批量按序分配**取封面（inc/ybh/covers.php）。
+     *
+     * 原来每张卡各写一个 `rand-cover.php?img=w&<随机数>`，首页 10~14 张卡就是
+     * 10~14 次请求（还各带一次 302 跳转）。现在渲染前一次性从本机索引抽好一批、
+     * 卡片按顺序取用 ⇒ 图片地址直接进 HTML，**连 302 都省了**，同一页也不会撞图。
+     *
+     * 站长若显式配了别人的外链封面：上面的 type_2 分支会先行返回；
+     * 即使在 random_graphs_options=external_api 下填了外站链接，
+     * ybh_cover_for_card() 也会识别出「不是本主题的 rand-cover.php」而返回空串，
+     * 于是照旧走下面的原逻辑 —— 不夺站长的设置权。
+     */
+    if (function_exists('ybh_cover_for_card')) {
+        $batched = ybh_cover_for_card('w');
+        if ($batched !== '') {
+            return $batched;
+        }
+    }
+
     //使用内建
     if (iro_opt('random_graphs_options') == 'gallery') {
         $url = rest_url('sakura/v1/gallery') . '?img=w';

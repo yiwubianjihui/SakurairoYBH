@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.8');
+define('YBH_VERSION', '1.3.9');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -297,6 +297,16 @@ require_once get_template_directory() . '/inc/ybh/home-cta.php';
 require_once get_template_directory() . '/inc/ybh/console-hint.php';
 
 /**
+ * 8.12) 文章封面取图 · 批量按序分配（T38）
+ *
+ *       原状：每张卡片各写一个 `rand-cover.php?img=w&<随机数>`，首页 10~14 张卡
+ *       就是 10~14 次请求（还各带一次 302）。现在渲染前**一次从本机索引抽好一批**，
+ *       卡片按顺序取用 ⇒ 图片地址直接进 HTML，连 302 都省了，且同页不重复。
+ *       站长若配了别人的外链封面则不接管。见 inc/ybh/covers.php。
+ */
+require_once get_template_directory() . '/inc/ybh/covers.php';
+
+/**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
  *
  *    原先走主题内建 REST（/wp-json/sakura/v1/gallery?img=w）：每次请求都要**完整启动
@@ -363,6 +373,64 @@ function ybh_disable_auto_load($value)
     $value['page_auto_load'] = '233';   // 主题内建哨兵值：do not autoload
 
     return $value;
+}
+
+/**
+ * 9.6) 主页文章列表：把「显示更多文章」改成**真分页**，每页 12 篇
+ *
+ *     `index.php` 本来就两套都写好了，切换只是改一个选项：
+ *       · `pagenav_style == 'ajax'` → `#pagination` 的「更早的文章」+ AJAX 追加下一页
+ *       · 否则                      → `<nav class="traditional-pagination">` + `paginate_links()`
+ *
+ *     用过滤器强制、而不是去改数据库里的选项，理由与 9.5 一致：
+ *       · 跟着代码走，换服务器 / 恢复备份 / 别人在后台误点都不会丢；
+ *       · 和 9.5 的 `page_auto_load` 覆写成对出现，后人一眼能看全"分页这块被改过什么"。
+ *
+ *     每页篇数：**过滤 `posts_per_page` 选项本身**，而不是改主查询。
+ *     为什么不是 `pre_get_posts`：`tpl/content-thumb.php` 里的文章列表用的是
+ *     **自定义 `WP_Query`**，它直接读 `get_option('posts_per_page')`
+ *     （第 54 行，注释写着"每页显示文章数量由 WordPress 设置决定"）。
+ *     只改主查询会出现「分页按 12 篇算出 8 页、列表却每页渲染 10 篇」的脱节
+ *     —— 第一版就是这么写的，上线后才发现（页数对了、篇数没变）。
+ *     过滤选项则一个机制同时覆盖：主查询、那个自定义查询，以及分页数学。
+ *
+ *     想要回 AJAX：把 YBH_TRADITIONAL_PAGINATION 定义为 false（或注释掉本段）。
+ */
+if (!defined('YBH_TRADITIONAL_PAGINATION')) {
+    define('YBH_TRADITIONAL_PAGINATION', true);
+}
+if (!defined('YBH_POSTS_PER_PAGE')) {
+    define('YBH_POSTS_PER_PAGE', 12);
+}
+
+add_filter('option_iro_options', 'ybh_force_traditional_pagination');
+function ybh_force_traditional_pagination($value)
+{
+    if (!YBH_TRADITIONAL_PAGINATION || !is_array($value)) {
+        return $value;
+    }
+    // 'np' = 非 ajax 分支，走 index.php 里的 traditional-pagination
+    $value['pagenav_style'] = 'np';
+
+    return $value;
+}
+
+/**
+ * 每页 12 篇：拦在 `get_option('posts_per_page')` 上。
+ *
+ * ⚠️ 这是**强制**语义：在后台「设置 → 阅读」里改成别的数，也会被这里覆盖成 12。
+ *    想让后台说了算，把 YBH_TRADITIONAL_PAGINATION 定义为 false 即可。
+ *    用 pre_option_ 而不是去写数据库，是为了跟着代码走：
+ *    换服务器、恢复旧备份、别人在后台误点，都不会把这个值弄回去。
+ */
+add_filter('pre_option_posts_per_page', 'ybh_posts_per_page');
+function ybh_posts_per_page($value)
+{
+    if (!YBH_TRADITIONAL_PAGINATION) {
+        return $value;
+    }
+
+    return YBH_POSTS_PER_PAGE;
 }
 
 /**
