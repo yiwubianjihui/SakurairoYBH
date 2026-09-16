@@ -76,8 +76,21 @@ foreach ($component_order as $component) {
                     </div>
                 <?php else : ?>
                     <nav class="traditional-pagination">
-                        <?php echo paginate_links(array(
-                            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
+                        <?php
+                        /*
+                         * YBH：页码链接末尾补一个 `#main` 锚点。
+                         *
+                         * 起因（用户反馈）：点页码后浏览器总是回到页面**最顶端**，
+                         * 而首页最上面是一整屏封面，于是每翻一页都要再往下滚一大段，很费事。
+                         * 带上 `#main`（就是文章列表那个 <main>）之后，浏览器直接停在列表开头，
+                         * 翻页即见文章。
+                         *
+                         * ⚠️ 锚点必须加在 `str_replace` **之后**：`base` 里那个 999999999 是给
+                         * paginate_links 替换页号用的占位符，加在它前面会被夹在占位符与页号之间，
+                         * 拼出 `…/page/%#%/#main` 这种坏 URL。放最后才是 `…/page/2/#main`。
+                         */
+                        echo paginate_links(array(
+                            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))) . '#main',
                             'format' => '?paged=%#%',
                             'current' => max(1, get_query_var('paged')),
                             'total' => $wp_query->max_num_pages,

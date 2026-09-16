@@ -151,13 +151,29 @@ if (!function_exists('get_post_cover_html')) {
             // 原文章样式
             $cover_html = get_post_cover_html();
 
+            /*
+             * 把封面地址也交给 CSS（--ybh-cover）。
+             *
+             * 为什么：开启「展台图片完整显示（防裁切）」后卡片图走 object-fit: contain，
+             * 比例不符时两侧会留白；留白想用「同一张图放大模糊」当底，CSS 就必须知道图片地址
+             * —— 而 CSS 读不到 <img src>。
+             *
+             * 直接从 $cover_html 里取 data-src，避免把「取封面地址」的逻辑抄第二遍
+             * （抄一遍就会和上面那个函数各自漂移）。视频封面没有 data-src，取不到就不加，
+             * 那时也不需要底色。
+             */
+            $cover_var = '';
+            if (preg_match('/data-src="([^"]+)"/', (string) $cover_html, $ybh_m)) {
+                $cover_var = $ybh_m[1];
+            }
+
             // 摘要字数限制
             $ai_excerpt = get_post_meta($post->ID, "ai_summon_excerpt", true);
             $excerpt = has_excerpt();
             ?>
             <article class="post post-list-thumb" style ="<?php echo var_post_theme_color(get_the_ID()) != 'false' ? "--article-theme-highlight: " . var_post_theme_color(get_the_ID()) : ""; ?>" itemscope="" itemtype="http://schema.org/BlogPosting">
                 <div class="post-thumb">
-                    <a href="<?php the_permalink(); ?>">
+                    <a href="<?php the_permalink(); ?>"<?php echo $cover_var ? ' style="--ybh-cover:url(\'' . esc_url($cover_var) . '\')"' : ''; ?>>
                         <?php echo $cover_html; ?>
                     </a>
                 </div><!-- thumbnail-->

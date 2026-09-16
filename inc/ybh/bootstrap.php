@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.11');
+define('YBH_VERSION', '1.3.12');
 
 /**
  * FontAwesome 本地化（双保险）：
@@ -307,6 +307,15 @@ require_once get_template_directory() . '/inc/ybh/console-hint.php';
 require_once get_template_directory() . '/inc/ybh/covers.php';
 
 /**
+ * 8.13) 预加载遮罩的退场时机（T39）
+ *
+ *       主题的 #preload 是全屏白遮罩，要等 window.load（**所有**资源）或最多 3 秒
+ *       才撤，冷访问时用户就是盯着白屏等。改成「DOM 就绪 + 首屏图就绪 + 最多 900ms」
+ *       就撤，并同步解锁 html 的 overflow-y。见 inc/ybh/preload-tune.php。
+ */
+require_once get_template_directory() . '/inc/ybh/preload-tune.php';
+
+/**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
  *
  *    原先走主题内建 REST（/wp-json/sakura/v1/gallery?img=w）：每次请求都要**完整启动
@@ -342,6 +351,35 @@ function ybh_cover_api_endpoint($value)
     $value['random_graphs_mts']         = true;
     $value['random_graphs_link_mobile'] = $base . '?img=l';   // 移动：竖图（与原内建分支一致）
 
+    return $value;
+}
+
+/**
+ * 9.7) 图标（favicon）换成本地小图
+ *
+ *     主题默认的 `favicon_link` 指向 `s.nmxc.ltd/sakurairo_vision/@3.0/basic/favicon.ico`
+ *     —— **实测 160 KB**，是整页第 2 大的资源（仅次于某个 565 KB 的友链头像），
+ *     而且是一次**跨站请求**（国内访问那个 CDN 未必快）。
+ *     一个 favicon 占整页 10% 的流量，很不划算。
+ *
+ *     处理：只在 `favicon_link` **还是默认外链或为空**时才改成本地图标
+ *     （`uploads/ybh-brand/` 下，64×64 PNG，**1.2 KB**，省 99%）。
+ *     站长若自己填过图标地址，一律不动 —— 与 §9 改封面端点同一个分寸。
+ */
+add_filter('option_iro_options', 'ybh_local_favicon');
+function ybh_local_favicon($value)
+{
+    if (!is_array($value)) {
+        return $value;
+    }
+
+    $cur = isset($value['favicon_link']) ? (string) $value['favicon_link'] : '';
+    // 空 或 仍指向那个外部 CDN ⇒ 视为"没自己设过"
+    if ($cur !== '' && strpos($cur, 'nmxc.ltd') === false) {
+        return $value;
+    }
+
+    $value['favicon_link'] = content_url('/uploads/ybh-brand/favicon64.png');
     return $value;
 }
 

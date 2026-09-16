@@ -474,7 +474,8 @@ if ($need_medals) {
         if (!empty($exhibition)) : 
             // 默认图片路径缓存，避免重复调用iro_opt
             $default_img_base = null;
-            
+            $bento_index = 0;
+
             foreach ($exhibition as $item) : 
                 // 跳过非数组项
                 if (!is_array($item)) {
@@ -494,6 +495,30 @@ if ($need_medals) {
                     }
                     $img = $default_img_base . 'series/exhibition1.webp';
                 }
+
+                /*
+                 * 展台在首屏，这里的图**不该懒加载**。
+                 *
+                 * 原来统一写 loading="lazy"：浏览器会把首屏图也推迟，既拖慢
+                 * LCP（最大内容绘制），又会在控制台刷出
+                 * `[Intervention] Images loaded lazily and replaced with placeholders`
+                 * —— 用户看到那行会以为站点出了问题。
+                 *
+                 * 前 6 张改成 eager（首屏能看到的）；再多出来的（窄屏挤到下面的）仍旧懒加载。
+                 *
+                 * ⚠️ fetchpriority="high" **只给第一张**：6 张全标 high 会让它们
+                 * 一起去和 CSS/JS 抢带宽，在慢网下反而把首屏渲染推后。
+                 * 只需要把最可能成为 LCP 的那一张提前。
+                 */
+                $bento_index++;
+                $eager = ($bento_index <= 6);
+                if ($bento_index === 1) {
+                    $img_attrs = 'loading="eager" fetchpriority="high"';
+                } elseif ($eager) {
+                    $img_attrs = 'loading="eager"';
+                } else {
+                    $img_attrs = 'loading="lazy"';
+                }
                 ?>
                 <div class="bento-item bento-medium">
                     <div class="card-title-wrapper">
@@ -512,7 +537,7 @@ if ($need_medals) {
                          */
                         ?>
                         <div class="card-image" style="--ybh-cover:url('<?php echo esc_url($img); ?>')">
-                            <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
+                            <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" <?php echo $img_attrs; ?>>
                         </div>
                         <div class="card-info">
                             <?php if (!empty($description)) : ?>
