@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.14');
+define('YBH_VERSION', '1.3.15');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -349,6 +349,14 @@ require_once get_template_directory() . '/inc/ybh/covers.php';
  *       就撤，并同步解锁 html 的 overflow-y。见 inc/ybh/preload-tune.php。
  */
 require_once get_template_directory() . '/inc/ybh/preload-tune.php';
+
+/**
+ * 9.7b) 首屏封面兜底 + `imgError` 提前定义
+ *       冷访问时 app.js 的封面链路（IndexedDB 缓存那条）实测跑不通，首屏会是一整屏空白；
+ *       另外 `imgError` 只在 app.js 末尾才挂上，首屏「去懒加载」的图先触发 onerror 就会报未定义。
+ *       两件事都在这个模块里兜住，详见 inc/ybh/hero-cover.php 文件头说明。
+ */
+require_once get_template_directory() . '/inc/ybh/hero-cover.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
