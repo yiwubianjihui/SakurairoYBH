@@ -1039,35 +1039,35 @@ body.ybh-exhibit-contain .post-thumb:hover a img {
 }
 
 /* ---------- 桌面端：日期与元信息**分两行**（用户反馈 2026-09） ----------
-   起因：桌面是 265px 宽的三列卡片（紧凑模式），顶栏一行里同时塞
-   「时间」和「浏览量 · 分类 · 字数」—— 元信息被 62% 的上限压着走省略号，
-   经常只看到「3 诗·歌…」，白摆着却读不全。
+   起因：桌面三列卡片，顶栏一行里同时塞「时间」和「浏览量 · 分类 · 字数」——
+   元信息被 62% 的上限压着走省略号，经常只看到「3 诗·歌…」，白摆着却读不全。
 
-   改成两行：日期一行、元信息一行，各自都能用满 245px 的宽度，
-   不再互相挤压，也不用一上来就省略号。
+   做成上下两行：日期一行、元信息一行，各自贴合内容宽度。
 
-   ⚠️ **只动桌面**（>860px，正是卡片变 265px 三列的那一档）：
+   ⚠️ 第一版用的是 `flex-wrap: wrap` + 给元信息 `flex: 0 0 100%` 来"挤"到第二行 ——
+   **那样会把元信息自己拉成一条横贯整卡的半透明长条**，而条里只有三个小项，
+   右边一大片空着（用户反馈「留了很多白，对齐也不对」）。
+   根因是：`.post-meta` 自己带胶囊底色，占满宽度就等于画了一条空长条。
+
+   正解是 `flex-direction: column` + `align-items: flex-start`：
+   两项各占一行，且**都按内容宽度收缩**，胶囊就是胶囊该有的大小。
+
+   ⚠️ **只动桌面**（>860px，正是卡片三列的那一档）：
    手机端卡片本身就是整屏宽，一行放得下，换行反而白占一条封面。
    断点与主题紧凑模式的「桌面（>860px）3 列」保持一致，
    避免出现「三列布局生效了、换行规则还没生效」的中间态。 */
 @media (min-width: 861px) {
   .post-list-thumb .post-topbar {
-    flex-wrap: wrap;
-    /* 换成左对齐：两行都从左边起，堆叠关系一目了然；
-       若仍用 space-between，第二行那个独占整行的项会被拉伸得莫名其妙。 */
+    flex-direction: column;
+    align-items: flex-start;   /* 两行都靠左，且各自贴合内容 */
     justify-content: flex-start;
-    row-gap: 6px;
+    gap: 5px;
   }
-  /* 占满一整行 ⇒ 被挤到第二行。flex-basis 用 100% 而不是 width，
-     这样它仍然参与 flex 计算，不会出现「既换行又和日期抢位」的怪状态。
-     ⚠️ `box-sizing: border-box` 不能省：flex-basis 的 100% 默认按**内容盒**算，
-     而胶囊自己还有左右各 8px 内边距 ⇒ 不加就会变成 245+16=261px，
-     比顶栏的 245px 还宽、直接顶出卡片右边（实测踩到）。
-     只在这一档加，手机端那套（max-width: 58%）维持原样不受影响。 */
+  /* 撤销"占满一行"的写法，改回贴合内容；
+     max-width 留 100% 只是兜底：极端长的分类名仍然收在卡片内。 */
   .post-list-thumb .post-topbar > .post-meta {
-    flex: 0 0 100%;
+    flex: 0 0 auto;
     max-width: 100%;
-    box-sizing: border-box;
   }
 }
 
@@ -1955,20 +1955,28 @@ html.ybh-compact body .post-list-thumb {
    显式覆盖（本站自定义 CSS 那条 16px !important 从此不再决定卡片标题字号）。
    特指度 body .post-list-thumb .post-title h3 = (0,2,2) > 自定义 CSS 的 (0,2,1)，
    两条都是 !important 时特指度高者胜，所以确实能盖住。
-   取 15px：比原来的 16px 收一档，长标题在 265px 卡宽下更容易两行放下。 */
+
+   2026-09 又调回来一档：16 → 15px 是当时卡宽 265px 的取舍；
+   现在首页卡宽到 362px（见第 16.1 节），15px 显得太空，故回到 16px。
+   真正生效的是下面紧凑模式那条 17px。 */
 body .post-list-thumb .post-title h3 {
-  font-size: 15px !important;
+  font-size: 16px !important;
 }
 html.ybh-compact body .post-list-thumb .post-title {
-  padding: 8px 14px;
+  padding: 10px 16px;
   bottom: 8%;
   max-height: 72%;
 }
-/* 标题限 2 行并加省略号：3 列后卡宽只有 265px，长标题会顶到面板外缘。
-   （原来是整块 34% 裁切，会出现半行残字） */
+/* 标题限 2 行并加省略号：三列排版下长标题会顶到面板外缘。
+   （原来是整块 34% 裁切，会出现半行残字）
+
+   字号：14 → **17px**（用户反馈「标题字号调大一点」）。
+   14px 是"卡宽 265px 时尽量两行放下"的取舍；首页卡宽现在 362px，
+   放 17px 后一行约 17 个汉字、两行 34 字，常见标题都放得下，
+   比原来明显更好读。字距跟着收到 0.6px —— 17px 配 1px 字距中文会显得散。 */
 html.ybh-compact body .post-list-thumb .post-title h3 {
-  font-size: 14px !important;
-  letter-spacing: 1px;
+  font-size: 17px !important;
+  letter-spacing: 0.6px;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1977,7 +1985,7 @@ html.ybh-compact body .post-list-thumb .post-title h3 {
 }
 html.ybh-compact body .post-list-thumb .post-title h3:hover {
   /* 紧凑模式下同样保持字距恒定，避免 hover 抖动 */
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
 }
 /* 胶囊再收一档 */
 html.ybh-compact body .post-list-thumb .post-topbar {
@@ -3124,17 +3132,20 @@ body.dark .traditional-pagination .page-numbers.dots {
    主题把内容区**限死在 860px 并居中**，1600px 下左右各白扔 370px，
    卡片因此只有 265px 宽。
 
-   这里只在**首页**把上限放宽到 1320px：
-     · 861～1400px 视口：容器等于视口宽，留白直接归零，卡片随之变大；
-     · 宽屏（1600px）：容器 1320px，左右各 140px，卡片约 418px 宽
-       （主题「非紧凑」模式的正常卡宽是 403px，正好回到那个量级）；
+   这里只在**首页**把上限放宽到 1150px：
+     · 861～1150px 视口：容器等于视口宽，留白直接归零，卡片随之变大；
+     · 宽屏（1600px）：容器 1150px，左右各 225px，卡片约 362px 宽；
      · **窄屏不受影响**：861px 以下本来就被视口宽度卡住，max-width 调大也不会更宽。
+
+   ⚠️ 这个值调过一轮：第一版放到 1320px（卡片 419×314），用户反馈「有点太大了」，
+   于是收到 1150px（卡片约 362×272）。比原来的 265×200 仍大了一圈，
+   又不至于一屏放不下几张。
 
    ⚠️ 只作用于 `body.home`（含 /page/2/ 这类分页，WP 同样带 home 类），
    **不动文章页**：正文列宽 860px 是刻意留的，单栏长行反而难读。 */
 @media (min-width: 861px) {
   body.home .site-content {
-    max-width: 1320px;
+    max-width: 1150px;
   }
 
   /* 卡片跟着变宽之后，原来固定的 200px 高会把比例从 1.33 拉成 2.0 左右
