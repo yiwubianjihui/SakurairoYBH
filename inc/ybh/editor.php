@@ -30,7 +30,8 @@ add_action('after_setup_theme', function () {
 add_filter('mce_css', function ($mce_css) {
     $url = add_query_arg(
         'ver',
-        IRO_VERSION . '-ybh' . YBH_VERSION,
+        // 编辑器里挂的是前台同一份 ybh.css，用它的修改时间当版本号（见 ybh_asset_ver 注释）
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('css/ybh.css') : YBH_VERSION,
         get_template_directory_uri() . '/css/ybh.css'
     );
     return $mce_css ? $mce_css . ',' . $url : $url;
@@ -53,7 +54,8 @@ add_filter('mce_css', function ($mce_css) {
 add_filter('mce_external_plugins', function ($plugins) {
     $plugins['ybh_footnote'] = add_query_arg(
         'ver',
-        YBH_VERSION,
+        // 跟文件修改时间走（见 ybh_asset_ver 注释），别再靠手动升版本号
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-editor.js') : YBH_VERSION,
         get_template_directory_uri() . '/js/ybh-editor.js'
     );
     return $plugins;
@@ -83,13 +85,14 @@ add_action('admin_enqueue_scripts', function ($hook) {
         'ybh-admin-editor',
         get_template_directory_uri() . '/css/admin-editor.css',
         array(),
-        YBH_VERSION
+        // 版本号取各自文件的修改时间：改样式只影响样式的缓存，改脚本只影响脚本
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('css/admin-editor.css') : YBH_VERSION
     );
     wp_enqueue_script(
         'ybh-post-editor',
         get_template_directory_uri() . '/js/ybh-post-editor.js',
         array('jquery'),
-        YBH_VERSION,
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-post-editor.js') : YBH_VERSION,
         true
     );
     wp_localize_script('ybh-post-editor', 'YBH_EditorData', array(

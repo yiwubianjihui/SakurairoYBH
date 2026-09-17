@@ -114,7 +114,9 @@ function ybh_simple_admin_assets()
         'ybh-admin-simple',
         get_template_directory_uri() . '/css/ybh-admin-simple.css',
         array(),
-        defined('YBH_VERSION') ? YBH_VERSION : '1'
+        // 版本号跟文件修改时间走（见 bootstrap.php 的 ybh_asset_ver 注释）
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('css/ybh-admin-simple.css')
+            : (defined('YBH_VERSION') ? YBH_VERSION : '1')
     );
 }
 

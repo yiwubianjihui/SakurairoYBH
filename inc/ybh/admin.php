@@ -29,10 +29,14 @@ function ybh_quick_post_on()
     return (bool) iro_opt('ybh_quick_post', true);
 }
 
-/** 供入队与内联样式共用的版本串（与前台 ybh.css 用同一套版本号）。 */
+/** 供入队与内联样式共用的版本串（与前台 ybh.css 同一套做法：跟文件修改时间走）。 */
 function ybh_admin_asset_ver()
 {
-    return (defined('IRO_VERSION') ? IRO_VERSION : '3.0.11') . '-ybh' . (defined('YBH_VERSION') ? YBH_VERSION : '1');
+    // 用文件修改时间而不是 YBH_VERSION：改完样式一存盘就失效缓存，
+    // 不靠人记得升版本号（详见 bootstrap.php 里 ybh_asset_ver 的注释）。
+    return function_exists('ybh_asset_ver')
+        ? ybh_asset_ver('css/ybh-admin.css')
+        : (defined('YBH_VERSION') ? YBH_VERSION : '1');
 }
 
 /**

@@ -37,6 +37,40 @@ define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
 define('YBH_VERSION', '1.3.14');
 
 /**
+ * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
+ *
+ * ---------------------------------------------------------------
+ * 为什么改（这是一个真踩过的坑）
+ *
+ * `css/ybh.css`、`js/ybh-editor.js` 这些带 `?ver=`，而宝塔给 css/js 配了
+ * **12 小时**过期。原来 `?ver=` 用的是 `YBH_VERSION` —— 靠人手动升版本号。
+ * 于是「改了文件、忘了升版本」时，访客（**包括站长自己**）半天内拿到的还是旧文件，
+ * 现象是"我明明改了却没生效"，**极容易被误判成代码写错了**。
+ * （本站踩过一次：contain 那套样式明明部署了，前台却像没生效。）
+ *
+ * 改成 `filemtime()` 之后：**文件一存盘，`?ver=` 就变**，缓存自然失效，
+ * 不再依赖任何人记得升版本号。这也是 WordPress 官方文档给的做法。
+ *
+ * 取不到文件时（异常情况）退回 `YBH_VERSION`，不至于发出空版本号。
+ *
+ * @param string $rel 相对**主题目录**的路径，如 'css/ybh.css'
+ * @return string
+ */
+function ybh_asset_ver($rel)
+{
+    static $cache = array();
+    $rel = ltrim((string) $rel, '/');
+    if (isset($cache[$rel])) {
+        return $cache[$rel];
+    }
+    $file = get_template_directory() . '/' . $rel;
+    $ver = is_readable($file)
+        ? (string) filemtime($file)
+        : (defined('YBH_VERSION') ? YBH_VERSION : '1');
+    return $cache[$rel] = $ver;
+}
+
+/**
  * FontAwesome 本地化（双保险）：
  * - 主路径：下方 option_iro_options filter（functions.php 已改为先加载本文件再填充
  *   $GLOBALS['iro_options']，filter 会对 iro_opt 的数据源生效）；
@@ -162,7 +196,8 @@ function ybh_enqueue_layer()
     printf(
         '<link rel="stylesheet" id="ybh-layer-css" href="%s/css/ybh.css?ver=%s">' . "\n",
         esc_url(get_template_directory_uri()),
-        esc_attr(IRO_VERSION . '-ybh' . YBH_VERSION)
+        // 用文件修改时间当版本号：存盘即失效缓存，不靠人记得升 YBH_VERSION（见函数注释）
+        esc_attr(ybh_asset_ver('css/ybh.css'))
     );
 }
 
@@ -484,8 +519,14 @@ function ybh_posts_per_page($value)
  *     原来用 parseInt 会把 0.5 截断成 0（等于立刻触发）。
  */
 add_filter('script_loader_src', function ($src, $handle) {
-    if (in_array($handle, array('app', 'app-page'), true)) {
-        $src = add_query_arg('ybh', YBH_VERSION, $src);
+    static $map = array(
+        'app'      => 'js/app.js',
+        'app-page' => 'js/page.js',
+    );
+    if (isset($map[$handle])) {
+        // 用**文件修改时间**当版本号（见 ybh_asset_ver 的注释）：
+        // 改完 JS 一存盘就失效缓存，不必再依赖有人记得升 YBH_VERSION。
+        $src = add_query_arg('ybh', ybh_asset_ver($map[$handle]), $src);
     }
     return $src;
 }, 10, 2);
