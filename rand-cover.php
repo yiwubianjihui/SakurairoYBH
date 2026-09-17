@@ -106,6 +106,28 @@ $abs = static function (string $rel) use ($scheme, $host, $encode_path): string 
 };
 
 /**
+ * 变体：图库每张图有两个文件（见 D:\Pictures\封面\convert-双变体.ps1）
+ *
+ *     xxx.webp        大图  —— **默认**，供大屏首屏封面用
+ *     xxx-card.webp   卡片图 —— `?size=card` 时用，供文章卡片 / App 列表用
+ *
+ * 默认给大图，是因为这个端点主要服务首屏那张全宽封面（bootstrap.php §9 把
+ * `random_graphs_link` 指到这里）。卡片那条路走的是 covers.php 的批量池，
+ * 那边已经默认取 -card，不经过这里。
+ *
+ * 没有 -card 文件时（历史遗留、没重转过的少数图）自动退回大图，避免 404 开天窗。
+ */
+$size = isset($_GET['size']) ? strtolower((string) $_GET['size']) : '';
+$variant = static function (string $rel) use ($size): string {
+    if ($size !== 'card') {
+        return $rel;
+    }
+    $card = preg_replace('/(\.[a-z0-9]{2,5})$/i', '-card$1', $rel, 1);
+    $card_path = dirname(__DIR__, 2) . '/uploads' . $card;
+    return is_file($card_path) ? $card : $rel;
+};
+
+/**
  * 批量模式：`?n=10` → 一次返回 10 个**互不相同**的图片地址（JSON）。
  *
  * 为什么要它：网站的文章卡片是**服务端渲染**的，那边已经改成一页只抽一批
@@ -115,6 +137,7 @@ $abs = static function (string $rel) use ($scheme, $host, $encode_path): string 
  * 这两处用一个请求换一批，比一次一张省掉 N-1 个来回。
  *
  * 注意：返回的是**最终图片地址**，客户端拿到后直接加载即可，不必再走 302。
+ * 卡片场景请带 `&size=card`，拿到的才是小图。
  */
 $n = isset($_GET['n']) ? (int) $_GET['n'] : 0;
 if ($n > 1) {
@@ -130,7 +153,7 @@ if ($n > 1) {
 
     $urls = [];
     foreach ($keys as $k) {
-        $urls[] = $abs((string) $pool[$k]);
+        $urls[] = $abs($variant((string) $pool[$k]));
     }
 
     header('Content-Type: application/json; charset=utf-8');
@@ -139,7 +162,7 @@ if ($n > 1) {
     exit;
 }
 
-$target = $abs($pick);
+$target = $abs($variant($pick));
 
 header('Location: ' . $target, true, 302);
 exit;

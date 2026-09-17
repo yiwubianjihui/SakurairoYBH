@@ -108,13 +108,51 @@ function ybh_cover_url($rel_path)
 }
 
 /**
+ * 把「大图路径」换算成某个变体的路径。
+ *
+ * 图库现在每张图有两个文件（见 D:\Pictures\封面\convert-双变体.ps1）：
+ *
+ *     xxx.webp        大图  —— 大屏首屏封面用（1920 / q88）
+ *     xxx-card.webp   卡片图 —— 文章列表卡片用（1200 / q82，约卡片显示宽度的 2 倍）
+ *
+ * 索引 `imglist.json` 里存的仍是**大图**路径，卡片变体在这里按后缀推导，
+ * 所以**不用重建索引**，也不会因为多了一套文件而要维护两份清单。
+ *
+ * @param string $url     已经编码好的完整 URL
+ * @param string $variant 'card' 取卡片图；其它（含 'big'）原样返回
+ */
+function ybh_cover_variant($url, $variant = 'card')
+{
+    if ($variant !== 'card') {
+        return $url;
+    }
+    // 只在扩展名前插 -card：.../2003.webp -> .../2003-card.webp
+    return preg_replace('/(\.[a-z0-9]{2,5})$/i', '-card$1', (string) $url, 1);
+}
+
+/**
+ * 某个相对路径的卡片变体在磁盘上是否真的存在。
+ *
+ * 为什么要查：服务器上有极少数图（历史遗留、没有源图重转过）**没有** -card 变体，
+ * 直接发出去就是 404、卡片开天窗。这里查一次文件系统（每请求至多 16 次 stat，
+ * 可忽略），不存在就退回大图 —— 宁可大一点，也不要空图。
+ */
+function ybh_cover_card_exists($rel_path)
+{
+    $rel = (string) $rel_path;
+    $card = preg_replace('/(\.[a-z0-9]{2,5})$/i', '-card$1', $rel, 1);
+    return ($card !== $rel) && file_exists(WP_CONTENT_DIR . '/uploads' . $card);
+}
+
+/**
  * 一次抽 $n 张互不相同的封面。
  *
- * @param int    $n    要几张
- * @param string $kind 'w' 横图（卡片默认）｜'l' 竖图｜其它 = 全部
+ * @param int    $n      要几张
+ * @param string $kind   'w' 横图（卡片默认）｜'l' 竖图｜其它 = 全部
+ * @param string $size   'card' 返回卡片小图（默认，卡片场景）｜'big' 返回大图
  * @return string[] 绝对 URL
  */
-function ybh_pick_covers($n, $kind = 'w')
+function ybh_pick_covers($n, $kind = 'w', $size = 'card')
 {
     $idx = ybh_cover_index();
     if ($kind === 'w' && !empty($idx['wide'])) {
@@ -134,19 +172,40 @@ function ybh_pick_covers($n, $kind = 'w')
     // 要的比库存还多：先把全部打乱发一轮，剩下的允许重复（总比发不出来强）
     if ($n >= $total) {
         shuffle($pool);
-        $out = array();
+        $picked = array();
         for ($i = 0; $i < $n; $i++) {
-            $out[] = $pool[$i % $total];
+            $picked[] = $pool[$i % $total];
         }
-        return array_map('ybh_cover_url', $out);
+    } else {
+        $keys = (array) array_rand($pool, $n);   // array_rand 保证不重复
+        $picked = array();
+        foreach ($keys as $k) {
+            $picked[] = $pool[$k];
+        }
     }
 
-    $keys = (array) array_rand($pool, $n);   // array_rand 保证不重复
+    // 逐张决定用哪个变体：默认卡片小图；没有 -card 文件的（历史遗留）退回大图
     $out = array();
-    foreach ($keys as $k) {
-        $out[] = $pool[$k];
+    foreach ($picked as $rel) {
+        if ($size === 'card' && !ybh_cover_card_exists($rel)) {
+            $out[] = ybh_cover_url($rel);
+        } else {
+            $out[] = ybh_cover_variant(ybh_cover_url($rel), $size);
+        }
     }
-    return array_map('ybh_cover_url', $out);
+    return $out;
+}
+
+/**
+ * 大图变体（大屏 / 首屏封面用）。
+ *
+ * @param int    $n
+ * @param string $kind
+ * @return string[]
+ */
+function ybh_pick_covers_big($n, $kind = 'w')
+{
+    return ybh_pick_covers($n, $kind, 'big');
 }
 
 /**

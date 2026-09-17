@@ -3171,9 +3171,13 @@ body.dark .traditional-pagination .page-numbers.dots {
    还牵扯分段动画与宽度测量，动它风险大；而 CSS 的 `!important` 声明**优先于内联样式**，
    一条规则就能稳定生效，且首页不受影响（那里 nav.js 本来就设成同样的值）。
 
-   ⚠️ 只对**非首页**生效（body:not(.home)）：首页保留 nav.js 那套淡入动画，
-   否则按钮会从「渐显」变成「啪一下出现」。 */
-body:not(.home) .bg-switch#bg-next {
+   ⚠️ **别只写 `body:not(.home)`** —— 首页的翻页（`/page/2/`、`/page/3/`…）同样带
+   `home` 类（WP 的 `is_home()` 对它也是 true），只写 `:not(.home)` 会漏掉这些页面：
+   nav.js 那边按 `pathname === "/"` 判断、认为不是首页而把它藏了，
+   而我们的 CSS 又没盖上去 ⇒ **翻页后按钮照样消失**（用户反馈，第一版就是这么错的）。
+   所以要把 `body.paged` 一并列上。 */
+body:not(.home) .bg-switch#bg-next,
+body.paged .bg-switch#bg-next {
   display: block !important;
   opacity: 1 !important;
   transform: none !important;

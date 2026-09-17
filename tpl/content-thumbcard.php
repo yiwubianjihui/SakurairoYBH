@@ -80,7 +80,27 @@ if (!function_exists('get_post_cover_html')) {
                 } else {
                     $post_img = DEFAULT_FEATURE_IMAGE('th');
                 }
-                $cover_html = '<img alt="post_img" class="lazyload" src="' . esc_url(iro_opt('load_out_svg')) . '#lazyload-blur" data-src="' . esc_url($post_img) . '"/>';
+
+                /*
+                 * 首屏那几张卡片**不做懒加载**，直接出图。
+                 *
+                 * 原先全都写成 `class="lazyload" src="<外部 CDN 的占位 SVG>" data-src="<真图>"`
+                 * —— 真图要等主题 JS 跑起来、扫到 data-src 才开始下载。对首屏来说这是纯亏：
+                 *   · 真图晚一步才开始下，直接拖慢 LCP（最大内容绘制）；
+                 *   · 多依赖一次**跨站**请求（占位图在 s.nmxc.ltd）；
+                 *   · 关掉 JS 就只剩占位图，卡片一片灰。
+                 * 屏幕外的卡片继续懒加载才是划算的（那时省流量 > 早下载）。
+                 *
+                 * 取 4：桌面两列时首屏能看到两行，手机一列能看到两三条，都覆盖到了。
+                 */
+                static $ybh_card_seq = 0;
+                $ybh_card_seq++;
+                if ($ybh_card_seq <= 4) {
+                    $cover_html = '<img alt="post_img" src="' . esc_url($post_img) . '"'
+                        . ' loading="eager" decoding="async" onerror="imgError(this)"/>';
+                } else {
+                    $cover_html = '<img alt="post_img" class="lazyload" src="' . esc_url(iro_opt('load_out_svg')) . '#lazyload-blur" data-src="' . esc_url($post_img) . '"/>';
+                }
                 break;
         }
         return $cover_html;
