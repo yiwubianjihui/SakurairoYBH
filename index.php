@@ -78,25 +78,41 @@ foreach ($component_order as $component) {
                     <nav class="traditional-pagination">
                         <?php
                         /*
-                         * YBH：页码链接末尾补一个 `#main` 锚点。
+                         * YBH：给「第 2 页及以后」的页码链接补一个 `#main` 锚点。
                          *
                          * 起因（用户反馈）：点页码后浏览器总是回到页面**最顶端**，
                          * 而首页最上面是一整屏封面，于是每翻一页都要再往下滚一大段，很费事。
-                         * 带上 `#main`（就是文章列表那个 <main>）之后，浏览器直接停在列表开头，
-                         * 翻页即见文章。
+                         * 带上 `#main`（就是文章列表那个 <main>）之后，浏览器直接停在列表开头。
                          *
-                         * ⚠️ 锚点必须加在 `str_replace` **之后**：`base` 里那个 999999999 是给
-                         * paginate_links 替换页号用的占位符，加在它前面会被夹在占位符与页号之间，
-                         * 拼出 `…/page/%#%/#main` 这种坏 URL。放最后才是 `…/page/2/#main`。
+                         * ⚠️ **只在 ≥2 页加，第 1 页不加**。
+                         * 第一版是把锚点挂在 `base` 上（一行搞定），结果 page 1 的链接变成
+                         * `/page/1/#main`，而 `/page/1/` 会 **301 跳到 `/`** ——
+                         * 浏览器会把 `#main` **一起带到重定向后的地址**上，
+                         * 于是从第 2 页点「1」或左箭头"回首页"时，直接落在文章列表而不是页面顶端（用户反馈）。
+                         * 只在 ≥2 页加，回首页就仍是正常的从顶部开始。
+                         *
+                         * 实现：先让 paginate_links 正常生成，再回头给链接补锚点 ——
+                         * 这样不必跟 `base`/`format` 那套占位符较劲，也不用关心
+                         * 站点用的是 `/page/2/` 还是 `?paged=2` 两种 URL 形态（正则两种都认）。
                          */
-                        echo paginate_links(array(
-                            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))) . '#main',
+                        $ybh_links = paginate_links(array(
+                            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
                             'format' => '?paged=%#%',
                             'current' => max(1, get_query_var('paged')),
                             'total' => $wp_query->max_num_pages,
                             'prev_text' => '<i class="fa-solid fa-angle-left"></i>',
                             'next_text' => '<i class="fa-solid fa-angle-right"></i>'
-                        )); ?>
+                        ));
+
+                        echo preg_replace_callback(
+                            '/href="([^"]*(?:\/page\/(\d+)\/|\bpaged=(\d+))[^"]*)"/',
+                            function ($m) {
+                                $num = (isset($m[2]) && '' !== $m[2]) ? (int) $m[2] : (int) ($m[3] ?? 0);
+                                return 'href="' . $m[1] . ($num >= 2 ? '#main' : '') . '"';
+                            },
+                            (string) $ybh_links
+                        );
+                        ?>
                     </nav>
                 <?php endif; ?>
             </div>
