@@ -178,13 +178,32 @@ if (!function_exists('get_post_cover_html')) {
              * 比例不符时两侧会留白；留白想用「同一张图放大模糊」当底，CSS 就必须知道图片地址
              * —— 而 CSS 读不到 <img src>。
              *
-             * 直接从 $cover_html 里取 data-src，避免把「取封面地址」的逻辑抄第二遍
-             * （抄一遍就会和上面那个函数各自漂移）。视频封面没有 data-src，取不到就不加，
-             * 那时也不需要底色。
+             * 从 $cover_html 里取地址，避免把「取封面地址」的逻辑抄第二遍
+             * （抄一遍就会和上面那个函数各自漂移）。
+             *
+             * ⚠️ **只认 data-src 是不够的**（本站踩过）：首屏那 4 张卡片为了 LCP
+             * **去掉了懒加载**，直接写成 `src="<真图>"`，根本没有 data-src ——
+             * 于是它们拿不到 --ybh-cover，防裁切模式下两侧的模糊底就出不来。
+             * 所以这里两级取：先 data-src，没有再看 src。
+             *
+             * 取 src 时要**排除占位图**：懒加载那批的 src 是 load_out_svg
+             * （占位 SVG，还可能带 #lazyload-blur 片段），真图在 data-src 里 ——
+             * 顺序上先 data-src 已经挡住了大部分，这里再兜一道。
+             *
+             * 视频封面（<video poster=... data-src=...>）走的是 data-src 那一路；
+             * 两种都取不到就不加，那时也不需要底色。
              */
             $cover_var = '';
-            if (preg_match('/data-src="([^"]+)"/', (string) $cover_html, $ybh_m)) {
+            $ybh_html  = (string) $cover_html;
+            if (preg_match('/data-src="([^"]+)"/', $ybh_html, $ybh_m)) {
                 $cover_var = $ybh_m[1];
+            } elseif (preg_match('/\ssrc="([^"]+)"/', $ybh_html, $ybh_m2)) {
+                $ybh_src = $ybh_m2[1];
+                $ybh_ph  = (string) iro_opt('load_out_svg');
+                // 占位图（含其 #lazyload-blur 片段）不是封面
+                if ('' === $ybh_ph || 0 !== strpos($ybh_src, $ybh_ph)) {
+                    $cover_var = $ybh_src;
+                }
             }
 
             // 摘要字数限制
