@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.15');
+define('YBH_VERSION', '1.3.16');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -357,6 +357,23 @@ require_once get_template_directory() . '/inc/ybh/preload-tune.php';
  *       两件事都在这个模块里兜住，详见 inc/ybh/hero-cover.php 文件头说明。
  */
 require_once get_template_directory() . '/inc/ybh/hero-cover.php';
+
+/**
+ * 9.7c) Quiz 插件资源按需加载
+ *       插件把全部前端资源挂在 wp_enqueue_scripts 上，全站无差别加载；实测首页白白
+ *       加载了 6 个 CSS + 6 个 JS。这里在最后一步判断本页有没有测验，没有就摘掉。
+ *       见 inc/ybh/quiz-assets.php。
+ */
+require_once get_template_directory() . '/inc/ybh/quiz-assets.php';
+
+/**
+ * 9.7d) 上游 CDN 资源本地化（Sakurairo vision）
+ *       懒加载占位图 / 波浪 / 播放暂停 / 社交图标默认从 s.nmxc.ltd 取，
+ *       实测该 CDN TLS 0.75s、首字节 0.79s，首页引了 11 个而合计只有 35 KB。
+ *       已镜像到 uploads/ybh-vision/，这里把 vision_resource_basepath 指过去。
+ *       见 inc/ybh/local-vision.php。
+ */
+require_once get_template_directory() . '/inc/ybh/local-vision.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
