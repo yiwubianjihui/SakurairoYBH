@@ -58,8 +58,52 @@ add_filter('mce_external_plugins', function ($plugins) {
         function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-editor.js') : YBH_VERSION,
         get_template_directory_uri() . '/js/ybh-editor.js'
     );
+
+    /*
+     * T44：段落规范化插件（清空段落 + 粘贴时把换行归约成段落）。
+     * 详见 js/ybh-editor-para.js 顶部说明。
+     */
+    $plugins['ybh_para'] = add_query_arg(
+        'ver',
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-editor-para.js') : YBH_VERSION,
+        get_template_directory_uri() . '/js/ybh-editor-para.js'
+    );
+
     return $plugins;
 });
+
+/* ---------------------------------------------------------------------------
+ * 1.55) 段落规范化的**服务端兜底**
+ *
+ *   js/ybh-editor-para.js 管的是"走编辑器"的那条路。但内容还会从别的口子写进来：
+ *   XML-RPC、REST、导入插件、以及热修复时直接改库 —— 那些路径不经过 TinyMCE，
+ *   空段落照样会攒下来。这里在保存前再清一道，两边配合才不漏。
+ *
+ *   ⚠️ 只清**真正空**的段落（无文字、无图片/视频/iframe/hr 等有意义子元素），
+ *      且跳过 h1-h6 / pre / blockquote —— 那些可能是作者刚插入还没写内容的。
+ * ------------------------------------------------------------------------- */
+if (!defined('YBH_STRIP_EMPTY_PARAS')) {
+    define('YBH_STRIP_EMPTY_PARAS', true);
+}
+
+add_filter('content_save_pre', 'ybh_strip_empty_paragraphs', 20);
+function ybh_strip_empty_paragraphs($content)
+{
+    if (!YBH_STRIP_EMPTY_PARAS || !is_string($content) || '' === trim($content)) {
+        return $content;
+    }
+
+    // 反复替换到不再变化：嵌套的空段落（<p><p></p></p> 这类）要替换多轮才干净
+    $pattern = '#<p(?:\s[^>]*)?>(?:\s|&nbsp;|\x{00a0}|\x{200b}|\x{feff})*</p>#iu';
+    $prev = null;
+    $max = 6;
+    while ($prev !== $content && $max-- > 0) {
+        $prev = $content;
+        $content = preg_replace($pattern, '', $content);
+    }
+
+    return $content;
+}
 
 /* ---------------------------------------------------------------------------
  * 1.6) 编辑页外壳增强（T33）
@@ -177,6 +221,8 @@ add_filter('mce_buttons_2', function ($buttons) {
         'ybh_indent',
         // T33 新增：查找 / 替换（Ctrl+F / Ctrl+H 同效）
         'ybh_findreplace',
+        // T44 新增：一键清掉正文里的空段落（段距忽然变大的时候用）
+        'ybh_cleanparas',
         'hr',
         'charmap',
         'forecolor',
