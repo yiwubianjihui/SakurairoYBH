@@ -1,5 +1,5 @@
 /* ============================================================
-   YBH · WangEditor 全屏面板外壳
+   YBH · WangEditor 全屏面板外壳 + 正文排版对齐
    （WangEditor 自己的外观在 vendor/wangeditor/css/style.css）
    ============================================================ */
 
@@ -34,14 +34,13 @@
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 100100;              /* 高于 WP 的媒体弹窗（160000 以下）与 admin bar */
+  z-index: 100100;
   background: #f0f0f1;
   flex-direction: column;
 }
 .ybh-wang-panel.is-open {
   display: flex;
 }
-/* 打开面板期间，禁掉后台自身的滚动 */
 html.ybh-wang-open,
 html.ybh-wang-open body {
   overflow: hidden;
@@ -94,33 +93,296 @@ html.ybh-wang-open body {
 .ybh-wang-panel__toolbar .w-e-bar {
   border-bottom: none;
 }
+/* 工具栏按钮多，允许换行，避免窄屏时被裁掉 */
+.ybh-wang-panel__toolbar .w-e-bar {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 40px;
+  padding: 2px 6px;
+}
+.ybh-wang-panel__toolbar .w-e-bar-item {
+  height: 32px;
+}
 
 .ybh-wang-panel__editor {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
 }
-/* WangEditor 的容器默认没有撑满高度，这里让它填满面板 */
 .ybh-wang-panel__editor .w-e-text-container {
   height: 100% !important;
   background: #fff;
 }
 .ybh-wang-panel__editor .w-e-scroll {
-  padding-bottom: 45vh;         /* 底部留白，写作时最后一行不会贴着屏幕底 */
+  padding-bottom: 40vh;         /* 底部留白，写作时最后一行不会贴着屏幕底 */
 }
 
-/* 正文可读性：与前台同一套字体思路（前台用更纱黑体，后台至少别用衬线） */
+/* ============================================================
+   正文排版：**与前台文章正文对齐**
+   ------------------------------------------------------------
+   对齐的基准（取自 css/ybh.css 的前台规则）：
+     · 字族   'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'TH-Tshyn', sans-serif
+     · 字号   15px（与 body 一致）
+     · 段落   行高 2、段间距 10px、无段首缩进
+     · 缩进段 .ybh-indent { text-indent: 2em }
+     · 角标   sup/sub { font-size: .72em; line-height: 0 }
+   这样"编辑器里看到的"就是"前台发出来的"，作者不用靠想象。
+   ============================================================ */
+
 .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] {
-  font-size: 16px;
-  line-height: 1.75;
+  font-family: 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'TH-Tshyn', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #505050;
   max-width: 860px;
   margin: 0 auto;
-  padding: 24px 28px;
+  padding: 28px 32px;
+  box-sizing: border-box;
 }
-/* 短代码（[fn]…[/fn]、ruby 等）在 WangEditor 里是纯文本，给一点若隐若现的提示色，
+
+/* 段落：与 .entry-content p 完全一致
+   ⚠️ `line-height` 必须带 `!important`：WangEditor 会把行高**写成段落的内联样式**
+   （它 lineHeight 功能的默认行为），内联样式优先级高于任何选择器 ——
+   实测不加 !important 时段落行高被它写成 26px（≈1.73），而前台是 2（30px），
+   两边就不一致了。工具栏虽然已经隐藏了行高菜单，但这个内联样式仍会被写上去。 */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] p {
+  margin: 0 0 10px !important;
+  text-indent: 0;
+  line-height: 2 !important;
+  /* 字号也要显式压住：实测段落的计算字号会掉到 13px（不是容器那 15px），
+     来源在 WangEditor 内部；在段落与行内元素上直接写死最稳，
+     反正「禁止调字号」本来就是用户要求，这里写死等于把它固化下来。 */
+  font-size: 15px !important;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] p span,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] li span,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] blockquote span {
+  font-size: inherit !important;
+  font-family: inherit !important;
+  line-height: inherit !important;
+}
+
+/* 段首缩进段：与 .entry-content .ybh-indent 一致 */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] p.ybh-indent {
+  text-indent: 2em;
+}
+
+/* 角标：与 .entry-content sup/sub 一致 —— line-height:0 很关键，
+   否则正文行距是 2，角标会把整行撑高，整段看起来一跳一跳的 */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] sup,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] sub {
+  font-size: 0.72em;
+  line-height: 0;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] sup { vertical-align: super; }
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] sub { vertical-align: sub; }
+
+/* 标题：与前台 h2/h3/h4 的层级差保持一致 */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h1,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h2,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h3,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h4,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h5 {
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 1.2em 0 0.6em;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h1 { font-size: 1.5em; }
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h2 { font-size: 1.35em; }
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h3 { font-size: 1.2em; }
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h4 { font-size: 1.08em; }
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] h5 { font-size: 1em; }
+
+/* 引用、代码、列表：跟前台观感靠拢 */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] blockquote {
+  margin: 0 0 10px;
+  padding: 6px 14px;
+  border-left: 4px solid #e0e0e0;
+  background: #fafafa;
+  color: #6b6b6b;
+  line-height: 1.9;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] pre {
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  background: #f6f6f6;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] ul,
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] ol {
+  margin: 0 0 10px;
+  padding-left: 2em;
+  line-height: 2;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] li {
+  line-height: 2;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] hr {
+  border: 0;
+  border-top: 1px solid #e0e0e0;
+  margin: 18px 0;
+}
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 短代码（[fn]…[/fn]、<!--more-->）在编辑面里是纯文本，给它一点若隐若现的提示色，
    让作者看得出"这段是标记而不是要显示的文字" */
 .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] p {
-  margin: 0 0 1em;
+  /* WangEditor 不区分"标记"与"正文"，这里不做特殊着色，
+     以免误伤方括号正常用法（如 [1] 引用）。保持原样最安全。 */
+}
+
+/* ============================================================
+   自定义菜单的弹窗内容（查找替换 / 脚注 / 注音 / 特殊字符）
+   ============================================================ */
+.ybh-wam {
+  padding: 4px 2px 2px;
+  font-size: 13px;
+}
+.ybh-wam__desc {
+  margin: 0 0 10px;
+  color: #646970;
+  line-height: 1.6;
+}
+.ybh-wam__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ybh-wam__row label {
+  flex: 0 0 62px;
+  padding-top: 5px;
+  color: #3c434a;
+}
+.ybh-wam__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid #8c8f94;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+.ybh-wam__bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.ybh-wam__btn {
+  padding: 5px 14px;
+  border: 1px solid #8c8f94;
+  border-radius: 4px;
+  background: #f6f7f7;
+  color: #2271b1;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ybh-wam__btn:hover {
+  border-color: #2271b1;
+}
+.ybh-wam__btn.is-primary {
+  background: #2271b1;
+  border-color: #2271b1;
+  color: #fff;
+}
+.ybh-wam__btn.is-primary:hover {
+  background: #135e96;
+}
+.ybh-wam__charmap {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.ybh-wam__char {
+  padding: 6px 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.ybh-wam__char:hover {
+  border-color: #2271b1;
+  background: #f0f6fc;
+}
+
+/* ============================================================
+   自定义菜单的自管理弹层（见 js/ybh-wangeditor-menus.js 顶部说明）
+   —— 不用 WangEditor 内置的 showModal：实测它静默失效且难查。
+   ============================================================ */
+.ybh-wam-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100200;                 /* 高于面板本身 */
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.ybh-wam-box {
+  width: 460px;
+  max-width: 100%;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.ybh-wam-head {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  background: #f6f7f7;
+  border-bottom: 1px solid #e0e0e0;
+  flex: 0 0 auto;
+}
+.ybh-wam-head strong {
+  font-size: 14px;
+  color: #1d2327;
+}
+.ybh-wam-x {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: #646970;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.ybh-wam-x:hover {
+  color: #1d2327;
+}
+.ybh-wam-body {
+  padding: 14px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+.ybh-wam__bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid #e0e0e0;
+  background: #fbfbfc;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 782px) {
@@ -132,5 +394,15 @@ html.ybh-wang-open body {
   }
   .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] {
     padding: 16px 14px;
+  }
+  .ybh-wam__charmap {
+    grid-template-columns: repeat(8, 1fr);
+  }
+  .ybh-wam__row {
+    display: block;
+  }
+  .ybh-wam__row label {
+    display: block;
+    padding: 0 0 4px;
   }
 }

@@ -115,9 +115,17 @@ add_action('admin_enqueue_scripts', function ($hook) {
     );
 
     wp_enqueue_script(
+        'ybh-wangeditor-menus',
+        get_template_directory_uri() . '/js/ybh-wangeditor-menus.js',
+        array('ybh-wangeditor'),
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-wangeditor-menus.js') : YBH_VERSION,
+        true
+    );
+
+    wp_enqueue_script(
         'ybh-wangeditor-panel',
         get_template_directory_uri() . '/js/ybh-wangeditor.js',
-        array('ybh-wangeditor'),
+        array('ybh-wangeditor', 'ybh-wangeditor-menus'),
         function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-wangeditor.js') : YBH_VERSION,
         true
     );
