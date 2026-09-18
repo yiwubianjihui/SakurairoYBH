@@ -3201,6 +3201,166 @@ body.dark .ybh-pagejump-go:hover {
 }
 
 /* ============================================================
+   18) 文章目录（TOC）：正文左移 + 目录占右栏
+   ============================================================ */
+
+/* ---------- 18.1 先修「溢出屏幕」这个硬伤 ----------
+   主题默认：
+     .toc-container { width:190px; right:-15vw; position:absolute; top:240px }
+   它**只有 right、没有 left**，靠"负的 right"把目录推到正文右侧之外 ——
+   视口一变窄，`-15vw` 就把它真的推出屏幕外（用户反馈「有部分内容溢出屏幕外」）。
+   而且 `.toc-container` 只有 190px，里面的 `.toc` 却是 `width: fit-content`，
+   长标题既被挤又换行，观感更差。
+
+   这一节把定位方式整个换掉：不再用"负 right 挤出去"，而是**占一栏**（见 18.2）。
+   下面这条先兜住"没有走栅格"的中间态：夹在正文右侧内，绝不越界。 */
+.toc-container {
+  /* 覆盖主题的负值定位：改成贴着内容区右边**内侧**，最坏情况也只是窄，不会出屏 */
+  right: auto;
+  left: auto;
+  width: 240px;
+  max-width: 100%;
+  top: 200px;
+}
+
+/* 目录本体：贴合栏宽 + 收小字号字距，减少换行、也减少遮挡 */
+.toc {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 12px 12px 12px 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 72vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* 条目：字号再收一档，长标题允许折行但用 break-word 而不是把栏撑开 */
+.toc ol,
+.toc ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+.toc li {
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 2px 0;
+  overflow-wrap: anywhere;   /* 中英混排的长标题也不撑破栏 */
+  word-break: break-word;
+}
+.toc a {
+  display: block;            /* 整行可点，命中区域更大；也让折行后的缩进一致 */
+  padding: 3px 6px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.toc a:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+/* 层级缩进：主题默认用 padding-left 逐级缩，这里收窄一点，少占宽度 */
+.toc li li a {
+  padding-left: 16px;
+}
+.toc li li li a {
+  padding-left: 28px;
+}
+
+/* ---------- 18.2 有目录的文章：正文左移，目录占右栏 ----------
+   用户建议：「对含有这类书签的文章单独处理，将文章向左移动并适当减少空间，
+   然后在右边放书签」。
+
+   实现要点：
+     · **只在真的有目录时生效**。TOC 是 JS 从正文标题生成的，事先 CSS 无从得知；
+       用 `:has(.toc:not(:empty))` 判断 —— 没有标题就没有目录，栅格不激活，
+       版面与普通文章完全一致（不会因为"开了功能"而白留一栏）。
+     · 目录**占独立一栏**（grid 第二列），正文与评论留在第一列；
+       目录用 sticky 跟着滚，不再依赖那个负 right 的绝对定位。
+     · 内容区整体加宽到 1180px —— 加出来的一栏就是这么来的，正文宽度基本不变
+       （860 - 240 - 28 ≈ 592 的观感与原来 860 单栏相比会略窄，所以把总宽提到 1180，
+        正文实得约 892px，反而比原来更宽一点）。
+     · 窄于 1161px 不启用：主题本来就在 1160px 以下隐藏目录（§见 responsive.css），
+       这里跟它保持同一个断点，不制造"目录显示了但排不下"的中间态。 */
+/* ⚠️ 栅格做在 `main.site-main` 上，不是 `.site-content`。
+   实测站点结构是：
+       main.site-main
+         ├── .toc-container（目录）
+         └── .content-area > .site-content > article（正文）
+   目录与正文区是**兄弟**，都在 `main.site-main` 里。
+   第一版把栅格写在 `.site-content` 上、又用 `> .toc-container` 找目录 ——
+   那条选择器**永远匹配不上**（目录不是 .site-content 的子元素），
+   结果栅格只作用到 `.content-area` 这一个子元素上，目录仍按绝对定位压在正文左边（实测踩到）。 */
+/* ⚠️ 键的坑：主题给 `.toc-container` 的是 **`position: absolute`**，
+   而**绝对定位的元素会脱离栅格流** —— 此时 `grid-column` 对它完全无效，
+   实测表现就是"栅格列确实分好了 512px/240px，但目录仍然横跨整行、和正文重叠"。
+   所以这里对 `position` 与栅格位置必须用 `!important` 压过主题那条绝对定位。
+
+   另外 `main.site-main` 本身被祖先 `.site-content` / `.content-area` 的
+   `max-width: 860px` 卡住（实测只有 820px），两栏排不下 ⇒ 要先把祖先放开。 */
+@media (min-width: 1161px) {
+  /* ① 放开祖先的 860px，把空间让给"正文 + 目录"两栏（只作用于单篇文章） */
+  body.single .content-area,
+  body.single .site-content {
+    max-width: none;
+  }
+
+  /* ② 真正的两栏栅格 */
+  main.site-main:has(> .toc-container .toc:not(:empty)) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    column-gap: 28px;
+    align-items: start;
+    max-width: 1180px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
+  /* 正文那一支留在左栏 */
+  main.site-main:has(> .toc-container .toc:not(:empty)) > *:not(.toc-container) {
+    grid-column: 1;
+    min-width: 0;          /* 让内部的表格/代码块能正常收缩，不顶破栅格 */
+  }
+  /* ③ 目录：**必须把 position 从 absolute 抢回来**，否则它不是栅格项、位置全不生效 */
+  main.site-main:has(> .toc-container .toc:not(:empty)) > .toc-container {
+    position: sticky !important;
+    grid-column: 2 !important;
+    grid-row: 1 / span 400 !important;
+    top: 90px !important;
+    right: auto !important;
+    left: auto !important;
+    align-self: start;
+    width: auto !important;
+    height: auto !important;
+    padding: 0;
+  }
+  main.site-main:has(> .toc-container .toc:not(:empty)) > .toc-container .toc {
+    position: static !important;
+    top: auto;
+    width: 100%;
+    max-height: calc(100vh - 140px);
+  }
+  /* 正文容器在左栏里不再被 860px 卡住，改为填满左栏 */
+  main.site-main:has(> .toc-container .toc:not(:empty)) .site-content {
+    max-width: none;
+    width: auto;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+/* 暗色：目录底与描边跟随暗色变量（主题那套 rgba(255,255,255,.5) 在暗色下会发白） */
+body.dark .toc {
+  background: rgba(30, 30, 30, 0.72);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+body.dark .toc a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
    16) 首页卡片区加宽 + 「随机换张背景」按钮全站可见
    ============================================================ */
 
