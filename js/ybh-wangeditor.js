@@ -214,9 +214,11 @@
       '内容与原编辑器共用一份；字号 / 行高 / 字体由主题统一控制，这里不提供调整。' +
       '  </span>' +
       '  <span class="ybh-wang-panel__spacer"></span>' +
-      '  <button type="button" class="button" data-ybh-wang="cancel">取消</button>' +
-      '  <button type="button" class="button button-primary" data-ybh-wang="apply">写回内容</button>' +
-      '  <button type="button" class="button-link ybh-wang-panel__close" data-ybh-wang="apply" aria-label="关闭">&times;</button>' +
+      '  <span class="ybh-wang-panel__saved" data-ybh-wang="saved-hint" aria-live="polite"></span>' +
+      '  <button type="button" class="button" data-ybh-wang="cancel">关闭</button>' +
+      '  <button type="button" class="button" data-ybh-wang="apply">写回内容</button>' +
+      '  <button type="button" class="button button-primary" data-ybh-wang="save">保存文章</button>' +
+      '  <button type="button" class="button-link ybh-wang-panel__close" data-ybh-wang="cancel" aria-label="关闭">&times;</button>' +
       '</div>' +
       '<div class="ybh-wang-panel__body">' +
       '  <div class="ybh-wang-panel__toolbar" data-ybh-wang="toolbar"></div>' +
@@ -235,10 +237,73 @@
         close(true);
       } else if (act === 'cancel') {
         close(false);
+      } else if (act === 'save') {
+        saveFromPanel();
       }
     });
 
     return panel;
+  }
+
+  /**
+   * 面板里直接「保存文章」。
+   *
+   * 复用的是**已有的就地保存**（`window.YBH_Editor.save()` → admin-ajax
+   * `ybh_quick_save`，见 inc/ybh/quick-save.php），不另造一套 ——
+   * 那套还负责同步 TinyMCE、把 WP 的"有未保存改动"标记归零，
+   * 自己写一套很容易漏掉这些。
+   *
+   * ⚠️ 顺序不能反：**必须先写回 `#content`，再 save()** ——
+   * quickSave 读的就是 textarea 的值，先保存就会存进旧内容。
+   *
+   * 保存成功后**不关面板**：作者多半还要接着写。
+   */
+  function saveFromPanel() {
+    var hint = panel ? panel.querySelector('[data-ybh-wang="saved-hint"]') : null;
+
+    if (editor && typeof editor.getHtml === 'function') {
+      writeContent(editor.getHtml());
+    }
+
+    if (!window.YBH_Editor || typeof window.YBH_Editor.save !== 'function') {
+      setHint('就地保存不可用，请用右上角的「更新 / 发布」按钮', true);
+      return;
+    }
+
+    // quickSave 不返回 Promise，它用 jQuery 的 done/fail + 自定义事件反馈，
+    // 所以这里挂一次性监听来更新面板上的提示。
+    var done = false;
+    var onSaved = function (ev, d) {
+      done = true;
+      var human = (d && d.human) ? d.human : '';
+      setHint('已保存 ' + human, false);
+      if (window.jQuery) { window.jQuery(document).off('ybh-quick-saved', onSaved); }
+    };
+    if (window.jQuery) {
+      window.jQuery(document).one('ybh-quick-saved', onSaved);
+    }
+
+    setHint('保存中…', false);
+    window.YBH_Editor.save();
+
+    // 4 秒还没等到成功事件，就把提示收回（避免一直停在"保存中"）
+    setTimeout(function () {
+      if (!done && hint && hint.textContent === '保存中…') {
+        setHint('保存请求已发出；若未生效请看右上角提示', false);
+      }
+    }, 4000);
+  }
+
+  function setHint(text, isErr) {
+    if (!panel) {
+      return;
+    }
+    var hint = panel.querySelector('[data-ybh-wang="saved-hint"]');
+    if (!hint) {
+      return;
+    }
+    hint.textContent = text || '';
+    hint.className = 'ybh-wang-panel__saved' + (isErr ? ' is-err' : '');
   }
 
   function open() {
@@ -331,6 +396,11 @@
       }
     }
 
+    // 用户主动关掉面板 ⇒ 本次会话不再自动弹（否则一关就被弹回来，没法退出）
+    if (!apply || true) {
+      sessionStorage.setItem('ybhWangOptOut', '1');
+    }
+
     panel.removeEventListener('keydown', onKey, true);
     document.documentElement.classList.remove('ybh-wang-open');
 
@@ -347,7 +417,7 @@
     }
   }
 
-  /* ---------- 打开按钮 ---------- */
+  /* ---------- 打开按钮 + 「默认编辑器」偏好 ---------- */
   function bind() {
     var btn = document.getElementById('ybh-wang-open');
     if (btn) {
@@ -356,6 +426,88 @@
         open();
       });
     }
+
+    bindDefaultPref();
+    maybeAutoOpen();
+  }
+
+  /**
+   * 「默认编辑器」开关：勾选即把偏好写进用户资料（服务端持久化，
+   * 换设备也跟着走），而不是只存浏览器。
+   */
+  function bindDefaultPref() {
+    var cb = document.getElementById('ybh-editor-default-cb');
+    if (!cb) {
+      return;
+    }
+    cb.addEventListener('change', function () {
+      var cfg = window.YBH_WANG_DEFAULT_CFG;
+      if (!cfg || !cfg.ajaxUrl) {
+        return;
+      }
+      var body = new URLSearchParams();
+      body.append('action', 'ybh_editor_pref');
+      body.append('nonce', cfg.nonce);
+      body.append('editor', cb.checked ? 'wangeditor' : 'classic');
+
+      fetch(cfg.ajaxUrl, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: body.toString()
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        var msg = (j && j.success) ? '已保存：默认编辑器 = ' + (cb.checked ? 'WangEditor' : '经典编辑器')
+                                   : '保存失败，请重试';
+        if (window.YBH_Editor && window.YBH_Editor.toast) {
+          window.YBH_Editor.toast(msg);
+        }
+      }).catch(function () {
+        if (window.YBH_Editor && window.YBH_Editor.toast) {
+          window.YBH_Editor.toast('保存失败，请检查网络');
+        }
+      });
+    });
+  }
+
+  /**
+   * 若用户偏好是 WangEditor，进编辑页就**自动展开面板**，不用再点按钮。
+   *
+   * ⚠️ 有两个"不要自动弹"的情况：
+   *   · 用户点了「取消 / 关闭」—— 记在 sessionStorage 里，本次会话不再弹，
+   *     否则一关就被弹回来，等于没法退出；
+   *   · URL 带 `?ybh_editor=classic` —— 临时压过一次，方便排查。
+   */
+  function maybeAutoOpen() {
+    var cfg = window.YBH_WANG_DEFAULT_CFG;
+    if (!cfg) {
+      return;
+    }
+    if (cfg.override === 'classic') {
+      return;
+    }
+    if (cfg.current !== 'wangeditor') {
+      return;
+    }
+    if (sessionStorage.getItem('ybhWangOptOut') === '1') {
+      return;
+    }
+    /*
+     * ⚠️ 这里**不能**用 `document.activeElement` 判断"作者是不是已经在打字了" ——
+     * WordPress 打开编辑页时会**自动把焦点放到标题框**，于是 activeElement 永远是
+     * 那个 INPUT，条件恒为真 ⇒ 永远不会自动弹（实测踩到）。
+     * 改成看"标题框里**有没有内容**"：空的说明还没开始写，该弹；
+     * 已经有标题了说明作者在写，不打扰。
+     */
+    var title = document.getElementById('title');
+    if (title && title.value && title.value.trim() !== '') {
+      return;
+    }
+    // 等经典编辑器初始化完再开，避免抢时序
+    setTimeout(function () {
+      if (!opened) {
+        open();
+      }
+    }, 600);
   }
 
   if (document.readyState === 'loading') {

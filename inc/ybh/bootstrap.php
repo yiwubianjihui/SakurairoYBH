@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.20');
+define('YBH_VERSION', '1.3.21');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -390,6 +390,14 @@ require_once get_template_directory() . '/inc/ybh/pagejump.php';
  *       见 inc/ybh/wangeditor.php。
  */
 require_once get_template_directory() . '/inc/ybh/wangeditor.php';
+
+/**
+ * 9.7g) 「默认编辑器」用户偏好 + 编辑页自动进入 WangEditor
+ *       用户要求把 WangEditor 作为默认编辑器，但原入口要保留 ⇒ 做成用户级偏好：
+ *       默认 wangeditor，每个人可随时切回经典编辑器，选择存 user meta（换设备跟着走）。
+ *       见 inc/ybh/editor-default.php。
+ */
+require_once get_template_directory() . '/inc/ybh/editor-default.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php

@@ -28,6 +28,27 @@
   font-size: 12px;
   line-height: 1.5;
 }
+/* 「默认编辑器」开关：跟在切换条里，样式克制一点，不要抢过按钮 */
+.ybh-editor-default {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  padding: 4px 10px;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+  color: #3c434a;
+  cursor: pointer;
+  user-select: none;
+}
+.ybh-editor-default:hover {
+  border-color: #2271b1;
+}
+.ybh-editor-default input {
+  margin: 0;
+}
 
 /* 面板 */
 .ybh-wang-panel {
@@ -65,6 +86,16 @@ html.ybh-wang-open body {
 .ybh-wang-panel__spacer {
   flex: 1 1 auto;
 }
+/* 面板右上角的保存状态提示（保存中对齐按钮，不喧宾夺主） */
+.ybh-wang-panel__saved {
+  font-size: 12px;
+  color: #8fd18f;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.ybh-wang-panel__saved.is-err {
+  color: #ffb3b3;
+}
 .ybh-wang-panel__close {
   color: #f0f0f1 !important;
   font-size: 22px;
@@ -101,7 +132,39 @@ html.ybh-wang-open body {
   padding: 2px 6px;
 }
 .ybh-wang-panel__toolbar .w-e-bar-item {
-  height: 32px;
+  height: 36px;
+}
+/* ---------- 工具栏图标增大（用户要求）----------
+   WangEditor 自带图标是 16px 的 SVG，长时间写作时偏小。
+   这里统一放大到 20px，同时把按钮的点击区域一并放大（更好点）。
+   ⚠️ 只缩放 svg 的宽高，不碰它的 viewBox —— viewBox 一动图形就会变形。 */
+.ybh-wang-panel__toolbar .w-e-bar-item svg {
+  /* ⚠️ 三个属性都要写：只写 width/height 时实测被压成 18×20 ——
+     WangEditor 的 svg 自带 width/height 属性，且容器常有 max-width 限制，
+     加上 !important 与 max-width/max-height 才真正放大到 20×20。
+     `fill: currentColor` 保证放大后颜色仍跟随按钮的 hover/active 状态。 */
+  width: 20px !important;
+  height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  min-width: 20px;
+  min-height: 20px;
+  fill: currentColor;
+}
+.ybh-wang-panel__toolbar .w-e-bar-item button {
+  height: 34px;
+  min-width: 34px;
+  padding: 0 7px;
+}
+/* 工具栏里的文字型按钮（如「正文」那个下拉）字号也提一档 */
+.ybh-wang-panel__toolbar .w-e-bar-item .w-e-drop-down,
+.ybh-wang-panel__toolbar .w-e-bar-item-group .w-e-bar-item-menus-container {
+  font-size: 14px;
+}
+/* 下拉面板里的条目也放大一点，跟工具栏一致 */
+.w-e-select-list ul li,
+.w-e-drop-panel .w-e-panel-content-color .color-block {
+  font-size: 14px;
 }
 
 .ybh-wang-panel__editor {
@@ -131,7 +194,10 @@ html.ybh-wang-open body {
 
 .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] {
   font-family: 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'TH-Tshyn', sans-serif;
-  font-size: 15px;
+  /* 字号比前台正文（15px）大一档：编辑时要长时间盯着屏，
+     17px 明显更好读；而**行高比例、段距、缩进全部保持不变**，
+     所以编辑区相当于正文的"等比放大视图"，观感关系与前台一致。 */
+  font-size: 17px;
   line-height: 1.5;
   color: #505050;
   max-width: 860px;
@@ -149,10 +215,11 @@ html.ybh-wang-open body {
   margin: 0 0 10px !important;
   text-indent: 0;
   line-height: 2 !important;
-  /* 字号也要显式压住：实测段落的计算字号会掉到 13px（不是容器那 15px），
+  /* 字号也要显式压住：实测段落的计算字号会掉到 13px（不是容器的值），
      来源在 WangEditor 内部；在段落与行内元素上直接写死最稳，
-     反正「禁止调字号」本来就是用户要求，这里写死等于把它固化下来。 */
-  font-size: 15px !important;
+     反正「禁止调字号」本来就是用户要求，这里写死等于把它固化下来。
+     数值与上面的编辑面容器保持一致（17px）。 */
+  font-size: 17px !important;
 }
 .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] p span,
 .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] li span,
