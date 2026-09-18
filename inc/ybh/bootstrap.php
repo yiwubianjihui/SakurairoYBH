@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.21');
+define('YBH_VERSION', '1.3.22');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -398,6 +398,17 @@ require_once get_template_directory() . '/inc/ybh/wangeditor.php';
  *       见 inc/ybh/editor-default.php。
  */
 require_once get_template_directory() . '/inc/ybh/editor-default.php';
+
+/**
+ * 9.7h) 内容规范化（两个编辑器共用）+ 编辑器「发布」端点
+ *       · content-normalize.php：把 js/ybh-content.js 挂到编辑页，
+ *         统一「进出编辑器」的内容归约 —— 修「切换编辑器多出回车空行」与
+ *         「编辑后段间距变小」（后者真凶是内联 margin:0）。
+ *       · editor-publish.php：WangEditor 面板的「发布」按钮端点，
+ *         权限沿用 WP 自己的 publish_posts（投稿者会被明确挡住）。
+ */
+require_once get_template_directory() . '/inc/ybh/content-normalize.php';
+require_once get_template_directory() . '/inc/ybh/editor-publish.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php

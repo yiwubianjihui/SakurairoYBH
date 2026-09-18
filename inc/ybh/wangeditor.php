@@ -125,7 +125,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
     wp_enqueue_script(
         'ybh-wangeditor-panel',
         get_template_directory_uri() . '/js/ybh-wangeditor.js',
-        array('ybh-wangeditor', 'ybh-wangeditor-menus'),
+        // ybh-content 是「内容规范化」，两个编辑器共用（见 inc/ybh/content-normalize.php）
+        array('ybh-wangeditor', 'ybh-wangeditor-menus', 'ybh-content'),
         function_exists('ybh_asset_ver') ? ybh_asset_ver('js/ybh-wangeditor.js') : YBH_VERSION,
         true
     );

@@ -66,7 +66,28 @@
 
   function readContent() {
     var ta = textarea();
-    return ta ? ta.value : '';
+    var raw = ta ? ta.value : '';
+    if (!window.YBH_Content || !window.YBH_Content.normalize) {
+      return raw;
+    }
+    /*
+     * ⚠️ **失败必须往"不清洗"方向失败，绝不能往"丢内容"方向失败。**
+     *
+     * 实测遇到过：某次往返里 normalize 返回了空串，而写回时又照写，
+     * 结果 textarea 被清空 —— 如果那时作者点了保存，**文章内容就没了**。
+     * 内容丢失是不可接受的，所以这里加硬兜底：
+     * 只要"输入非空、输出为空"，就**原样返回输入**（宁可不清洗）。
+     */
+    var norm = '';
+    try {
+      norm = window.YBH_Content.normalize(raw);
+    } catch (e) {
+      return raw;
+    }
+    if (!norm && String(raw).replace(/[\s\u00a0]/g, '') !== '') {
+      return raw;   // 兜底：不清洗，但绝不丢
+    }
+    return norm;
   }
 
   function writeContent(html) {
@@ -98,18 +119,39 @@
   }
 
   /**
-   * 剥掉正文里的**行内排版样式**（行高 / 字号 / 字族 / 颜色）。
+   * 剥掉正文里的**行内排版样式** + 规范化结构。
    *
-   * 为什么必须剥：用户明确要求「禁止调整字号、行高、字体」。
-   * 工具栏里那三个菜单已经隐藏了，但 WangEditor 仍会把默认行高写成段落的内联样式
-   * （实测段落上会带 `style="line-height:1.73"`）。
-   * 内联样式优先级高于主题 CSS，**存进数据库后就永久盖住前台排版** ——
-   * 编辑几次，文章就跟全站不一致了。
-   * 所以在写回 `#content` 这一步统一剥掉，从源头上保证"库里存的正文不含这类样式"。
+   * 用户明确要求「禁止调整字号、行高、字体」，而且反馈过
+   * 「编辑后页间距变得很小」「切换编辑器多出许多回车空行」——
+   * 这两件事都源于内容在两个编辑器之间往返时没有统一归约。
    *
-   * 只动这几条属性，其它 style（如对齐时的 text-align）保持原样。
+   * 现在统一交给 `window.YBH_Content.normalize()`（TinyMCE 那边也用同一个），
+   * 它一次做完：换行统一、纯文本包 `<p>`、空段落删除、块间裸换行删除、
+   * 内联排版样式剥离（**含 margin/padding** —— 这是"间距变小"的真凶：
+   * 内联 `margin:0` 优先于主题的 `p { margin: 0 0 10px }`）。
    */
   function stripInlineTypography(html) {
+    if (!window.YBH_Content || typeof window.YBH_Content.normalize !== 'function') {
+      return fallbackStripStyles(html);
+    }
+    var norm = '';
+    try {
+      norm = window.YBH_Content.normalize(html);
+    } catch (e) {
+      return fallbackStripStyles(html);
+    }
+    /*
+     * 与 readContent 同一条硬规矩：**输入非空、输出为空 ⇒ 回退到输入**。
+     * 写回这一步一旦清空，作者再一保存就是真的丢内容，不可接受。
+     */
+    if (!norm && String(html).replace(/[\s\u00a0]/g, '') !== '') {
+      return fallbackStripStyles(html);
+    }
+    return norm;
+  }
+
+  /** 兜底：至少把内联排版样式剥掉（不清结构，绝不丢内容） */
+  function fallbackStripStyles(html) {
     if (!html || typeof html !== 'string') {
       return html;
     }
@@ -118,7 +160,10 @@
         var prop = one.split(':')[0].trim().toLowerCase();
         if (!prop) { return false; }
         return ['line-height', 'font-size', 'font-family', 'color',
-                'background-color', 'background'].indexOf(prop) < 0;
+                'background-color', 'background',
+                'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+                'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+                'text-indent', 'letter-spacing', 'word-spacing'].indexOf(prop) < 0;
       });
       return kept.length ? ' style="' + kept.join(';') + '"' : '';
     });
@@ -217,7 +262,8 @@
       '  <span class="ybh-wang-panel__saved" data-ybh-wang="saved-hint" aria-live="polite"></span>' +
       '  <button type="button" class="button" data-ybh-wang="cancel">关闭</button>' +
       '  <button type="button" class="button" data-ybh-wang="apply">写回内容</button>' +
-      '  <button type="button" class="button button-primary" data-ybh-wang="save">保存文章</button>' +
+      '  <button type="button" class="button" data-ybh-wang="save">保存文章</button>' +
+      '  <button type="button" class="button button-primary" data-ybh-wang="publish">发布</button>' +
       '  <button type="button" class="button-link ybh-wang-panel__close" data-ybh-wang="cancel" aria-label="关闭">&times;</button>' +
       '</div>' +
       '<div class="ybh-wang-panel__body">' +
@@ -239,10 +285,129 @@
         close(false);
       } else if (act === 'save') {
         saveFromPanel();
+      } else if (act === 'publish') {
+        publishFromPanel();
       }
     });
 
     return panel;
+  }
+
+  /**
+   * 面板里直接「发布」。
+   *
+   * 与「保存文章」是**两个不同的动作**，刻意分开：
+   *   · 保存 = 只存内容、不动状态（随手 Ctrl+S 时绝对安全）；
+   *   · 发布 = 明确地把文章置为已发布。
+   *
+   * 权限由服务端判断（`inc/ybh/editor-publish.php`）：本站投稿者没有
+   * `publish_posts`，会被明确告知"请先保存、由编辑审核发布"，
+   * 而不是提交后被静默改成待审（那样更让人困惑）。
+   *
+   * 发布前会先问一次 —— 这是不可逆动作（会对外可见）。
+   */
+  function publishFromPanel() {
+    var cfg = window.YBH_WANG_PUBLISH_CFG;
+    if (!cfg || !cfg.ajaxUrl) {
+      setHint('发布功能不可用', true);
+      return;
+    }
+
+    // 没权限就别让他白点一次
+    if (!cfg.canPublish) {
+      setHint('你的账号没有发布权限，请先「保存文章」', true);
+      return;
+    }
+
+    var title = document.getElementById('title');
+    var ta = textarea();
+
+    if (!title || title.value.trim() === '') {
+      setHint('标题是空的，先填标题', true);
+      if (title) { title.focus(); }
+      return;
+    }
+    if (!ta || ta.value.trim() === '') {
+      setHint('正文是空的，先写内容', true);
+      return;
+    }
+
+    var isUpdate = false;
+    var statusEl = document.getElementById('post_status');
+    if (statusEl && /publish/i.test(statusEl.textContent || '')) {
+      isUpdate = true;
+    }
+    if (!window.confirm(isUpdate
+      ? '确定要更新这篇已发布的文章吗？'
+      : '确定要发布这篇文章吗？发布后访客就能看到了。')) {
+      return;
+    }
+
+    // 先写回内容，再发 —— 顺序反了会把旧内容发出去
+    if (editor && typeof editor.getHtml === 'function') {
+      writeContent(editor.getHtml());
+    }
+
+    var postId = resolvePostId();
+    if (!postId) {
+      setHint('识别不到文章 ID，请刷新页面', true);
+      return;
+    }
+
+    var body = new URLSearchParams();
+    body.append('action', 'ybh_publish');
+    body.append('nonce', cfg.nonce);
+    body.append('post_id', postId);
+    body.append('post_title', title ? title.value : '');
+    body.append('post_content', ta ? ta.value : '');
+    var ex = document.getElementById('excerpt');
+    if (ex) { body.append('post_excerpt', ex.value); }
+
+    setHint('发布中…', false);
+
+    fetch(cfg.ajaxUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: body.toString()
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.success) {
+        var d = j.data || {};
+        setHint('已发布 ✅' + (d.link ? '（点右上角「查看文章」可预览）' : ''), false);
+        // 页面上的状态标签同步一下，避免作者以为没生效
+        if (statusEl) { statusEl.textContent = '已发布'; }
+        if (window.YBH_Editor && window.YBH_Editor.toast) {
+          window.YBH_Editor.toast('文章已发布');
+        }
+      } else {
+        var msg = (j && j.data && j.data.message) || '发布失败';
+        setHint(msg, true);
+        if (window.YBH_Editor && window.YBH_Editor.toast) {
+          window.YBH_Editor.toast('发布失败：' + msg);
+        }
+      }
+    }).catch(function () {
+      setHint('发布请求失败，请检查网络', true);
+    });
+  }
+
+  /** 取文章 ID（新建文章页 #post_ID 可能是空，回落到本地化数据与 URL） */
+  function resolvePostId() {
+    var byId = document.getElementById('post_ID');
+    if (byId && byId.value && byId.value !== '0') {
+      return byId.value;
+    }
+    var byName = document.querySelector('input[name="post_ID"]');
+    if (byName && byName.value && byName.value !== '0') {
+      return byName.value;
+    }
+    var d = window.YBH_EditorData || {};
+    if (d.postId && String(d.postId) !== '0') {
+      return String(d.postId);
+    }
+    var m = window.location.search.match(/[?&]post=(\d+)/);
+    if (m) { return m[1]; }
+    return '';
   }
 
   /**
