@@ -1,0 +1,136 @@
+/* ============================================================
+   YBH · WangEditor 全屏面板外壳
+   （WangEditor 自己的外观在 vendor/wangeditor/css/style.css）
+   ============================================================ */
+
+/* 编辑页顶部的切换条 */
+.ybh-wang-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 6px 0 14px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-left: 4px solid #2271b1;
+  border-radius: 4px;
+}
+.ybh-wang-bar .dashicons {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+  vertical-align: text-bottom;
+  margin-right: 3px;
+}
+.ybh-wang-bar__hint {
+  color: #646970;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* 面板 */
+.ybh-wang-panel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100100;              /* 高于 WP 的媒体弹窗（160000 以下）与 admin bar */
+  background: #f0f0f1;
+  flex-direction: column;
+}
+.ybh-wang-panel.is-open {
+  display: flex;
+}
+/* 打开面板期间，禁掉后台自身的滚动 */
+html.ybh-wang-open,
+html.ybh-wang-open body {
+  overflow: hidden;
+}
+
+.ybh-wang-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #1d2327;
+  color: #f0f0f1;
+  flex: 0 0 auto;
+}
+.ybh-wang-panel__title {
+  font-size: 14px;
+}
+.ybh-wang-panel__note {
+  font-size: 12px;
+  color: #a7aaad;
+}
+.ybh-wang-panel__spacer {
+  flex: 1 1 auto;
+}
+.ybh-wang-panel__close {
+  color: #f0f0f1 !important;
+  font-size: 22px;
+  line-height: 1;
+  text-decoration: none;
+  padding: 0 4px;
+}
+.ybh-wang-panel__close:hover {
+  color: #fff !important;
+}
+
+.ybh-wang-panel__body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+}
+
+/* 工具栏固定在面板顶部，编辑区自己滚 */
+.ybh-wang-panel__toolbar {
+  flex: 0 0 auto;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fbfbfc;
+}
+.ybh-wang-panel__toolbar .w-e-bar {
+  border-bottom: none;
+}
+
+.ybh-wang-panel__editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+/* WangEditor 的容器默认没有撑满高度，这里让它填满面板 */
+.ybh-wang-panel__editor .w-e-text-container {
+  height: 100% !important;
+  background: #fff;
+}
+.ybh-wang-panel__editor .w-e-scroll {
+  padding-bottom: 45vh;         /* 底部留白，写作时最后一行不会贴着屏幕底 */
+}
+
+/* 正文可读性：与前台同一套字体思路（前台用更纱黑体，后台至少别用衬线） */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] {
+  font-size: 16px;
+  line-height: 1.75;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 28px;
+}
+/* 短代码（[fn]…[/fn]、ruby 等）在 WangEditor 里是纯文本，给一点若隐若现的提示色，
+   让作者看得出"这段是标记而不是要显示的文字" */
+.ybh-wang-panel__editor .w-e-text-container [data-slate-editor] p {
+  margin: 0 0 1em;
+}
+
+@media (max-width: 782px) {
+  .ybh-wang-bar {
+    padding: 8px 10px;
+  }
+  .ybh-wang-panel__note {
+    display: none;
+  }
+  .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] {
+    padding: 16px 14px;
+  }
+}

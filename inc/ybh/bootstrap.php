@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.18');
+define('YBH_VERSION', '1.3.19');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -381,6 +381,15 @@ require_once get_template_directory() . '/inc/ybh/local-vision.php';
  *       标记在 index.php 输出，交互（回车跳转、越界夹取、锚点规则）在本模块。
  */
 require_once get_template_directory() . '/inc/ybh/pagejump.php';
+
+/**
+ * 9.7f) WangEditor 5（附加入口，保留原 TinyMCE）
+ *       国产开源富文本编辑器，对中文排版更贴心。它与经典编辑器的 TinyMCE
+ *       无法共用同一个 #content，所以做成「并存」：编辑页多一个入口，
+ *       点开是全屏面板，关闭时把 HTML 写回 #content，原编辑器完全不受影响。
+ *       见 inc/ybh/wangeditor.php。
+ */
+require_once get_template_directory() . '/inc/ybh/wangeditor.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
