@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.16');
+define('YBH_VERSION', '1.3.17');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -374,6 +374,13 @@ require_once get_template_directory() . '/inc/ybh/quiz-assets.php';
  *       见 inc/ybh/local-vision.php。
  */
 require_once get_template_directory() . '/inc/ybh/local-vision.php';
+
+/**
+ * 9.7e) 分页「跳至某页」输入框
+ *       站点文章 8 页，而页码条只列首尾与当前页附近，想跳中间某页只能一页页点。
+ *       标记在 index.php 输出，交互（回车跳转、越界夹取、锚点规则）在本模块。
+ */
+require_once get_template_directory() . '/inc/ybh/pagejump.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php

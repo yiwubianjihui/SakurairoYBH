@@ -112,7 +112,43 @@ foreach ($component_order as $component) {
                             },
                             (string) $ybh_links
                         );
-                        ?>
+
+                        /*
+                         * YBH：页码跳转框（用户反馈「分页功能增加输入页码功能」）。
+                         *
+                         * 为什么需要：文章已有 8 页，而页码条只列首尾与当前页附近，
+                         * 想跳到中间某页只能一页页点。这里给一个直接输入页码的入口。
+                         *
+                         * 交互对齐原生习惯：回车提交；越界时夹到 [1, total]，
+                         * 由 JS 处理（没有 JS 时表单本身也能提交，只是不夹取）。
+                         *
+                         * ⚠️ 「第 1 页」的地址是**站根**（`/page/1/` 会 301 回根），
+                         * 所以表单 action 用 `get_pagenum_link(1)` 而不是拼 `/page/%d/`；
+                         * 也**不带 #main** —— 与上面分页链接「只在 ≥2 页加锚点」的规则一致。
+                         */
+                        $ybh_total = (int) $wp_query->max_num_pages;
+                        $ybh_cur   = max(1, (int) get_query_var('paged'));
+                        if ($ybh_total > 1) :
+                            $ybh_home = get_pagenum_link(1);
+                            ?>
+                            <form class="ybh-pagejump"
+                                  action="<?php echo esc_url($ybh_home); ?>"
+                                  data-total="<?php echo (int) $ybh_total; ?>"
+                                  data-home="<?php echo esc_url($ybh_home); ?>">
+                                <label class="ybh-pagejump-label" for="ybh-pagejump-input">
+                                    <?php esc_html_e('跳至', 'sakurairo'); ?>
+                                </label>
+                                <input id="ybh-pagejump-input" class="ybh-pagejump-input"
+                                       type="number" inputmode="numeric" min="1"
+                                       max="<?php echo (int) $ybh_total; ?>"
+                                       value="<?php echo (int) $ybh_cur; ?>"
+                                       aria-label="<?php esc_attr_e('输入页码后回车跳转', 'sakurairo'); ?>">
+                                <span class="ybh-pagejump-total">/&nbsp;<?php echo (int) $ybh_total; ?></span>
+                                <button type="submit" class="ybh-pagejump-go">
+                                    <?php esc_html_e('跳转', 'sakurairo'); ?>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     </nav>
                 <?php endif; ?>
             </div>
