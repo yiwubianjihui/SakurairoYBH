@@ -71,6 +71,78 @@ function ybh_asset_ver($rel)
 }
 
 /**
+ * 主题主样式表 / 主脚本的缓存标识同样**跟着文件修改时间走**。
+ *
+ * 背景：上面那套 `filemtime()` 只用在 YBH 自有资源上；主题核心那几份
+ * （`style.css`、10 个合入的组合 CSS、`js/app.js`…）一直用的是
+ * `style.css` 里的 `Version: 3.0.11-ybh1` —— 那是个**没有人会去改的静态串**。
+ * 于是「改了卡片尺寸却分毫不动」这类反馈反复出现：文件是新的，URL 没变，
+ * 浏览器按 12 小时缓存继续用旧的。
+ *
+ * 这里把**真实文件**的 `?ver=` 统一换成 `filemtime()`；组合 CSS（`css/?…`）
+ * 不是文件、拿不到 mtime，保持原样。
+ */
+add_filter('style_loader_src', 'ybh_asset_version_filter', 20, 2);
+add_filter('script_loader_src', 'ybh_asset_version_filter', 20, 2);
+function ybh_asset_version_filter($src, $handle)
+{
+    if (!is_string($src) || $src === '' || strpos($src, 'ver=') === false) {
+        return $src;
+    }
+    $theme_uri = get_template_directory_uri();
+    $theme_dir = get_template_directory();
+    if (strpos($src, $theme_uri . '/') !== 0) {
+        return $src;
+    }
+    $parts = wp_parse_url($src);
+    if (empty($parts['path'])) {
+        return $src;
+    }
+    $rel = ltrim(substr($parts['path'], strlen(wp_parse_url($theme_uri, PHP_URL_PATH))), '/');
+    if ($rel === '' || !is_readable($theme_dir . '/' . $rel)) {
+        // 组合 CSS 之类的虚拟路径：没有真实文件，保留原版本号
+        return $src;
+    }
+    return add_query_arg('ver', (string) filemtime($theme_dir . '/' . $rel), $src);
+}
+
+/**
+ * uploads 下的字体文件补上缓存头（**仅对经过 PHP 的请求生效**）。
+ *
+ * 现象：wp-content/uploads/ybh-fonts/ 下的 woff2 响应里没有任何
+ * Cache-Control / Expires（宝塔的静态规则只匹配 css/js 扩展名）。
+ * 后果是这几个字重加起来约 1.9 MB 的字体，**每次访问都要重新下载**；
+ * 实测单个 457 KB 的文件要 3～16 秒，弱网下直接变成「第一次加载进不去」。
+ *
+ * ⚠️ 实测：这些字体是 **nginx 直接读盘**返回的（响应只有 ETag / Last-Modified），
+ * 根本不会走到 PHP，所以下面这个过滤器**在当前部署下不生效** —— 保留它只是
+ * 万一哪天字体转由 PHP 代理时能兜住，别把它当成已修好。
+ *
+ * 真正的修法在服务器侧（nginx），二选一：
+ *   ① 宝塔「网站 → 设置 → 配置文件」里加一段：
+ *        location ~* /wp-content/uploads/ybh-fonts/.*\.(woff2?|ttf|otf)$ {
+ *            expires 365d;
+ *            add_header Cache-Control "public, max-age=31536000, immutable";
+ *            access_log off;
+ *        }
+ *   ② 或服务器执行（宝塔静态规则只认扩展名，补 woff2 即可）：
+ *        sed -i 's/woff|ttf|otf/woff2|woff|ttf|otf/' /www/server/nginx/conf/nginx.conf
+ *        nginx -t && nginx -s reload
+ * 字体是内容寻址、永不原地改名的静态资源（.subset/.extra/分片名），
+ * 给一年 immutable 是安全的。
+ */
+add_filter('wp_headers', 'ybh_font_cache_headers');
+function ybh_font_cache_headers($headers)
+{
+    $uri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
+    if (preg_match('#/wp-content/uploads/ybh-fonts/.+\.(woff2?|ttf|otf)(\?|$)#i', $uri)) {
+        $headers['Cache-Control'] = 'public, max-age=31536000, immutable';
+        unset($headers['Expires']);
+    }
+    return $headers;
+}
+
+/**
  * FontAwesome 本地化（双保险）：
  * - 主路径：下方 option_iro_options filter（functions.php 已改为先加载本文件再填充
  *   $GLOBALS['iro_options']，filter 会对 iro_opt 的数据源生效）；
