@@ -263,7 +263,6 @@
       '  <button type="button" class="button" data-ybh-wang="cancel">关闭</button>' +
       '  <button type="button" class="button" data-ybh-wang="apply">写回内容</button>' +
       '  <button type="button" class="button" data-ybh-wang="save">保存文章</button>' +
-      '  <button type="button" class="button button-primary" data-ybh-wang="publish">发布</button>' +
       '  <button type="button" class="button-link ybh-wang-panel__close" data-ybh-wang="cancel" aria-label="关闭">&times;</button>' +
       '</div>' +
       '<div class="ybh-wang-panel__body">' +
@@ -285,113 +284,13 @@
         close(false);
       } else if (act === 'save') {
         saveFromPanel();
-      } else if (act === 'publish') {
-        publishFromPanel();
       }
     });
 
     return panel;
   }
 
-  /**
-   * 面板里直接「发布」。
-   *
-   * 与「保存文章」是**两个不同的动作**，刻意分开：
-   *   · 保存 = 只存内容、不动状态（随手 Ctrl+S 时绝对安全）；
-   *   · 发布 = 明确地把文章置为已发布。
-   *
-   * 权限由服务端判断（`inc/ybh/editor-publish.php`）：本站投稿者没有
-   * `publish_posts`，会被明确告知"请先保存、由编辑审核发布"，
-   * 而不是提交后被静默改成待审（那样更让人困惑）。
-   *
-   * 发布前会先问一次 —— 这是不可逆动作（会对外可见）。
-   */
-  function publishFromPanel() {
-    var cfg = window.YBH_WANG_PUBLISH_CFG;
-    if (!cfg || !cfg.ajaxUrl) {
-      setHint('发布功能不可用', true);
-      return;
-    }
-
-    // 没权限就别让他白点一次
-    if (!cfg.canPublish) {
-      setHint('你的账号没有发布权限，请先「保存文章」', true);
-      return;
-    }
-
-    var title = document.getElementById('title');
-    var ta = textarea();
-
-    if (!title || title.value.trim() === '') {
-      setHint('标题是空的，先填标题', true);
-      if (title) { title.focus(); }
-      return;
-    }
-    if (!ta || ta.value.trim() === '') {
-      setHint('正文是空的，先写内容', true);
-      return;
-    }
-
-    var isUpdate = false;
-    var statusEl = document.getElementById('post_status');
-    if (statusEl && /publish/i.test(statusEl.textContent || '')) {
-      isUpdate = true;
-    }
-    if (!window.confirm(isUpdate
-      ? '确定要更新这篇已发布的文章吗？'
-      : '确定要发布这篇文章吗？发布后访客就能看到了。')) {
-      return;
-    }
-
-    // 先写回内容，再发 —— 顺序反了会把旧内容发出去
-    if (editor && typeof editor.getHtml === 'function') {
-      writeContent(editor.getHtml());
-    }
-
-    var postId = resolvePostId();
-    if (!postId) {
-      setHint('识别不到文章 ID，请刷新页面', true);
-      return;
-    }
-
-    var body = new URLSearchParams();
-    body.append('action', 'ybh_publish');
-    body.append('nonce', cfg.nonce);
-    body.append('post_id', postId);
-    body.append('post_title', title ? title.value : '');
-    body.append('post_content', ta ? ta.value : '');
-    var ex = document.getElementById('excerpt');
-    if (ex) { body.append('post_excerpt', ex.value); }
-
-    setHint('发布中…', false);
-
-    fetch(cfg.ajaxUrl, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-      body: body.toString()
-    }).then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.success) {
-        var d = j.data || {};
-        setHint('已发布 ✅' + (d.link ? '（点右上角「查看文章」可预览）' : ''), false);
-        // 页面上的状态标签同步一下，避免作者以为没生效
-        if (statusEl) { statusEl.textContent = '已发布'; }
-        if (window.YBH_Editor && window.YBH_Editor.toast) {
-          window.YBH_Editor.toast('文章已发布');
-        }
-      } else {
-        var msg = (j && j.data && j.data.message) || '发布失败';
-        setHint(msg, true);
-        if (window.YBH_Editor && window.YBH_Editor.toast) {
-          window.YBH_Editor.toast('发布失败：' + msg);
-        }
-      }
-    }).catch(function () {
-      setHint('发布请求失败，请检查网络', true);
-    });
-  }
-
-  /** 取文章 ID（新建文章页 #post_ID 可能是空，回落到本地化数据与 URL） */
+    /** 取文章 ID（新建文章页 #post_ID 可能是空，回落到本地化数据与 URL） */
   function resolvePostId() {
     var byId = document.getElementById('post_ID');
     if (byId && byId.value && byId.value !== '0') {
@@ -561,10 +460,6 @@
       }
     }
 
-    // 用户主动关掉面板 ⇒ 本次会话不再自动弹（否则一关就被弹回来，没法退出）
-    if (!apply || true) {
-      sessionStorage.setItem('ybhWangOptOut', '1');
-    }
 
     panel.removeEventListener('keydown', onKey, true);
     document.documentElement.classList.remove('ybh-wang-open');
@@ -582,7 +477,7 @@
     }
   }
 
-  /* ---------- 打开按钮 + 「默认编辑器」偏好 ---------- */
+  /* ---------- 打开按钮 ---------- */
   function bind() {
     var btn = document.getElementById('ybh-wang-open');
     if (btn) {
@@ -591,89 +486,33 @@
         open();
       });
     }
-
-    bindDefaultPref();
-    maybeAutoOpen();
+    bindFormSafety();
   }
 
   /**
-   * 「默认编辑器」开关：勾选即把偏好写进用户资料（服务端持久化，
-   * 换设备也跟着走），而不是只存浏览器。
-   */
-  function bindDefaultPref() {
-    var cb = document.getElementById('ybh-editor-default-cb');
-    if (!cb) {
-      return;
-    }
-    cb.addEventListener('change', function () {
-      var cfg = window.YBH_WANG_DEFAULT_CFG;
-      if (!cfg || !cfg.ajaxUrl) {
-        return;
-      }
-      var body = new URLSearchParams();
-      body.append('action', 'ybh_editor_pref');
-      body.append('nonce', cfg.nonce);
-      body.append('editor', cb.checked ? 'wangeditor' : 'classic');
-
-      fetch(cfg.ajaxUrl, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-        body: body.toString()
-      }).then(function (r) { return r.json(); }).then(function (j) {
-        var msg = (j && j.success) ? '已保存：默认编辑器 = ' + (cb.checked ? 'WangEditor' : '经典编辑器')
-                                   : '保存失败，请重试';
-        if (window.YBH_Editor && window.YBH_Editor.toast) {
-          window.YBH_Editor.toast(msg);
-        }
-      }).catch(function () {
-        if (window.YBH_Editor && window.YBH_Editor.toast) {
-          window.YBH_Editor.toast('保存失败，请检查网络');
-        }
-      });
-    });
-  }
-
-  /**
-   * 若用户偏好是 WangEditor，进编辑页就**自动展开面板**，不用再点按钮。
+   * 安全网：WordPress 自己的「保存草稿 / 发布 / 更新」提交前，**自动写回内容**。
    *
-   * ⚠️ 有两个"不要自动弹"的情况：
-   *   · 用户点了「取消 / 关闭」—— 记在 sessionStorage 里，本次会话不再弹，
-   *     否则一关就被弹回来，等于没法退出；
-   *   · URL 带 `?ybh_editor=classic` —— 临时压过一次，方便排查。
+   * 为什么必须有：按用户要求回退之后，WangEditor 只是"文字输入工具"——
+   * 保存与发布都由 WordPress 自己的按钮负责（面板里不再有发布按钮）。
+   * 而作者很容易在没点「写回内容」的情况下直接去点「发布」，
+   * 那样提交的就是 `#content` 里的**旧内容**，等于白写一场。
+   *
+   * 做法：在表单 `submit` 的**捕获阶段**写回，抢在 WordPress 自己的提交逻辑之前。
    */
-  function maybeAutoOpen() {
-    var cfg = window.YBH_WANG_DEFAULT_CFG;
-    if (!cfg) {
+  function bindFormSafety() {
+    var form = document.getElementById('post');
+    if (!form) {
       return;
     }
-    if (cfg.override === 'classic') {
-      return;
-    }
-    if (cfg.current !== 'wangeditor') {
-      return;
-    }
-    if (sessionStorage.getItem('ybhWangOptOut') === '1') {
-      return;
-    }
-    /*
-     * ⚠️ 这里**不能**用 `document.activeElement` 判断"作者是不是已经在打字了" ——
-     * WordPress 打开编辑页时会**自动把焦点放到标题框**，于是 activeElement 永远是
-     * 那个 INPUT，条件恒为真 ⇒ 永远不会自动弹（实测踩到）。
-     * 改成看"标题框里**有没有内容**"：空的说明还没开始写，该弹；
-     * 已经有标题了说明作者在写，不打扰。
-     */
-    var title = document.getElementById('title');
-    if (title && title.value && title.value.trim() !== '') {
-      return;
-    }
-    // 等经典编辑器初始化完再开，避免抢时序
-    setTimeout(function () {
-      if (!opened) {
-        open();
+    form.addEventListener('submit', function () {
+      if (!opened || !editor || typeof editor.getHtml !== 'function') {
+        return;   // 面板没开，没什么要写回的
       }
-    }, 600);
+      writeContent(editor.getHtml());
+    }, true);
   }
+
+
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bind);

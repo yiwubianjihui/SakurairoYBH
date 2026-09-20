@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.22');
+define('YBH_VERSION', '1.3.23');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -392,23 +392,16 @@ require_once get_template_directory() . '/inc/ybh/pagejump.php';
 require_once get_template_directory() . '/inc/ybh/wangeditor.php';
 
 /**
- * 9.7g) 「默认编辑器」用户偏好 + 编辑页自动进入 WangEditor
- *       用户要求把 WangEditor 作为默认编辑器，但原入口要保留 ⇒ 做成用户级偏好：
- *       默认 wangeditor，每个人可随时切回经典编辑器，选择存 user meta（换设备跟着走）。
- *       见 inc/ybh/editor-default.php。
- */
-require_once get_template_directory() . '/inc/ybh/editor-default.php';
-
-/**
- * 9.7h) 内容规范化（两个编辑器共用）+ 编辑器「发布」端点
- *       · content-normalize.php：把 js/ybh-content.js 挂到编辑页，
- *         统一「进出编辑器」的内容归约 —— 修「切换编辑器多出回车空行」与
- *         「编辑后段间距变小」（后者真凶是内联 margin:0）。
- *       · editor-publish.php：WangEditor 面板的「发布」按钮端点，
- *         权限沿用 WP 自己的 publish_posts（投稿者会被明确挡住）。
+ * 9.7h) 内容规范化（两个编辑器共用）
+ *       把 js/ybh-content.js 挂到编辑页，统一「进出编辑器」的内容归约 ——
+ *       修「切换编辑器多出回车空行」与「编辑后段间距变小」
+ *       （后者真凶是内联 margin:0 压过了主题的 p { margin: 0 0 10px }）。
+ *       两个编辑器共用同一份，见 inc/ybh/content-normalize.php。
+ *
+ *       注：曾经还有 editor-default.php（默认编辑器偏好）与 editor-publish.php
+ *       （面板内发布），按用户要求**已回退** —— WangEditor 只作文字输入工具。
  */
 require_once get_template_directory() . '/inc/ybh/content-normalize.php';
-require_once get_template_directory() . '/inc/ybh/editor-publish.php';
 
 /**
  * 9) 随机封面默认改走主题自带的轻量端点 rand-cover.php
