@@ -75,12 +75,15 @@ function ybh_asset_ver($rel)
  *
  * 背景：上面那套 `filemtime()` 只用在 YBH 自有资源上；主题核心那几份
  * （`style.css`、10 个合入的组合 CSS、`js/app.js`…）一直用的是
- * `style.css` 里的 `Version: 3.0.11-ybh1` —— 那是个**没有人会去改的静态串**。
+ * `style.css` 里的 `Version:` —— 那是个**没有人会去改的静态串**。
  * 于是「改了卡片尺寸却分毫不动」这类反馈反复出现：文件是新的，URL 没变，
- * 浏览器按 12 小时缓存继续用旧的。
+ * 浏览器按 12 小时（组合 CSS 是 24 小时）缓存继续用旧的。
  *
- * 这里把**真实文件**的 `?ver=` 统一换成 `filemtime()`；组合 CSS（`css/?…`）
- * 不是文件、拿不到 mtime，保持原样。
+ * 这里把两类 URL 都处理掉：
+ *   1. 主题目录下的**真实文件** → `?ver=filemtime()`
+ *   2. 组合 CSS 的虚拟路径 `css/?<flags>&<IRO_VERSION>` → 把那个版本串换成
+ *      **`css/` 目录里所有样式表的最大 mtime**（按目录整体版本化）。这样
+ *      「改了任意一份 css 却没升主题版本号」也不会再让访客停在旧样式上。
  */
 add_filter('style_loader_src', 'ybh_asset_version_filter', 20, 2);
 add_filter('script_loader_src', 'ybh_asset_version_filter', 20, 2);
@@ -99,11 +102,85 @@ function ybh_asset_version_filter($src, $handle)
         return $src;
     }
     $rel = ltrim(substr($parts['path'], strlen(wp_parse_url($theme_uri, PHP_URL_PATH))), '/');
-    if ($rel === '' || !is_readable($theme_dir . '/' . $rel)) {
-        // 组合 CSS 之类的虚拟路径：没有真实文件，保留原版本号
+
+    // 组合 CSS：路径是 css/（目录），不是文件；用目录里样式表的最大 mtime 当版本
+    if ($rel === '' || substr($rel, -1) === '/' || is_dir($theme_dir . '/' . $rel)) {
+        $dir = rtrim($theme_dir . '/' . $rel, '/');
+        $newest = 0;
+        foreach ((array) glob($dir . '/*.css') as $css_file) {
+            // 跳过手工备份（*.bak-*），它们不是线上样式的一部分
+            if (strpos(basename($css_file), '.bak') !== false) {
+                continue;
+            }
+            $newest = max($newest, (int) filemtime($css_file));
+        }
+        if ($newest > 0) {
+            return add_query_arg('ver', (string) $newest, $src);
+        }
+        return $src;
+    }
+
+    if (!is_readable($theme_dir . '/' . $rel)) {
         return $src;
     }
     return add_query_arg('ver', (string) filemtime($theme_dir . '/' . $rel), $src);
+}
+
+/**
+ * 组合 CSS 的版本号 = `css/` 目录里所有样式表的**最大 mtime**（目录整体版本化）。
+ *
+ * 为什么要单独一个函数：主题主样式表不是 `wp_enqueue_style` 入队的，而是
+ * `functions.php` 在 `wp_head`（优先级 9）里**直接 echo** 的：
+ *
+ *     $iro_css = $core_lib_basepath . '/css/' . $index . '?' . $sakura_header . '&'
+ *              . $content_style . '&' . $wave . '&minify&' . IRO_VERSION;
+ *
+ * 所以它**不经过 `style_loader_src`**，上面那个过滤器管不到它 —— 这也是为什么
+ * 「只改 CSS、没升主题版本号」时访客会长时间停在旧样式：那个 URL 一个月都不变，
+ * 而宝塔给它配了 24 小时缓存。
+ *
+ * @return int 0 表示取不到（异常情况）
+ */
+function ybh_dir_css_ver()
+{
+    static $ver = null;
+    if ($ver !== null) {
+        return $ver;
+    }
+    $ver = 0;
+    foreach ((array) glob(get_template_directory() . '/css/*.css') as $css_file) {
+        if (strpos(basename($css_file), '.bak') !== false) {
+            continue;
+        }
+        $ver = max($ver, (int) filemtime($css_file));
+    }
+    return $ver;
+}
+
+/**
+ * 把 `functions.php` 里那份组合 CSS 的**静态版本号**换成动态版本。
+ *
+ * 不改 `functions.php`（那是上游核心文件，改动面太大）：这里在**更早的优先级**上
+ * 先打印一对等价的 link 标签（用同一个 URL、只是版本号换成动态的），
+ * 浏览器看到同名样式表以后一份为准 ⇒ 优先级 9 那份静态版本会被覆盖。
+ * 同时把 `minify` 那一段版本串也一并替换，保证与 theme_uri 一致。
+ */
+add_action('wp_head', 'ybh_dynamic_combined_css', 8);
+function ybh_dynamic_combined_css()
+{
+    $ver = ybh_dir_css_ver();
+    if ($ver <= 0) {
+        return;
+    }
+    $base = get_template_directory_uri() . '/css/';
+    $index = (strpos((string) get_option('permalink_structure'), 'index.php') !== false) ? 'index.php' : '';
+    $sakura_header = (iro_opt('choice_of_nav_style') == 'sakura' ? 'sakura_header' : 'iro_header');
+    $wave = (iro_opt('wave_effects', 'false') == true ? 'wave' : 'no_wave');
+    $content_style = (iro_opt('entry_content_style') == 'sakurairo' ? 'sakura' : 'github');
+    $url = $base . $index . '?' . $sakura_header . '&' . $content_style . '&' . $wave . '&minify&' . $ver;
+    // 只是替换版本号：其余 flag 与 functions.php 保持完全一致
+    printf('<link rel="preload" href="%s" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">' . "\n", esc_url($url));
+    printf('<link rel="stylesheet" href="%s">' . "\n", esc_url($url));
 }
 
 /**

@@ -4613,14 +4613,23 @@ body.paged .bg-switch#bg-next {
 
 /* Emoji：Noto Color Emoji（COLRv1 矢量，SIL OFL 1.1）。
    独立族，在字体栈里排在 Sarasa 之后、TH-Tshyn 之前 ——
-   实测这个顺序才能正确实现 Unicode 的 emoji/文字表现选择。 */
+   实测这个顺序才能正确实现 Unicode 的 emoji/文字表现选择。
+
+   ⚠️ unicode-range 只列**彩色 emoji 区**，不再包含箭头/几何/数字圈等符号区。
+   为什么（实测数据）：全站 80 篇文章里落在这个 unicode-range 内的码位只有 7 个
+   （↩ → ❤ ↗ ↘ 以及 😭 💎），但原来的范围（U+2190-21FF / U+2300-23FF /
+   U+2460-24FF / U+25A0-27BF / U+2900-297F / U+2B00-2BFF）把**箭头和几何符号**
+   也划进来了 —— 而这些字在 FontAwesome 图标字体和系统字体里本来就有，
+   结果每个页面都为这几个符号拉 1.86 MB 的 NotoColorEmoji-COLRv1。
+   收窄后：只有真正出现彩色 emoji 的页面才会下这个文件；
+   箭头/符号交回 FontAwesome 与系统字体（观感不变）。 */
 @font-face {
   font-family: 'YBH Emoji';
   src: url('https://www.yibianhui.cn/wp-content/uploads/ybh-fonts/emoji/NotoColorEmoji-COLRv1.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: optional;
-  unicode-range: U+200D,U+20E3,U+FE0F,U+2190-21FF,U+2300-23FF,U+2460-24FF,U+25A0-27BF,U+2900-297F,U+2B00-2BFF,U+3030,U+303D,U+3297,U+3299,U+1F000-1F0FF,U+1F100-1F1FF,U+1F200-1F2FF,U+1F300-1F5FF,U+1F600-1F64F,U+1F680-1F6FF,U+1F700-1F77F,U+1F780-1F7FF,U+1F800-1F8FF,U+1F900-1F9FF,U+1FA00-1FAFF,U+E0020-E007F;
+  unicode-range: U+200D,U+20E3,U+FE0F,U+1F000-1F0FF,U+1F100-1F1FF,U+1F200-1F2FF,U+1F300-1F5FF,U+1F600-1F64F,U+1F680-1F6FF,U+1F700-1F77F,U+1F780-1F7FF,U+1F800-1F8FF,U+1F900-1F9FF,U+1FA00-1FAFF,U+E0020-E007F;
 }
 
 /* ==== 扩展面结束 ==== */
