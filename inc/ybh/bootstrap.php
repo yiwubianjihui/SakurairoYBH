@@ -158,29 +158,110 @@ function ybh_dir_css_ver()
 }
 
 /**
- * 把 `functions.php` 里那份组合 CSS 的**静态版本号**换成动态版本。
+ * 把 `functions.php` 里那份组合 CSS 的**静态版本号**换成动态版本，并消除重复 link。
  *
- * 不改 `functions.php`（那是上游核心文件，改动面太大）：这里在**更早的优先级**上
- * 先打印一对等价的 link 标签（用同一个 URL、只是版本号换成动态的），
- * 浏览器看到同名样式表以后一份为准 ⇒ 优先级 9 那份静态版本会被覆盖。
- * 同时把 `minify` 那一段版本串也一并替换，保证与 theme_uri 一致。
+ * 背景：组合 CSS 有两处输出 ——
+ *   · `functions.php`（上游核心）在 `wp_head` 优先级 10 直接 echo，版本号是**静态** `IRO_VERSION`；
+ *   · 本函数在优先级 8 先打印一份**动态**版本（版本号 = `css/` 目录最大 mtime）。
+ *
+ * ⚠️ 2026-09-22 实测修正：原注释假设「浏览器看到同名样式表以后一份为准 ⇒ 静态版本被覆盖」，
+ * **这个假设不成立**。两个 URL 的 `ver` 不同（`3.0.12-ybh1` vs `1789921500`），浏览器视为
+ * **两份不同的样式表，两份都会下载**。首页实测出现 4 个 link 标签（2 preload + 2 stylesheet）、
+ * 2 个不同 URL —— 同一份组合 CSS 白下载一次（约 0.5–1 MB 级别的重复流量与解析）。
+ *
+ * 现做法：
+ *   1. 仍在本函数打印动态版本（作为**兜底**：万一缓冲没生效，样式不会丢）；
+ *   2. 用输出缓冲包住整个 `wp_head`（优先级 7 → 11），把 `minify&<静态版本>` 统一换成
+ *      `minify&<动态版本>`，再按「实体解码后完全相同」去掉重复的 `<link>` 行
+ *      （两处输出一个走了 `esc_url` ⇒ `&#038;`，一个没走 ⇒ `&`，文本不同但 URL 相同）。
+ *
+ * 结果：一份 URL、一个 preload + 一个 stylesheet。不改 `functions.php`，也不依赖它的输出顺序。
  */
 add_action('wp_head', 'ybh_dynamic_combined_css', 8);
 function ybh_dynamic_combined_css()
 {
-    $ver = ybh_dir_css_ver();
-    if ($ver <= 0) {
+    $url = ybh_combined_css_url(ybh_dir_css_ver());
+    if ('' === $url) {
         return;
+    }
+    printf('<link rel="preload" href="%s" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">' . "\n", esc_url($url));
+    printf('<link rel="stylesheet" href="%s">' . "\n", esc_url($url));
+}
+
+/**
+ * 组合 CSS 的 URL：其余 flag 与 functions.php 完全一致，只换版本号。
+ *
+ * @param int $ver 版本号；<= 0 时返回空串（调用方跳过输出）
+ * @return string
+ */
+function ybh_combined_css_url($ver)
+{
+    $ver = (int) $ver;
+    if ($ver <= 0) {
+        return '';
     }
     $base = get_template_directory_uri() . '/css/';
     $index = (strpos((string) get_option('permalink_structure'), 'index.php') !== false) ? 'index.php' : '';
     $sakura_header = (iro_opt('choice_of_nav_style') == 'sakura' ? 'sakura_header' : 'iro_header');
     $wave = (iro_opt('wave_effects', 'false') == true ? 'wave' : 'no_wave');
     $content_style = (iro_opt('entry_content_style') == 'sakurairo' ? 'sakura' : 'github');
-    $url = $base . $index . '?' . $sakura_header . '&' . $content_style . '&' . $wave . '&minify&' . $ver;
-    // 只是替换版本号：其余 flag 与 functions.php 保持完全一致
-    printf('<link rel="preload" href="%s" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">' . "\n", esc_url($url));
-    printf('<link rel="stylesheet" href="%s">' . "\n", esc_url($url));
+    return $base . $index . '?' . $sakura_header . '&' . $content_style . '&' . $wave . '&minify&' . $ver;
+}
+
+add_action('wp_head', 'ybh_combined_css_buffer_start', 7);
+add_action('wp_head', 'ybh_combined_css_buffer_end', 11);
+
+function ybh_combined_css_buffer_start()
+{
+    ob_start();
+}
+
+/**
+ * 统一组合 CSS 的版本号并去掉重复 link。
+ *
+ * 只做两件事，不做别的改写：`minify&<静态版本>` → `minify&<动态版本>`；
+ * 以及把实体解码后完全相同的 `<link>` 行去重。两者都不命中时原样输出。
+ */
+function ybh_combined_css_buffer_end()
+{
+    $html = ob_get_clean();
+    if (!is_string($html) || '' === $html) {
+        return;
+    }
+
+    $ver = ybh_dir_css_ver();
+    if ($ver > 0) {
+        // 同时兼容 esc_url 过的（&#038;）与未转义的（&）两种写法
+        $html = str_replace(
+            array('minify&' . IRO_VERSION, 'minify&#038;' . IRO_VERSION),
+            array('minify&' . $ver, 'minify&#038;' . $ver),
+            $html
+        );
+    }
+
+    /*
+     * 去重：实体解码后完全相同的 `<link>` **标签**只保留第一份。
+     *
+     * ⚠️ 必须按「标签」而不是按「行」去重 —— 实测第一版按行去重无效：
+     * `functions.php` 那两行 echo **没有换行**，preload 与 stylesheet 挤在同一行里，
+     * 而本文件打印的那一对每行一个。于是 4 个标签只落在 3 行上，按行去重抓不到。
+     * 按标签去重后：一份 URL、一个 preload + 一个 stylesheet。
+     */
+    $ybh_seen = array();
+    $ybh_deduped = preg_replace_callback('/<link\b[^>]*>/i', function ($m) use (&$ybh_seen) {
+        $key = html_entity_decode($m[0], ENT_QUOTES, 'UTF-8');
+        if (isset($ybh_seen[$key])) {
+            return '';
+        }
+        $ybh_seen[$key] = true;
+        return $m[0];
+    }, $html);
+    // preg 失败时（null）保持原样输出，绝不把 wp_head 变成空串
+    if (is_string($ybh_deduped)) {
+        $html = $ybh_deduped;
+    }
+
+    echo $html;
 }
 
 /**
@@ -402,6 +483,13 @@ function ybh_trim_front_emoji()
 require_once get_template_directory() . '/inc/ybh/friend-importer.php';
 
 /**
+ * 7) 网页App（PWA）：可"添加到主屏幕" + 离线字体缓存。
+ *    入口为 `/manifest.webmanifest` 与 `/sw.js`（根作用域），见 T48 P1+P2。
+ *    用户已明确不做：Web Push 推送、Windows 打包、摇人器上网页。
+ */
+require_once get_template_directory() . '/inc/ybh/pwa.php';
+
+/**
  * 7) 经典编辑器体验（工具栏精简 / 回车与粘贴成段 / 空行保留 / 编辑区同前台样式）。
  *    依赖 classic-editor 插件；未激活时本文件的过滤器不生效也不报错。
  */
@@ -514,6 +602,13 @@ require_once get_template_directory() . '/inc/ybh/hero-cover.php';
  *       见 inc/ybh/quiz-assets.php。
  */
 require_once get_template_directory() . '/inc/ybh/quiz-assets.php';
+
+/**
+ * 9.7c-2) 前端减重（通用项）
+ *       目前是「匿名访客不加载 dashicons」：后台图标字体约 35 KB，前端实测零使用。
+ *       见 inc/ybh/frontend-weight.php。
+ */
+require_once get_template_directory() . '/inc/ybh/frontend-weight.php';
 
 /**
  * 9.7d) 上游 CDN 资源本地化（Sakurairo vision）

@@ -93,6 +93,33 @@ function ybh_quiz_assets_on_demand()
             }
         }
     }
+
+    /*
+     * ② 按 handle 摘掉插件顺带牵进来的 **WordPress 核心 jQuery UI**。
+     *
+     * 上面按 src 判断抓不到它们：这些脚本的地址是 `/wp-includes/js/jquery/ui/*`，
+     * 不含 `quiz-master-next`。上面注释里说的「少数 handle 的 src 不明显」就是这里。
+     *
+     * 实测（2026-09-22 首页）：白加载 4 个 JS —— core / mouse / slider / tooltip。
+     *
+     * 为什么可以摘：主题**前端**不使用任何 jQuery UI 组件 ——
+     *   · `js/` 目录全量搜索无 `.slider( .tooltip( .sortable( .datepicker( .autocomplete(` 等；
+     *   · 唯一的用处是 `opt/`（主题选项页）与 Kirki（定制器），两者都在 `is_admin()` 里，
+     *     本函数开头已经对 is_admin() return，不会碰。
+     */
+    $ybh_drop_handles = array(
+        'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse', 'jquery-ui-position',
+        'jquery-ui-slider', 'jquery-ui-tooltip', 'jquery-ui-button', 'jquery-ui-menu',
+        'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'jquery-ui-sortable',
+        'jquery-ui-accordion', 'jquery-ui-draggable', 'jquery-ui-droppable',
+        'jquery-ui-resizable', 'jquery-ui-selectable', 'jquery-ui-spinner',
+        'jquery-ui-tabs', 'jquery-ui-dialog', 'jquery-ui-progressbar',
+        'jquery-ui-effect', 'jquery-ui-controlgroup', 'jquery-ui-checkboxradio',
+        'jquery-ui-selectmenu', 'jquery-ui-form', 'jquery-ui-keycode',
+    );
+    foreach ($ybh_drop_handles as $ybh_handle) {
+        wp_dequeue_script($ybh_handle);
+    }
 }
 
 /**
