@@ -54,6 +54,37 @@ function ybh_cta_post_url($slug, $fallback)
 }
 
 /**
+ * 「投稿」按钮的落点：**直接进编辑器**；没登录就先登录，登录完**直接落在编辑器**。
+ *
+ * 用户 2026-09-22 要求：点「投稿」不再先去 `/submit/` 说明页转一圈，而是直接进写作界面。
+ *
+ * - 已登录且有投稿能力 → 新文章编辑页 `post-new.php`
+ * - **未登录** → WP 登录页，并把 `redirect_to` 指回编辑器
+ *   ⇒ 登录后**一步到位**进编辑器，不需要登录完再找一次入口
+ * - 已登录但没有投稿能力（例如订阅者）→ 退回 `/submit/` 说明页，
+ *   否则他们只会撞上「抱歉，您不能创建文章」这种没有出路的后台错误页
+ *
+ * 为什么判断 `edit_posts` 而不是角色名：本站 `default_role = contributor`，
+ * 且判断**能力**比判断角色名更经得起以后改角色设置（与 `admin-simplify.php` 同一套做法）。
+ *
+ * @return string
+ */
+function ybh_write_url()
+{
+    $editor = admin_url('post-new.php');
+
+    if (!is_user_logged_in()) {
+        return wp_login_url($editor);
+    }
+
+    if (!current_user_can('edit_posts')) {
+        return ybh_cta_page_url('submit', '/submit/');
+    }
+
+    return $editor;
+}
+
+/**
  * 渲染首页行动按钮。
  * 只在首页/静态首页输出（本函数虽从 index.php 调用，但 index.php 也是
  * 无专用模板时的兜底模板，加一道判断避免在归档页冒出来）。
@@ -66,7 +97,7 @@ function ybh_render_home_cta()
 
     $items = array(
         array(
-            'url'     => ybh_cta_page_url('submit', '/submit/'),
+            'url'     => ybh_write_url(),
             'icon'    => 'fa-solid fa-pen-nib',
             'label'   => '我要投稿',
             'sub'     => '把你的文字交给我们',
@@ -208,7 +239,7 @@ function ybh_render_mobile_actions()
 
     $items = array(
         array(
-            'url'     => ybh_cta_page_url('submit', '/submit/'),
+            'url'     => ybh_write_url(),
             'icon'    => 'fa-solid fa-pen-nib',
             'label'   => '投稿',
             'primary' => true,

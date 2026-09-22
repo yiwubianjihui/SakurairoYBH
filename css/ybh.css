@@ -4633,3 +4633,86 @@ body.paged .bg-switch#bg-next {
 }
 
 /* ==== 扩展面结束 ==== */
+
+/* ============================================================================
+   导航「搜索 / 换封面 / 随机文章」三键与菜单文字重叠 —— 861–1000px 区间
+   ============================================================================
+
+   ## 现象（2026-09-22 多视口实测，非目测）
+   桌面导航在 `responsive.css` 的 `@media (max-width:860px)` 里被隐藏，
+   所以 **≥861px 就切换成桌面导航**。但 861–1000px 这一段**挤不下**：
+     900px：最后一个菜单项「客户端下载」与**三个按钮全部重叠**（搜索/换封面各 1089px²、随机 252px²）
+     960px：与「搜索」重叠（648px²）
+     1024px 及以上：不重叠，但**只剩 15px 余量** —— 也就是说本来就快撑不住了
+   根因：`nav` 是 flex 子项，默认 `min-width:auto` 不肯收缩；里面的 `ul` 是 `nowrap`，
+   于是 `ul` 直接**溢出 nav 的盒子、盖在后面三个按钮上**。
+
+   ## 为什么不用 `overflow:hidden` 一刀切
+   `nav .menu > li .sub-menu` 是 `position:absolute` 的下拉菜单，
+   给 nav 加 `overflow:hidden` 会把**下拉菜单一起裁掉** —— 那是更严重的回归。
+
+   ## 做法
+   ① `min-width:0` 让 nav 真的能收缩（不加这条，后面的收紧都不生效）；
+   ② 只在 861–1100px 这一档收紧菜单项间距/字号 + 收窄三个按钮，
+      把需要横向空间压下来（不需要在这一档牺牲可读性：只缩 ~8%）；
+   ③ 收尾再留一点余量，避免又只剩十几 px。
+   ⚠️ 改完必须回到多视口扫描脚本验证（`_probe_dir/nav-overlap-scan.js`），
+      确保 0 重叠 **且** 下拉菜单没有被裁掉。
+   ============================================================================ */
+
+.nav-search-wrapper > nav {
+  min-width: 0;
+}
+
+/* 861–900px：桌面导航能显示、但空间最紧的一小段（实测此处曾溢出 24px）。
+   再收一档：字号 13px（文本 ≈234px）+ 每侧 3px（6×6=36）+ 间距 10px ≈ 280px，
+   在 861px 处可用约 297px ⇒ 留约 17px 余量。 */
+@media (min-width: 861px) and (max-width: 900px) {
+  .nav-search-wrapper nav ul li > a {
+    padding-left: 3px;
+    padding-right: 3px;
+    font-size: 13px;
+  }
+
+  .nav-search-wrapper nav ul li {
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+}
+
+/* 901–1000px：空间次紧，字号回到 14px（实测该档原本溢出 100px+） */
+@media (min-width: 901px) and (max-width: 1000px) {
+  .nav-search-wrapper nav ul li > a {
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 14px;
+  }
+
+  .nav-search-wrapper nav ul li {
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+}
+
+/* 1001–1100px：空间宽一些，只需轻度收紧（实测该档原本只剩 15px 余量） */
+@media (min-width: 1001px) and (max-width: 1100px) {
+  .nav-search-wrapper nav ul li > a {
+    padding-left: 7px;
+    padding-right: 7px;
+    font-size: 16px;
+  }
+}
+
+/* 三键在窄档同时收窄（对上面两档都生效） */
+@media (min-width: 861px) and (max-width: 1100px) {
+  .searchbox.js-toggle-search i,
+  .bg-switch i {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .bg-switch {
+    width: 40px;
+  }
+}
+
