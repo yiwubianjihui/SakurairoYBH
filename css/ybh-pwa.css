@@ -1,0 +1,127 @@
+/**
+ * YBH · PWA 提示条样式（T48 P1）
+ *
+ * 设计约束：
+ *  - **不侵入主题**：只用 `.ybh-pwa-bar*` 命名空间，不改任何既有选择器
+ *  - 固定底部居中，避开 iOS 安全区；z-index 高于主题浮层
+ *  - 跟随系统深色（主题本身也有夜间模式，这里用 prefers-color-scheme 独立处理，避免耦合）
+ *  - 关闭按钮始终在右，点一次就消失（30 天内不再出现，逻辑在 js/ybh-pwa.js）
+ */
+
+.ybh-pwa-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 12px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 560px);
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  backdrop-filter: saturate(180%) blur(12px);
+  box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  color: #2b2b2b;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  pointer-events: auto;
+}
+
+.ybh-pwa-bar.is-in {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.ybh-pwa-bar__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ybh-pwa-bar__text b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.ybh-pwa-bar__text span {
+  display: block;
+  color: #6b6b6b;
+  word-break: break-word;
+}
+
+.ybh-pwa-bar__acts {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ybh-pwa-bar__btn {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  background: #505050;
+  color: #fff;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.ybh-pwa-bar__btn:hover {
+  opacity: 0.88;
+}
+
+.ybh-pwa-bar__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ybh-pwa-bar__btn--ghost {
+  background: transparent;
+  color: #6b6b6b;
+  padding: 7px 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ybh-pwa-bar {
+    background: rgba(32, 34, 38, 0.94);
+    color: #ececec;
+    box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .ybh-pwa-bar__text span,
+  .ybh-pwa-bar__btn--ghost {
+    color: #a8a8a8;
+  }
+
+  .ybh-pwa-bar__btn {
+    background: #e8e8e8;
+    color: #1c1c1c;
+  }
+}
+
+/* 独立窗口（已装到主屏）下不需要引导条 */
+.ybh-pwa-standalone .ybh-pwa-bar--install {
+  display: none;
+}
+
+/* 窄屏：按钮换行，避免文字被挤成两三个字 */
+@media (max-width: 420px) {
+  .ybh-pwa-bar {
+    flex-wrap: wrap;
+  }
+
+  .ybh-pwa-bar__acts {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
