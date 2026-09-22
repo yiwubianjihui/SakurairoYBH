@@ -4,7 +4,8 @@
  *
  * 背景：区块编辑器对投稿者门槛过高。改用经典编辑器后，这里做四件事：
  *   1) 精简工具栏 —— 只留写作真正用得到的按钮，去掉作者用不上的东西；
- *   2) 规整「回车/粘贴/空行」的行为 —— 回车与粘贴换行都成为独立段落，空行可自由保留；
+ *   2) 规整「回车/粘贴/空行」的行为 —— 新规范：**1 个回车 = 分段、2 个回车 = 空行**，
+ *      空行（`<p>&nbsp;</p>`）是要保留的内容，保存时**不再**被清掉；
  *   3) 编辑区样式与前台一致（css/editor-style.css）—— 做到真正的所见即所得；
  *   4) 脚注按钮（`ybh_footnote`）—— 按钮本体在 js/ybh-editor.js，
  *      渲染在 inc/ybh/footnotes.php，这里只负责「把按钮名写进工具栏数组」。
@@ -73,36 +74,83 @@ add_filter('mce_external_plugins', function ($plugins) {
 });
 
 /* ---------------------------------------------------------------------------
- * 1.55) 段落规范化的**服务端兜底**
+ * 1.55) 段落规范化的**服务端兜底**（2026-09-22 改：空行改为「保留」）
  *
- *   js/ybh-editor-para.js 管的是"走编辑器"的那条路。但内容还会从别的口子写进来：
- *   XML-RPC、REST、导入插件、以及热修复时直接改库 —— 那些路径不经过 TinyMCE，
- *   空段落照样会攒下来。这里在保存前再清一道，两边配合才不漏。
+ * ⚠️ 语义变更，与旧版**相反**：
+ *      旧版（T44）在保存时把空段落**删掉** —— 因为当时空段落是"编辑器留下的脏数据"。
+ *      现在用户明确要求「编辑器里敲的空行，发布后不该消失」，所以这里改成：
+ *        ① **不再删空段落**，只把它规范成 `<p>&nbsp;</p>`
+ *           （真正空的 `<p></p>` 在前台是**看不见**的：空块的自适应外边距会塌陷，
+ *            必须留一个 `&nbsp;` 才占一行高）；
+ *        ② 整篇是**纯文本**时（没有任何块级标签）按行拆段：
+ *           1 个回车 = 一个 `<p>`（分段），空行 = 一个 `<p>&nbsp;</p>`（空行）。
  *
- *   ⚠️ 只清**真正空**的段落（无文字、无图片/视频/iframe/hr 等有意义子元素），
- *      且跳过 h1-h6 / pre / blockquote —— 那些可能是作者刚插入还没写内容的。
+ *    这是新规范「**1 个回车 = 分段，2 个回车 = 空行**」在**所有写入路径**上的落点 ——
+ *    XML-RPC / REST / App / 导入插件都不经过 TinyMCE，只靠前端脚本会漏。
+ *
+ *    想回到旧行为（保存时清掉空段落）就把 YBH_NORMALIZE_PARAS 定义为 false。
  * ------------------------------------------------------------------------- */
-if (!defined('YBH_STRIP_EMPTY_PARAS')) {
-    define('YBH_STRIP_EMPTY_PARAS', true);
+if (!defined('YBH_NORMALIZE_PARAS')) {
+    define('YBH_NORMALIZE_PARAS', true);
 }
 
-add_filter('content_save_pre', 'ybh_strip_empty_paragraphs', 20);
-function ybh_strip_empty_paragraphs($content)
+/** 只有空白 / &nbsp; / <br> 的段落 —— 匹配「空行」
+ *  ⚠️ 定界符**不能**用 `#`：模式里有 `&#160;` 这种实体，`#` 会提前结束模式
+ *     （实测踩到：preg_replace 直接返回 null，保存时内容会被清空）。用 `~`。 */
+define('YBH_EMPTY_P_RE', '~<p(?:\s[^>]*)?>(?:\s|&nbsp;|&#160;|&#xa0;|\x{00a0}|\x{200b}|\x{feff}|<br[^>]*>)*</p>~iu');
+define('YBH_CANON_EMPTY_P', '<p>&nbsp;</p>');
+
+add_filter('content_save_pre', 'ybh_normalize_paragraphs', 20);
+function ybh_normalize_paragraphs($content)
 {
-    if (!YBH_STRIP_EMPTY_PARAS || !is_string($content) || '' === trim($content)) {
+    if (!YBH_NORMALIZE_PARAS || !is_string($content) || '' === trim($content)) {
         return $content;
     }
 
-    // 反复替换到不再变化：嵌套的空段落（<p><p></p></p> 这类）要替换多轮才干净
-    $pattern = '#<p(?:\s[^>]*)?>(?:\s|&nbsp;|\x{00a0}|\x{200b}|\x{feff})*</p>#iu';
+    $c = str_replace(array("\r\n", "\r"), "\n", $content);
+
+    // ① 空段落规范化（反复替换到稳定：嵌套的空段落要跑多轮）
     $prev = null;
     $max = 6;
-    while ($prev !== $content && $max-- > 0) {
-        $prev = $content;
-        $content = preg_replace($pattern, '', $content);
+    while ($prev !== $c && $max-- > 0) {
+        $prev = $c;
+        $c = preg_replace(YBH_EMPTY_P_RE, YBH_CANON_EMPTY_P, $c);
     }
 
-    return $content;
+    // ② 纯文本（一个块级标签都没有）→ 按行拆段
+    if (!preg_match('#<(?:p|div|h[1-6]|ul|ol|li|blockquote|pre|figure|table|hr|section|article|dl|form|address)\b#i', $c)) {
+        $c = ybh_text_to_paragraphs($c);
+    }
+
+    return $c;
+}
+
+/**
+ * 纯文本 → 段落：**1 个回车 = 一个段落，空行 = 一个空行**。
+ * 两端多余的空行丢掉（开头/结尾的空行没有意义）。
+ *
+ * @param string $text 纯文本（已统一成 \n）
+ * @return string
+ */
+function ybh_text_to_paragraphs($text)
+{
+    $lines = explode("\n", $text);
+    while ($lines && '' === trim($lines[0])) {
+        array_shift($lines);
+    }
+    while ($lines && '' === trim($lines[count($lines) - 1])) {
+        array_pop($lines);
+    }
+    $out = array();
+    foreach ($lines as $line) {
+        $t = trim($line);
+        if ('' === $t || '&nbsp;' === $t || '&#160;' === $t) {
+            $out[] = YBH_CANON_EMPTY_P;
+        } else {
+            $out[] = '<p>' . $t . '</p>';
+        }
+    }
+    return implode("\n", $out);
 }
 
 /* ---------------------------------------------------------------------------
@@ -221,8 +269,7 @@ add_filter('mce_buttons_2', function ($buttons) {
         'ybh_indent',
         // T33 新增：查找 / 替换（Ctrl+F / Ctrl+H 同效）
         'ybh_findreplace',
-        // T44 新增：一键清掉正文里的空段落（段距忽然变大的时候用）
-        'ybh_cleanparas',
+        // T44 曾有一键「清空段落」按钮 —— 2026-09-22 起空行是**要保留的内容**，按钮已撤掉
         'hr',
         'charmap',
         'forecolor',
@@ -248,8 +295,10 @@ add_filter('tiny_mce_before_init', function ($init) {
     $init['forced_root_block'] = 'p';
     $init['wpautop'] = true;
 
-    // 纯文本粘贴时，换行 → 段落（而不是 <br>）。粘贴自 Word/微信/备忘录的分段能原样保留。
-    $init['paste_text_linebreaktype'] = 'p';
+    // ⚠️ 粘贴的换行→段落是在 js/ybh-editor-para.js 里做的，**不靠这个配置**：
+    //    本机 TinyMCE 版本里 `paste_text_linebreaktype` 已不存在（源码里 0 命中），
+    //    纯文本粘贴走的是内置 `Newlines.convert`（单个 \n → <br>、空行 → 新 <p>），
+    //    正是**旧语义**，所以必须由 ybh_para 插件在 PastePreProcess/后处理里改写。
     // 粘贴时不带入来源文档的字体/颜色等内联样式，避免文章排版被污染
     $init['keep_styles'] = false;
     $init['paste_webkit_styles'] = 'none';

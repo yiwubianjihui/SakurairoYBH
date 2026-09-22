@@ -188,7 +188,10 @@
    * 工具栏顺序：先按原 TinyMCE 的分组习惯排，再补上 YBH 自定义菜单。
    * 自定义菜单名（在 js/ybh-wangeditor-menus.js 里注册）：
    *   ybhFootnote / ybhSup / ybhSub / ybhIndent / ybhFindReplace /
-   *   ybhCleanParas / ybhRuby / ybhCharmap / ybhPasteText / ybhMore
+   *   ybhRuby / ybhCharmap / ybhPasteText / ybhMore
+   *
+   * ⚠️ T44 的「清理空段落」按钮（ybhCleanParas）已撤掉：
+   *    2026-09-22 起**空行是要保留的内容**，留着这个按钮只会误删作者的空行。
    */
   var TOOLBAR_KEYS = [
     // 段落与标题格式（对应 TinyMCE 的 formatselect）
@@ -214,7 +217,7 @@
     'ybhMore',
     '|',
     // 编辑辅助
-    'ybhFindReplace', 'ybhCleanParas', 'ybhPasteText', 'ybhCharmap',
+    'ybhFindReplace', 'ybhPasteText', 'ybhCharmap',
     '|',
     // 撤销
     'undo', 'redo'
@@ -238,6 +241,60 @@
     } catch (e) {
       // 覆盖内置 paragraph 渲染失败时不影响使用（只是缩进看不出来）
     }
+  }
+
+  /* ---------- 纯文本粘贴：按新规范自己排版 ---------- */
+
+  /**
+   * **1 个回车 = 分段、2 个回车 = 空行**（2026-09-22 起的新规范）。
+   *
+   * WangEditor 内置的文本粘贴用的是旧语义（单个换行 → 硬换行），
+   * 所以整条接管：只在**捕获阶段**监听 —— WangEditor 自己的处理器绑在编辑区上，
+   * 我们在它的祖先节点上捕获，必然先拿到事件；`stopPropagation()` 之后它就不再处理。
+   *
+   * ⚠️ 接管范围与 TinyMCE 那侧保持一致（见 js/ybh-editor-para.js 的 bindTextPaste）：
+   *    · 没有 `text/html`（纯文本）→ 接管；
+   *    · `text/html` 只是「p/br/span、无属性」这种简单内容 → 也接管
+   *      （这类内容按纯文本解释才对，"两个回车 = 空行"才认得出来）；
+   *    · 真富内容（带样式的 Word/微信/网页）→ 交给 WangEditor 自己解析，
+   *      写回时再由 YBH_Content.normalize 统一规范化。
+   */
+  function bindTextPaste(host) {
+    if (!host || !host.addEventListener) {
+      return;
+    }
+    host.addEventListener('paste', function (e) {
+      var cd = e.clipboardData;
+      if (!cd || !cd.getData) {
+        return;
+      }
+      var html = '';
+      var text = '';
+      try { html = cd.getData('text/html') || ''; } catch (err) { html = ''; }
+      try { text = cd.getData('text/plain') || ''; } catch (err) { text = ''; }
+      if (!text) {
+        return;
+      }
+      if (html && !isSimpleHtml(html)) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+
+      var C = window.YBH_Content;
+      if (!C || typeof C.textToParagraphs !== 'function') {
+        return;
+      }
+      if (editor && typeof editor.dangerouslyInsertHtml === 'function') {
+        editor.dangerouslyInsertHtml(C.textToParagraphs(text));
+      }
+    }, true);
+  }
+
+  /** 与 TinyMCE 侧同一套判定：只有 p/br/span 且不带属性 = 简单内容 */
+  function isSimpleHtml(html) {
+    var stripped = String(html || '').replace(/<\/?(?:p|br|span)\s*\/?>/gi, '');
+    return !/<[a-zA-Z!\/][^>]*>/.test(stripped);
   }
 
   /* ---------- 面板 ---------- */
@@ -393,8 +450,7 @@
     };
 
     if (CFG.canUpload && CFG.uploadUrl) {
-      config.MENU_CONF.uploadImage = {
-        server: CFG.uploadUrl,
+      config.MENU_CONF.uploadImage = {        server: CFG.uploadUrl,
         fieldName: 'wangeditor',
         maxFileSize: 10 * 1024 * 1024,
         allowedFileTypes: ['image/*'],
@@ -416,6 +472,9 @@
       html: html,
       config: config
     });
+
+    // 纯文本粘贴按新规范（1 个回车 = 分段、2 个回车 = 空行）自己排版
+    bindTextPaste(editorEl);
 
     toolbar = W.createToolbar({
       editor: editor,

@@ -11,7 +11,7 @@
  *   ybhSup/sub     上标 / 下标（与「脚注角标」刻意区分：这是纯排版标记）
  *   ybhIndent      段首缩进（给段落加 .ybh-indent，只缩第一行）
  *   ybhFindReplace 查找 / 替换
- *   ybhCleanParas  清空段落（段距忽然变大时用）
+ *   ybhCleanParas  清空段落（段距忽然变大时用）—— 2026-09-22 已撤掉，见下文第 5 节
  *   ybhCharmap     特殊字符
  *   ybhPasteText   粘贴为纯文本
  *   ybhRuby        注音（<ruby>汉字<rt>读音</rt></ruby>）
@@ -500,46 +500,12 @@
   }
 
   /* ================================================================
-   * 5) 清空段落
+   * 5) 清空段落 —— **已撤掉**
+   *
+   * 2026-09-22 起，空行（`<p>&nbsp;</p>`）是**作者要保留的内容**，
+   * 再留一个"一键清空段落"的按钮只会误删空行，故作废。
+   * 这里保留一段说明，免得后人以为菜单丢了。
    * ================================================================ */
-
-  Boot.registerMenu({
-    key: 'ybhCleanParas',
-    factory: function () {
-      return {
-        title: '清理空段落（段距突然变大的时候用）',
-        iconSvg: ICON.clean,
-        tag: 'button',
-        isActive: function () { return false; },
-        isDisabled: function () { return false; },
-        getValue: function () { return ''; },
-        getModalPositionNode: function () { return null; },
-        getModalContentElem: function () { return null; },
-        getPanelContentElem: function () { return null; },
-        exec: function (editor) {
-          var html = '';
-          try { html = editor.getHtml() || ''; } catch (e) { return; }
-          var n = 0;
-          var re = /<p(?:\s[^>]*)?>(?:\s|&nbsp;|\u00a0|\u200b|\ufeff)*<\/p>/gi;
-          var prev = null;
-          while (prev !== html) {
-            prev = html;
-            html = html.replace(re, function () { n++; return ''; });
-          }
-          var msg = n === 0 ? '没有发现空段落' : ('已清理 ' + n + ' 个空段落');
-          if (n > 0) {
-            editor.setHtml(html);
-            editor.focus();
-          }
-          if (window.YBH_Editor && window.YBH_Editor.toast) {
-            window.YBH_Editor.toast(msg);
-          } else {
-            window.alert(msg);
-          }
-        }
-      };
-    }
-  });
 
   /* ================================================================
    * 6) 注音 <ruby>汉字<rt>读音</rt></ruby>
