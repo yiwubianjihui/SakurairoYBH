@@ -61,7 +61,9 @@ add_filter('mce_external_plugins', function ($plugins) {
     );
 
     /*
-     * T44：段落规范化插件（清空段落 + 粘贴时把换行归约成段落）。
+     * 段落规范化插件（T44 起；2026-09-22 按新规范重写）：
+     *   · 取内容时把空段落规范成 `<p>&nbsp;</p>`（**保留，不删**）+ 去首尾空段落；
+     *   · 粘贴：1 个回车 = 分段、2 个回车 = 空行（纯文本粘贴在捕获阶段整条接管）。
      * 详见 js/ybh-editor-para.js 顶部说明。
      */
     $plugins['ybh_para'] = add_query_arg(
