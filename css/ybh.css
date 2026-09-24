@@ -4751,7 +4751,7 @@ body.paged .bg-switch#bg-next {
     padding-right: 1.5em;
   }
 
-  main.site-main:not(:has(> .toc-container .toc:not(:empty))) .entry-content {
+  main.site-main .entry-content {
     max-width: 46em;
     margin-left: auto;
     margin-right: auto;
@@ -4764,4 +4764,35 @@ body.paged .bg-switch#bg-next {
     padding-left: 0.5em;
     padding-right: 0.5em;
   }
+}
+/* ---------------------------------------------------------------------------
+   T52：统一「有目录 / 无目录」文章的正文宽度 + 标题加重（2026-09-24）
+
+   1) 上一版把行宽 46em 只加在「无目录」的单栏情形（:not(:has(> .toc-container…))），
+      结果**有目录的文章更宽、没目录的更窄**。现在两边一视同仁 —— 都不再排除。
+      ⚠️ 目录双栏由 main.site-main 的网格控制列宽；max-width 只是上限，
+         若网格列本身更窄，实际仍以列宽为准（需在有目录的长文上复验）。
+
+   2) 标题加重：entry-title / cat-title 等。
+      站点现有字体族里**没有 Noto Serif**（服务器字体目录实测：Sarasa UI SC / Klee One /
+      LXGW WenKai / 天珩 / Boxed / FontAwesome / NotoColorEmoji），最重只有 700(粗)、600(半粗)。
+      所以这里：
+        · 字体栈把 'Noto Serif SC' 放**第一位** —— 哪天补上该字体就自动生效，无需再改；
+        · 现有族里优先衬线观感（Klee One 半粗 → LXGW WenKai → Sarasa 粗）；
+        · font-weight: 900 + font-synthesis-weight: auto，让浏览器在 900 缺失时
+          **合成加粗**，从而立刻得到"更粗"的标题效果（零新增下载）。
+   --------------------------------------------------------------------------- */
+
+/* ⚠️ 这里必须用 !important：主题核心 CSS 对标题设了**低字重(实测 300)** 且特异度更高
+   （例如 body.single .entry-title 之类），普通选择器压不住。作用域仅限这几个标题类。 */
+body .entry-title,
+body .cat-title,
+body .main-title,
+body .archive-title,
+body .post-title h3,
+body .post-title h1 {
+  font-family: 'Noto Serif SC', 'Klee One', 'LXGW WenKai', 'Sarasa UI SC', serif !important;
+  font-weight: 900 !important;
+  font-synthesis-weight: auto;
+  letter-spacing: 0.01em;
 }
