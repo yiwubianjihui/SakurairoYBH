@@ -1421,7 +1421,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, { passive: true });
 
+    let ybhScrollGate = 0;
     window.addEventListener("scroll", function () {
+        // T53 性能：滚动里原来的逻辑每个 scroll 事件都跑一遍，且读 window.innerWidth
+        // （强制同步布局）+ 反复切 class（让布局失效）⇒ 手机上滚动抖动。
+        // 这里加 100ms 闸门：方向判定不需要更高频率，抖动基本消失。
+        const __ybhNow = Date.now();
+        if (__ybhNow - ybhScrollGate < 100) { return; }
+        ybhScrollGate = __ybhNow;
 
         if (window.innerWidth < 860) {
 

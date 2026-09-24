@@ -46,3 +46,36 @@ function ybh_frontend_drop_dashicons()
 
     wp_dequeue_style('dashicons');
 }
+
+/**
+ * 9.7c-4) pjax 之后按内容去重内联 <style>
+ *
+ * 实测（2026-09-24）：站内每次 pjax 导航都会把目标页的内联 <style> 追加进来且
+ * **从不清理**，`<style>` 数量随导航 6 → 7 → 8 …（整页刷新回 6）。
+ * 重复块内容完全相同（同规则同值），渲染结果不变，但会持续占用内存与解析。
+ * 这里只删「内容完全相同的后出现者」，不碰任何不同的样式块。
+ */
+add_action('wp_footer', function () {
+    if (is_admin()) {
+        return;
+    }
+    ?>
+<script>
+(function () {
+  function ybhDedupeStyle() {
+    var list = document.querySelectorAll('style'), seen = {}, removed = 0;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i], k = t.textContent || '';
+      if (!k) { continue; }
+      if (seen[k]) { if (t.parentNode) { t.parentNode.removeChild(t); removed++; } }
+      else { seen[k] = 1; }
+    }
+    if (removed && window.console && console.log) { console.log('[YBH] 去重内联 style：' + removed + ' 个'); }
+  }
+  document.addEventListener('pjax:complete', function () { setTimeout(ybhDedupeStyle, 80); });
+  if (document.readyState !== 'loading') { ybhDedupeStyle(); }
+  else { document.addEventListener('DOMContentLoaded', ybhDedupeStyle); }
+})();
+</script>
+    <?php
+}, 99);
