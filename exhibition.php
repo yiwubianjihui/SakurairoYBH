@@ -520,20 +520,38 @@ if ($need_medals) {
                     $img_attrs = 'loading="lazy"';
                 }
                 ?>
+                <?php
+                /*
+                 * T55 · 标题三段式的第一、二段（主标题 / 副标题）。
+                 *
+                 * 后台的展台项只有「图片 / 标题 / 说明 / 链接」四个字段，**没有副标题**。
+                 * 而站点现有 12 项里有 7 项的「标题」写成了「分类|名称」的形式
+                 * （如「小说|另辟星河」「诗歌|心跳成韵」）。这里就按分隔符把它拆成
+                 * 主标题（分类）与副标题（名称）—— **零数据改动**，也不用改主题选项。
+                 * 全角「｜」一并认；没有分隔符的项（如「日志通知」）只渲染主标题。
+                 */
+                $ybh_title_parts = preg_split('/[|｜]/u', (string) $title, 2);
+                $ybh_title_main  = trim($ybh_title_parts[0]);
+                $ybh_title_sub   = isset($ybh_title_parts[1]) ? trim($ybh_title_parts[1]) : '';
+                ?>
                 <div class="bento-item bento-medium">
                     <div class="card-title-wrapper">
-                        <h3 class="bento-card-title"><?php echo esc_html($title); ?></h3>
+                        <h3 class="bento-card-title"><?php echo esc_html($ybh_title_main); ?></h3>
+                        <?php if ('' !== $ybh_title_sub) : ?>
+                        <p class="bento-card-subtitle"><?php echo esc_html($ybh_title_sub); ?></p>
+                        <?php endif; ?>
                     </div>
                     <a href="<?php echo esc_url($link); ?>" target="_blank" rel="external nofollow" class="card-link">
                         <?php
                         /*
-                         * 把封面地址同时交给 CSS（--ybh-cover）。
+                         * `--ybh-cover` 的历史用途：曾经给「展台图片完整显示（防裁切）」的
+                         * contain 模式当模糊补白底（CSS 读不到 <img src>，只能服务端写进去）。
                          *
-                         * 为什么：开启「展台图片完整显示（防裁切）」后卡片图走 object-fit: contain，
-                         * 图片比例与卡片不一致时必然留白。留白想用「同一张图放大模糊」当底，
-                         * 就必须让 CSS 知道图片地址 —— 而 CSS 读不到 <img src>。
-                         * 这里服务端直接写进自定义属性，比用 JS 事后扫 DOM 补要可靠得多
-                         * （无脚本时也有底、也不会闪一下）。样式见 css/ybh.css 的 contain 段。
+                         * T55 起展台改为**填充**（cover），不再需要模糊补白 —— 但这里**保留**该属性：
+                         *   · 它只有几十字节，且万一站点把「防裁切」开关重新打开，
+                         *     contain 那一路（含文章列表卡片）仍然需要它才不至于变成空框；
+                         *   · 样式侧已用 `body.ybh-exhibit-contain .bento-item .card-image::before{content:none}`
+                         *     关掉了展台的模糊层，所以填充模式下不会有任何多余绘制。
                          */
                         ?>
                         <div class="card-image" style="--ybh-cover:url('<?php echo esc_url($img); ?>')">
