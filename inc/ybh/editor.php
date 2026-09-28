@@ -26,6 +26,10 @@ if (!defined('ABSPATH')) {
  * ------------------------------------------------------------------------- */
 add_action('after_setup_theme', function () {
     add_editor_style('css/editor-style.css');
+    // T57：编辑区也要能渲染 emoji（Noto Color Emoji 切片面）。
+    // Gutenberg 的编辑 iframe 不加载前台 ybh.css，故单独挂一份只含 @font-face 的小文件；
+    // 经典编辑器同样受益（它已由 mce_css 挂了 ybh.css，重复声明无害）。
+    add_editor_style('css/ybh-emoji.css');
 });
 
 add_filter('mce_css', function ($mce_css) {

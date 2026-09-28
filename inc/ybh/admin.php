@@ -57,6 +57,15 @@ function ybh_admin_enqueue()
         array(),
         ybh_admin_asset_ver()
     );
+    // T57：后台也要能按需渲染 emoji。投稿编辑器（wangEditor）的输入区在后台 DOM 里，
+    // 拿不到前台 ybh.css，所以单独入队一份只含 18 条 Emoji 切片 @font-face 的小文件。
+    // emoji 字形本身仍按 unicode-range 逐片按需下载 —— 后台页面没有 emoji 就一个字节都不下。
+    wp_enqueue_style(
+        'ybh-emoji',
+        get_template_directory_uri() . '/css/ybh-emoji.css',
+        array(),
+        function_exists('ybh_asset_ver') ? ybh_asset_ver('css/ybh-emoji.css') : YBH_VERSION
+    );
     // 主题色注入：CSS 变量在这里覆盖，避免把颜色散落进样式文件。
     wp_add_inline_style('ybh-admin', ybh_admin_color_css());
 }

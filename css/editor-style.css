@@ -47,6 +47,19 @@ body.mce-content-body {
   word-break: break-word;
 }
 
+/* ---------- 编辑区字体栈（T57 · 与前台同源，含 Emoji）----------
+   前台字体栈在 ybh.css 的 `:lang(zh…)` 规则里（`… 'YBH Emoji', 'TH-Tshyn'`）。
+   经典编辑器（TinyMCE iframe）由 mce_css 挂了前台那份 ybh.css，本可继承；
+   但 **Gutenberg 的编辑 iframe 不加载前台 ybh.css**，只加载 editor-style.css，
+   于是区块编辑器里粘/输入的 emoji 会落到系统字体（观感与前台不一致）。
+   这里显式声明同一条栈，两种编辑器都覆盖。字体文件由 css/ybh-emoji.css 提供
+   （add_editor_style 挂载），emoji 字形仍按 unicode-range 逐片按需下载。 */
+body#tinymce,
+body.mce-content-body,
+.editor-styles-wrapper {
+  font-family: 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'YBH Emoji', 'TH-Tshyn', sans-serif;
+}
+
 /* ---------- 角标（<sup> / <sub>）----------
    与脚注徽章刻意区分：脚注在编辑区是「带底色的圆形编号徽章」（见下面的 .ybh-fn-chip），
    角标只是**普通的升降小字**，没有底色也没有边框。

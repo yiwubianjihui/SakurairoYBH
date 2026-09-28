@@ -172,7 +172,7 @@ html.ybh-wang-open body {
    ============================================================ */
 
 .ybh-wang-panel__editor .w-e-text-container [data-slate-editor] {
-  font-family: 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'TH-Tshyn', sans-serif;
+  font-family: 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'YBH Emoji', 'TH-Tshyn', sans-serif;
   /* 字号比前台正文（15px）大一档：编辑时要长时间盯着屏，
      17px 明显更好读；而**行高比例、段距、缩进全部保持不变**，
      所以编辑区相当于正文的"等比放大视图"，观感关系与前台一致。 */
