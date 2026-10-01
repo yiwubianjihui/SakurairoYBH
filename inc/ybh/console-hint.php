@@ -55,6 +55,8 @@ function ybh_console_hint()
         if (!box || !btn || seen()) { return; }
 
         var timer = null;
+        var shownAt = 0;
+        var waits = 0;
 
         function cleanup() {
           document.removeEventListener('click', onAny, true);
@@ -67,32 +69,65 @@ function ybh_console_hint()
           h.classList.remove('ybh-console-hint-on');
           cleanup();
         }
-        function dismiss() { markSeen(); hide(); }
+        /*
+         * T60：**只有真的被看到才算"提示过了"**。
+         * 旧实现里任何一次外部点击（包括点在 Cookie 横幅上的那一下）都会 markSeen()，
+         * 于是首访用户其实没读到气泡，却再也不会看到它 —— 白提示一次。
+         * 现在：点「知道了」、或显示满 2.5 秒后消失 → 记名；更早被点掉 → 不记名，下次还会出现。
+         */
+        function dismiss(explicit) {
+          if (explicit || (shownAt && Date.now() - shownAt > 2500)) { markSeen(); }
+          hide();
+        }
         function onAny(e) {
           // 点在气泡内部不当作"点别处"
           if (box.contains(e.target)) { return; }
-          dismiss();
+          dismiss(false);
         }
 
-        // 等控制台自己淡入（主题在 scrollY>20 才显示），再弹提示
-        setTimeout(function () {
-          if (seen()) { return; }
+        /* 有更高优先级的底部浮层（Cookie 横幅 / PWA 条）在场时让路 —— 见
+           inc/ybh/bottom-overlays.php。等它们消失后再弹，不把提示叠在别人身上。 */
+        function suppressed() {
+          var c = document.documentElement.classList;
+          return c.contains('ybh-ov-consent') || c.contains('ybh-ov-pwa');
+        }
+
+        function tryShow() {
+          if (seen() || !box.hidden) { return; }
+          if (suppressed()) { return; }
           box.hidden = false;
           h.classList.add('ybh-console-hint-on');
+          shownAt = Date.now();
           document.addEventListener('click', onAny, true);
           document.addEventListener('keydown', onAny, true);
           window.addEventListener('scroll', hide, true);
-          timer = setTimeout(dismiss, 12000);   // 12 秒后自动收起
-        }, 1600);
+          timer = setTimeout(function () { dismiss(true); }, 12000);   // 12 秒后自动收起（视为已看到）
+          if (window.YBHOverlays && window.YBHOverlays.refresh) { window.YBHOverlays.refresh(); }
+        }
+
+        // 浮层状态变化时重新判断：该让路就让路，该出场就出场（最多重试 20 次，别长期挂定时器）
+        window.addEventListener('ybh:overlaychange', function () {
+          if (suppressed()) {
+            if (!box.hidden) { hide(); }        // 让路但**不记名**，下次还能看到
+            return;
+          }
+          if (box.hidden && !seen() && waits < 20) {
+            waits++;
+            setTimeout(tryShow, 400);
+          }
+        });
+
+        // 等控制台自己淡入（主题在 scrollY>20 才显示），再弹提示
+        setTimeout(tryShow, 1600);
 
         box.addEventListener('click', function (e) {
           if (e.target && e.target.classList && e.target.classList.contains('ybh-console-hint__close')) {
-            dismiss();
+            dismiss(true);                       // 明确点了「知道了」→ 记名
             return;
           }
           // 点气泡主体：顺手把控制台打开，让用户立刻看到它长什么样
           try { btn.click(); } catch (err) {}
-          dismiss();
+          dismiss(true);
         });
       }
 

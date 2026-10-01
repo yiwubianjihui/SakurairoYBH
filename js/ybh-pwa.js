@@ -81,6 +81,20 @@
     bar.querySelector('span').textContent = (I18N.installBody || '') + (how ? '（' + how + '）' : '');
 
     var acts = bar.querySelector('.ybh-pwa-bar__acts');
+
+    /*
+     * T67c：「查看详情」→ 专门的 Web 应用教程页（/pwa-guide/）。
+     * 站长反馈：提示条只给了"以后再说"，想了解清楚的人没有出口。
+     * 用 <a> 而不是 button：它是一个普通导航，应该能被中键/新标签打开。
+     */
+    if (I18N.guideUrl) {
+      var more = document.createElement('a');
+      more.className = 'ybh-pwa-bar__btn ybh-pwa-bar__btn--ghost';
+      more.href = I18N.guideUrl;
+      more.textContent = I18N.detail || '查看详情';
+      acts.appendChild(more);
+    }
+
     var close = document.createElement('button');
     close.type = 'button';
     close.className = 'ybh-pwa-bar__btn ybh-pwa-bar__btn--ghost';

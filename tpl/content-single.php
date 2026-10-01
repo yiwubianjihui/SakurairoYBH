@@ -26,7 +26,8 @@ if (iro_opt('article_auto_toc', 'true') && check_title_tags($post->post_content)
 		<h4><i class="fa-solid fa-atom"></i><?php esc_html_e("AI Excerpt", "sakurairo"); ?></h4><?php echo esc_html($ai_excerpt); ?>
 	</div>
 	<?php } ?>
-	<div class="entry-content">
+	<!-- T65：正文容器按文章语言带 lang，`:lang()` 规则据此选地区字形（不改 <html lang>） -->
+	<div class="entry-content"<?php echo ybh_post_language_attr(); ?>>
 		<?php the_content('', true); ?>
 		<?php
 			wp_link_pages(array(

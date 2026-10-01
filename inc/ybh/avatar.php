@@ -157,9 +157,12 @@ function ybh_avatar_cache_file(int $user_id, string $hash): ?string
 /**
  * 拼出一个完整的头像端点 URL。
  *
- * `v`（版本）只在「本服务器上确实有这个文件」时才带上 —— 这样：
- *   · 用户传过头像 ⇒ URL 带 v ⇒ 换头像即刻生效（详见文件头第三节）；
- *   · 从没传过 ⇒ URL 不带 v ⇒ 端点自行回源或给默认图。
+ * `v`（版本）的规则（T67d 修正）：
+ *   · 服务器上**有这个缓存文件** ⇒ `v = filemtime(文件)`；
+ *   · 文件被清掉、但用户**换过头像**（有 `ybh_avatar_ver` meta）⇒ `v = 那个版本号`
+ *     —— 关键：不能退回"不带 v"，否则 URL 与换头像前**完全相同**，
+ *     浏览器里那份旧图会被继续用，表现就是"换了头像还是旧图"；
+ *   · 从没传过 ⇒ 不带 `v` ⇒ 端点自行回源或给默认图。
  *
  * @param mixed $id_or_email
  */
@@ -183,6 +186,20 @@ function ybh_avatar_build_url($id_or_email, int $size = 96): string
     $file = ybh_avatar_cache_file($user_id, $hash);
     if ($file) {
         $args['v'] = (int) @filemtime($file);
+    } elseif ($user_id > 0) {
+        /*
+         * T67d：**即使缓存文件不在了，也把版本号带上**。
+         *
+         * 换头像时 `ybh_avatar_purge_user()` 会删掉缓存文件、并写下 `ybh_avatar_ver`。
+         * 在端点重新生成文件之前（也就是下一次有人请求之前），`filemtime` 取不到值 ——
+         * 旧逻辑此刻会**退回"不带 v"的 URL 形式**，而那个 URL 浏览器里可能还存着
+         * 用户换头像之前的那张图（同一个 URL！），于是表现就是
+         * 「换了头像，页面上还是旧图」。带上 meta 里的版本号就再也不会有这种歧义。
+         */
+        $ver = (int) get_user_meta($user_id, 'ybh_avatar_ver', true);
+        if ($ver > 0) {
+            $args['v'] = $ver;
+        }
     }
 
     return add_query_arg($args, ybh_avatar_endpoint_url());
@@ -414,6 +431,18 @@ function ybh_avatar_purge_user(int $user_id): void
     }
     // 让 URL 上的 v 立刻变化（filemtime 可能因文件系统精度在极短时间内不变）
     update_user_meta($user_id, 'ybh_avatar_ver', time());
+
+    /*
+     * T67d：**顺带清一次页面缓存**。
+     *
+     * 头像会出现在评论区、作者页信息卡、搜人卡片等**被缓存**的页面上；
+     * 只删磁盘上的头像文件、不清页面缓存的话，读者看到的仍是缓存里那份旧 HTML
+     * （带着旧的 v），表现就是"改了头像要等很久才生效"。
+     * 站点规模不大，这里直接清全量缓存，代价可以接受。
+     */
+    if (class_exists('Cache_Enabler') && method_exists('Cache_Enabler', 'clear_complete_cache')) {
+        Cache_Enabler::clear_complete_cache();
+    }
 }
 
 /**
@@ -828,9 +857,21 @@ function ybh_avatar_upload_shortcode($atts = array())
       <div class="ybh-avatar-preview">
         <img src="<?php echo esc_url($src); ?>" alt="我的头像" width="160" height="160" />
       </div>
+      <?php
+      /*
+       * ⚠️ action 必须放在 URL 上，不能用 <input name="action">。
+       *
+       * `HTMLFormElement` 带 `[LegacyOverrideBuiltIns]`：表单里任何
+       * name="action" 的控件都会**遮蔽 form.action 属性**。本站开了 pjax，
+       * 而 pjax 库用 `form['action']`（属性访问，非 DOM getAttribute）取值，
+       * 于是拿到 input 元素 → 拼成 "…/profile/[object HTMLInputElement]" → 404。
+       *
+       * 详见 inc/ybh/profile.php 里 ybh_profile_form_action() 的完整说明。
+       * admin-post.php 读 $_REQUEST['action']，放查询串服务端一样认。
+       */
+      ?>
       <form class="ybh-avatar-form" method="post" enctype="multipart/form-data"
-            action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-        <input type="hidden" name="action" value="ybh_avatar_upload" />
+            action="<?php echo esc_url(add_query_arg('action', 'ybh_avatar_upload', admin_url('admin-post.php'))); ?>">
         <?php wp_nonce_field('ybh_avatar_front_' . $uid, 'ybh_avatar_front_nonce'); ?>
         <label class="ybh-avatar-file">
           <input type="file" name="ybh_avatar_file" accept="image/jpeg,image/png,image/webp" required />

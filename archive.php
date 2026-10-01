@@ -42,9 +42,21 @@ get_header(); ?>
 		<div id="pagination" <?php if (iro_opt('image_category') && is_category(explode(',', iro_opt('image_category')))) echo 'class="pagination-archive"'; ?>><?php next_posts_link(__(' Previous', 'sakurairo')); ?></div>
 		<div id="add_post"><span id="add_post_time" style="visibility: hidden;" title="<?php echo iro_opt('page_auto_load', ''); ?>"></span></div>
 	<?php } else { ?>
-		<nav class="navigator">
-			<?php previous_posts_link('<i class="fa-solid fa-angle-left"></i>') ?><?php next_posts_link('<i class="fa-solid fa-angle-right"></i>') ?>
-		</nav>
+		<?php
+		/*
+		 * T62：归档页（分类 / 标签 / 日期）原来只有「上一页 / 下一页」两个箭头，
+		 * 与主页、作者页的页码条不是一套。现在统一到 ybh_render_pagination()。
+		 *
+		 * ⚠️ 这是**可见的行为变化**：归档页会多出页码条与跳页框（回滚方式见
+		 * handoff/T62-作者页与分页统一.md）。
+		 */
+		echo ybh_render_pagination(array(
+			'total'   => (int) $wp_query->max_num_pages,
+			'current' => max(1, (int) get_query_var('paged')),
+			'label'   => __('归档分页', 'sakurairo'),
+			'context' => 'archive',
+		));
+		?>
 	<?php } ?>
 </div><!-- #primary -->
 

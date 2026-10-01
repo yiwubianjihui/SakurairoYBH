@@ -20,7 +20,8 @@
 	</header><!-- .entry-header -->
 	<?php } ?>
 	<?php get_template_part('layouts/sidebox'); ?>
-	<div class="entry-content">
+	<!-- T65：正文容器按文章语言带 lang（页面同样适用；未设置则继承 <html lang>） -->
+	<div class="entry-content"<?php echo ybh_post_language_attr(); ?>>
 		<?php
 			the_content('', true);
 			wp_link_pages([

@@ -263,15 +263,19 @@ function ybh_pwa_enqueue()
         'sw' => ybh_pwa_sw_url(),
         'isApp' => (isset($_GET['ybh_app']) && (string) $_GET['ybh_app'] === '1'),
         'i18n' => array(
-            'installTitle' => '把本站装到主屏幕',
-            'installBody' => '装好后像 App 一样打开，没有地址栏，字体也已缓存，弱网也能看。',
-            'iosHow' => '点底部「分享」→「添加到主屏幕」',
-            'androidHow' => '点菜单「安装应用」/「添加到主屏幕」',
-            'install' => '安装',
-            'later' => '以后再说',
-            'installed' => '已安装',
-            'updateReady' => '有新版本',
-            'updateDo' => '点击刷新',
+            // T66：这些文案走 ybh_t()，英文/日文有译文（缺译回退中文）
+            'installTitle' => function_exists('ybh_t') ? ybh_t('把本站装到主屏幕') : '把本站装到主屏幕',
+            'installBody' => function_exists('ybh_t') ? ybh_t('装好后像 App 一样打开，没有地址栏，字体也已缓存，弱网也能看。') : '装好后像 App 一样打开，没有地址栏，字体也已缓存，弱网也能看。',
+            'iosHow' => function_exists('ybh_t') ? ybh_t('点底部「分享」→「添加到主屏幕」') : '点底部「分享」→「添加到主屏幕」',
+            'androidHow' => function_exists('ybh_t') ? ybh_t('点菜单「安装应用」/「添加到主屏幕」') : '点菜单「安装应用」/「添加到主屏幕」',
+            'install' => function_exists('ybh_t') ? ybh_t('安装') : '安装',
+            'later' => function_exists('ybh_t') ? ybh_t('以后再说') : '以后再说',
+            'installed' => function_exists('ybh_t') ? ybh_t('已安装') : '已安装',
+            'updateReady' => function_exists('ybh_t') ? ybh_t('有新版本') : '有新版本',
+            'updateDo' => function_exists('ybh_t') ? ybh_t('点击刷新') : '点击刷新',
+            // T67c：提示条里加「查看详情」→ 专门的教程页（站长要求）
+            'detail' => function_exists('ybh_t') ? ybh_t('查看详情') : '查看详情',
+            'guideUrl' => home_url('/pwa-guide/'),
         ),
     ));
 }

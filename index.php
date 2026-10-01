@@ -75,81 +75,26 @@ foreach ($component_order as $component) {
                         </span>
                     </div>
                 <?php else : ?>
-                    <nav class="traditional-pagination">
-                        <?php
-                        /*
-                         * YBH：给「第 2 页及以后」的页码链接补一个 `#main` 锚点。
-                         *
-                         * 起因（用户反馈）：点页码后浏览器总是回到页面**最顶端**，
-                         * 而首页最上面是一整屏封面，于是每翻一页都要再往下滚一大段，很费事。
-                         * 带上 `#main`（就是文章列表那个 <main>）之后，浏览器直接停在列表开头。
-                         *
-                         * ⚠️ **只在 ≥2 页加，第 1 页不加**。
-                         * 第一版是把锚点挂在 `base` 上（一行搞定），结果 page 1 的链接变成
-                         * `/page/1/#main`，而 `/page/1/` 会 **301 跳到 `/`** ——
-                         * 浏览器会把 `#main` **一起带到重定向后的地址**上，
-                         * 于是从第 2 页点「1」或左箭头"回首页"时，直接落在文章列表而不是页面顶端（用户反馈）。
-                         * 只在 ≥2 页加，回首页就仍是正常的从顶部开始。
-                         *
-                         * 实现：先让 paginate_links 正常生成，再回头给链接补锚点 ——
-                         * 这样不必跟 `base`/`format` 那套占位符较劲，也不用关心
-                         * 站点用的是 `/page/2/` 还是 `?paged=2` 两种 URL 形态（正则两种都认）。
-                         */
-                        $ybh_links = paginate_links(array(
-                            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
-                            'format' => '?paged=%#%',
-                            'current' => max(1, get_query_var('paged')),
-                            'total' => $wp_query->max_num_pages,
-                            'prev_text' => '<i class="fa-solid fa-angle-left"></i>',
-                            'next_text' => '<i class="fa-solid fa-angle-right"></i>'
-                        ));
-
-                        echo preg_replace_callback(
-                            '/href="([^"]*(?:\/page\/(\d+)\/|\bpaged=(\d+))[^"]*)"/',
-                            function ($m) {
-                                $num = (isset($m[2]) && '' !== $m[2]) ? (int) $m[2] : (int) ($m[3] ?? 0);
-                                return 'href="' . $m[1] . ($num >= 2 ? '#main' : '') . '"';
-                            },
-                            (string) $ybh_links
-                        );
-
-                        /*
-                         * YBH：页码跳转框（用户反馈「分页功能增加输入页码功能」）。
-                         *
-                         * 为什么需要：文章已有 8 页，而页码条只列首尾与当前页附近，
-                         * 想跳到中间某页只能一页页点。这里给一个直接输入页码的入口。
-                         *
-                         * 交互对齐原生习惯：回车提交；越界时夹到 [1, total]，
-                         * 由 JS 处理（没有 JS 时表单本身也能提交，只是不夹取）。
-                         *
-                         * ⚠️ 「第 1 页」的地址是**站根**（`/page/1/` 会 301 回根），
-                         * 所以表单 action 用 `get_pagenum_link(1)` 而不是拼 `/page/%d/`；
-                         * 也**不带 #main** —— 与上面分页链接「只在 ≥2 页加锚点」的规则一致。
-                         */
-                        $ybh_total = (int) $wp_query->max_num_pages;
-                        $ybh_cur   = max(1, (int) get_query_var('paged'));
-                        if ($ybh_total > 1) :
-                            $ybh_home = get_pagenum_link(1);
-                            ?>
-                            <form class="ybh-pagejump"
-                                  action="<?php echo esc_url($ybh_home); ?>"
-                                  data-total="<?php echo (int) $ybh_total; ?>"
-                                  data-home="<?php echo esc_url($ybh_home); ?>">
-                                <label class="ybh-pagejump-label" for="ybh-pagejump-input">
-                                    <?php esc_html_e('跳至', 'sakurairo'); ?>
-                                </label>
-                                <input id="ybh-pagejump-input" class="ybh-pagejump-input"
-                                       type="number" inputmode="numeric" min="1"
-                                       max="<?php echo (int) $ybh_total; ?>"
-                                       value="<?php echo (int) $ybh_cur; ?>"
-                                       aria-label="<?php esc_attr_e('输入页码后回车跳转', 'sakurairo'); ?>">
-                                <span class="ybh-pagejump-total">/&nbsp;<?php echo (int) $ybh_total; ?></span>
-                                <button type="submit" class="ybh-pagejump-go">
-                                    <?php esc_html_e('跳转', 'sakurairo'); ?>
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                    </nav>
+                    <?php
+                    /*
+                     * T62：分页统一到 ybh_render_pagination()（实现见 tpl/pagination.php）。
+                     *
+                     * 这里原来是一整段内联实现（paginate_links + 手写 `#main` 锚点补丁 +
+                     * 跳页表单）。函数化之后主页、作者页、归档页、搜索页共用同一份实现，
+                     * 观感与 URL 形态保持不变：
+                     *   · 首页仍是 `/page/2/#main`（锚点只在 ≥2 页加，理由见函数文件头）；
+                     *   · 跳页框的 URL 由 PHP 给出 `data-pattern`，不再硬拼 `/page/N/`
+                     *     —— 那样在搜索页（`?paged=N&s=…`）是坏的；
+                     *   · 跳页输入框补上了 `name="paged"`：没有 JS 时表单也能真正跳转
+                     *     （老实现没有 name，所谓"降级可用"是假的）。
+                     */
+                    echo ybh_render_pagination(array(
+                        'total'   => (int) $wp_query->max_num_pages,
+                        'current' => max(1, (int) get_query_var('paged')),
+                        'label'   => __('文章分页', 'sakurairo'),
+                        'context' => 'home',
+                    ));
+                    ?>
                 <?php endif; ?>
             </div>
             <?php
