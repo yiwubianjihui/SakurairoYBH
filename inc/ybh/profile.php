@@ -439,19 +439,135 @@ function ybh_profile_color_schemes()
 }
 
 /**
- * 开关型偏好：meta 键 => [显示名, 说明, 默认值('true'|'false')]。
+ * 开关型偏好：meta 键 => [显示名, 说明, 默认值, 可见性]。
  *
  * 键名与 WordPress 的 `user_edit.php` / `personal_options` 完全一致 ——
  * 所以在资料页改完，进后台看到的就是同一个开关（不是本站另造的一套）。
+ *
+ * ⚠️ T72：不是所有项都该给普通用户。逐项核实过「写入后谁能看到效果」：
+ *
+ * | 键 | 写入 | 效果范围 | 普通用户可用？ |
+ * |---|---|---|---|
+ * | `rich_editing` | user_meta | 仅 wp-admin 区块编辑器 | ❌ 本站前台写作页用 WangEditor，此开关对普通用户**无任何效果**；且 classic-editor 插件已启用，进后台也看不到区块编辑器 |
+ * | `syntax_highlighting` | user_meta | 仅 wp-admin 代码编辑器 | ❌ 普通用户不进后台 ⇒ 无效果 |
+ * | `comment_shortcuts` | user_meta | wp-admin 评论列表（需先开 admin_bar） | ❌ 同上 |
+ * | `admin_bar_front` | user_meta | **前台**顶部管理工具栏 | ✅ 唯一真正作用于前台的开关，保留 |
+ *
+ * 处理：前三项对普通用户「点了没反应」→ **对无 `manage_options` 的人隐藏**；
+ * 管理员在同一页里仍能看到并开关它们（不是删掉定义）。
+ * 想恢复给所有人：把对应项的 'visible' 改成 'all'。
+ *
+ * @param array|null $flags 传入数组时直接作为清单（便于测试/扩展）
+ * @param int        $uid   >0 时按可见性过滤
+ * @return array
  */
-function ybh_profile_pref_flags()
+function ybh_profile_pref_flags($flags = null, $uid = 0)
 {
-    return apply_filters('ybh_profile_pref_flags', array(
-        'rich_editing'        => array('label' => '可视化编辑器', 'hint' => '写作时用所见即所得的编辑器，而不是纯文本。', 'default' => 'true'),
-        'syntax_highlighting' => array('label' => '代码语法高亮', 'hint' => '后台编辑代码时按语法着色。', 'default' => 'true'),
-        'comment_shortcuts'   => array('label' => '评论键盘快捷键', 'hint' => '在评论列表里用键盘快速操作（需先开启管理工具栏）。', 'default' => 'false'),
-        'admin_bar_front'     => array('label' => '前台显示管理工具栏', 'hint' => '登录状态下访问前台时，顶部显示一条快捷工具栏。', 'default' => 'true'),
-    ));
+    // ⚠️ 缓存必须**按 $uid 分桶**：清单要按能力过滤，普通用户与管理员看到的不同。
+    //    早先用一个静态变量缓存，导致先渲染的资料页把结果固定下来（管理员也会少看到项）。
+    static $cache = array();
+    if (is_array($flags)) {
+        $all_defs = $flags;
+        $cache    = array();                 // 外部注入时清空缓存
+    } else {
+        $all_defs = null;
+    }
+    if ($all_defs === null) {
+        if (isset($cache['__defs'])) {
+            $all_defs = $cache['__defs'];
+        } else {
+            $all_defs = apply_filters('ybh_profile_pref_flags', array(
+                'admin_bar_front' => array(
+                    'label'   => '前台显示管理工具栏',
+                    'hint'    => '登录后访问前台时，顶部显示一条快捷工具栏（账号需能进后台）。',
+                    'default' => 'true',
+                    'visible' => 'all',
+                ),
+                'rich_editing' => array(
+                    'label'   => '可视化编辑器',
+                    'hint'    => '仅影响 wp-admin 的区块编辑器；本站前台写作页不受它影响。',
+                    'default' => 'true',
+                    'visible' => 'caps',
+                    'caps'    => array('manage_options'),
+                ),
+                'syntax_highlighting' => array(
+                    'label'   => '代码语法高亮',
+                    'hint'    => '仅影响 wp-admin 的代码编辑器。',
+                    'default' => 'true',
+                    'visible' => 'caps',
+                    'caps'    => array('manage_options'),
+                ),
+                'comment_shortcuts' => array(
+                    'label'   => '评论键盘快捷键',
+                    'hint'    => '仅影响 wp-admin 的评论列表。',
+                    'default' => 'false',
+                    'visible' => 'caps',
+                    'caps'    => array('manage_options'),
+                ),
+            ));
+            $cache['__defs'] = $all_defs;
+        }
+    }
+    if ($uid <= 0) {
+        return $all_defs;
+    }
+    if (isset($cache[$uid])) {
+        return $cache[$uid];
+    }
+    $out = array_filter($all_defs, function ($def) use ($uid) {
+        if (($def['visible'] ?? 'all') !== 'caps') {
+            return true;
+        }
+        foreach ((array) ($def['caps'] ?? array()) as $cap) {
+            if (user_can($uid, $cap)) {
+                return true;
+            }
+        }
+        return false;
+    });
+    $cache[$uid] = $out;
+    return $out;
+}
+
+/**
+ * 时区：普通用户该有的个人设置（T72 新增）。
+ *
+ * ⚠️ 先查了本站实际情况再动手，**没有自造字段**：
+ *   · 全站渲染时间用的是 `date_i18n()`（见本文件加入时间、`quick-save.php` 的
+ *     `human`、`user/page-archive.php` 的归档日期），它本身就**读当前用户的时区**：
+ *     WP 核心 `date_i18n()` → `wp_timezone()` → 当前用户 usermeta `timezone_string`，
+ *     为空才回落到站点 `gmt_offset`；
+ *   · 所以**只要把值存进 WP 标准的 `timezone_string`，前台时间显示就自动跟着走**，
+ *     不需要额外接线（下面 `ybh_profile_render_timezone()` 的注释里也写了这一点）。
+ *
+ * 字段选择：**usermeta `timezone_string`**（与 wp-admin/user-edit.php 完全一致）。
+ * 不用 `gmt_offset`：那个字段在核心里表示"手动设定的 UTC 偏移"，与时区是两套并存机制，
+ * 混用会和 `timezone_string` 互相覆盖。
+ */
+function ybh_profile_timezones()
+{
+    return array(
+        ''                => '跟随站点',
+        'Asia/Shanghai'   => '中国标准时间（UTC+8）',
+        'Asia/Hong_Kong'  => '香港时间（UTC+8）',
+        'Asia/Taipei'     => '台北时间（UTC+8）',
+        'Asia/Tokyo'      => '日本标准时间（UTC+9）',
+        'Asia/Singapore'  => '新加坡时间（UTC+8）',
+        'Asia/Seoul'      => '韩国标准时间（UTC+9）',
+        'Australia/Sydney'=> '悉尼时间',
+        'Europe/London'   => '伦敦时间',
+        'Europe/Paris'    => '巴黎时间（ CET / CEST ）',
+        'America/New_York'=> '纽约时间',
+        'America/Los_Angeles' => '洛杉矶时间',
+        'UTC'             => '协调世界时（UTC）',
+    );
+}
+
+/** 读当前用户的时区字符串（'' = 跟随站点） */
+function ybh_profile_timezone_get(int $uid)
+{
+    $v = (string) get_user_meta($uid, 'timezone_string', true);
+    return in_array($v, array_keys(ybh_profile_timezones()), true) ? $v : '';
 }
 
 /**
@@ -643,8 +759,20 @@ function ybh_profile_save_prefs()
         }
     }
 
-    // ③ 开关：核心用的是字符串 'true'/'false'，这里照抄
-    foreach (array_keys(ybh_profile_pref_flags()) as $key) {
+    // ②-2 时区（T72）：WP 标准 usermeta `timezone_string`，空 = 跟随站点
+    $tz = isset($_POST['timezone_string']) ? (string) wp_unslash($_POST['timezone_string']) : '';
+    if ($tz !== '' && !array_key_exists($tz, ybh_profile_timezones())) {
+        $tz = '';                 // 白名单外一律当"跟随站点"，不让任意字符串进 meta
+    }
+    if ($tz === '') {
+        delete_user_meta($uid, 'timezone_string');
+    } else {
+        update_user_meta($uid, 'timezone_string', $tz);
+    }
+
+    // ③ 开关：核心用的是字符串 'true'/'false'，这里照抄（只写**该用户可见**的那些，
+    //    否则普通用户提交时会把管理员专属项一并写成 false —— T72 修）
+    foreach (array_keys(ybh_profile_pref_flags(null, $uid)) as $key) {
         $on = (isset($_POST[$key]) && (string) $_POST[$key] === '1');
         update_user_meta($uid, $key, $on ? 'true' : 'false');
     }
@@ -787,7 +915,20 @@ add_shortcode('ybh_profile', 'ybh_profile_shortcode');function ybh_profile_short
               <p class="ybh-pf-hint">只影响后台与系统提示的语言，文章内容不受影响。</p>
             </div>
 
-            <?php foreach (ybh_profile_pref_flags() as $ybh_fkey => $ybh_flag) : ?>
+            <div class="ybh-pf-row">
+              <label for="ybh-pf-timezone"><?php ybh_e('时区'); ?></label>
+              <select id="ybh-pf-timezone" name="timezone_string" class="ybh-pf-select">
+                <?php $ybh_tz_now = ybh_profile_timezone_get($uid); ?>
+                <?php foreach (ybh_profile_timezones() as $ybh_tz_key => $ybh_tz_label) : ?>
+                  <option value="<?php echo esc_attr($ybh_tz_key); ?>" <?php selected($ybh_tz_now, $ybh_tz_key); ?>>
+                    <?php echo esc_html($ybh_tz_label); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+              <p class="ybh-pf-hint"><?php ybh_e('影响你看到的时间显示（文章发布时间、保存时间等）。默认跟随站点设置。'); ?></p>
+            </div>
+
+            <?php foreach (ybh_profile_pref_flags(null, $uid) as $ybh_fkey => $ybh_flag) : ?>
               <div class="ybh-pf-row ybh-pf-row--check">
                 <label class="ybh-pf-check">
                   <input type="checkbox" name="<?php echo esc_attr($ybh_fkey); ?>" value="1"
