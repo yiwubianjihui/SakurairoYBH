@@ -282,12 +282,20 @@ header('X-Frame-Options: SAMEORIGIN');
         <!-- User Menu Section -->
         <?php
         /*
-         * T68b：语言切换按钮放到**右上角**（用户头像旁）—— 站长要求。
-         * 胶囊按钮仍是 33×33 的独立圆钮（与头像 35px 视觉对齐）；
-         * 浮层由页脚输出、js/ybh-lang.js 按按钮位置锚定（放哪都能对上）。
+         * T69：右上角工具区（**只放图标**，站长要求）
+         *   · 语言切换：33×33 圆钮（fa-language），下拉浮层由页脚输出、JS 锚定在按钮下方；
+         *   · 反馈：33×33 圆钮（fa-comment-dots），不再占顶部菜单的一项；
+         *   两个钮与用户头像排成一行，盒模型与 `.searchbox i` / `.bg-switch i` 一致。
          */
+        $ybh_top_btns = '';
         if (function_exists('ybh_lang_pill_button')) {
-            echo '<span class="ybh-lang-corner">' . ybh_lang_pill_button() . '</span>';
+            $ybh_top_btns .= ybh_lang_pill_button();
+        }
+        if (function_exists('ybh_feedback_icon_button')) {
+            $ybh_top_btns .= ybh_feedback_icon_button();
+        }
+        if ($ybh_top_btns !== '') {
+            echo '<div class="ybh-topbar-tools">' . $ybh_top_btns . '</div>';
         }
         ?>
         <?php if ($show_user_avatar): ?>

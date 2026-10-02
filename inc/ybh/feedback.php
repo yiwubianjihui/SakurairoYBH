@@ -282,8 +282,31 @@ add_action('wp_dashboard_setup', function () {
 });
 
 /* ---------------------------------------------------------------------------
- * 顶部导航入口（顶级项，最末）
+ * 入口（T69 改版）：**右上角图标按钮**，不再占顶部菜单的一项
+ *
+ * 站长要求：「反馈按钮改到界面右上角，仅显示图标」。
+ *   · 菜单里那项默认**关闭**（想恢复：`add_filter('ybh_feedback_in_nav','__return_true')`）；
+ *   · 改为在 header 右上角（语言胶囊 / 用户头像旁）输出一个 33×33 圆钮，
+ *     只用图标（对话气泡），文字进 aria-label / title，与旁边语言钮视觉一致。
  * ------------------------------------------------------------------------- */
+
+/** 右上角反馈图标（header.php 调用；返回已转义的 HTML） */
+function ybh_feedback_icon_button()
+{
+    if (is_admin() || !function_exists('ybh_feedback_url')) {
+        return '';
+    }
+    if (!apply_filters('ybh_feedback_show_icon', true)) {
+        return '';
+    }
+    $label = function_exists('ybh_t') ? ybh_t('反馈') : '反馈';
+    return '<a class="ybh-topbtn ybh-feedback-btn" href="' . esc_url(ybh_feedback_url()) . '"'
+        . ' title="' . esc_attr($label) . '" aria-label="' . esc_attr($label) . '">'
+        . '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'
+        . '<span class="screen-reader-text">' . esc_html($label) . '</span>'
+        . '</a>';
+}
+
 add_filter('wp_nav_menu_objects', 'ybh_feedback_nav_item', 31, 2);
 function ybh_feedback_nav_item($items, $args = null)
 {
@@ -294,7 +317,8 @@ function ybh_feedback_nav_item($items, $args = null)
     if ($loc !== '' && $loc !== 'primary') {
         return $items;
     }
-    if (!apply_filters('ybh_feedback_in_nav', true)) {
+    // T69：默认不再往菜单里插（改走右上角图标）
+    if (!apply_filters('ybh_feedback_in_nav', false)) {
         return $items;
     }
     foreach ((array) $items as $it) {

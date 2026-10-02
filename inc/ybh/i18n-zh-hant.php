@@ -149,11 +149,53 @@ function ybh_zh_hant_chars()
         '飞' => '飛', '饭' => '飯', '饰' => '飾', '马' => '馬', '驱' => '驅', '验' => '驗', '骨' => '骨',
         '高' => '高', '鱼' => '魚', '鲜' => '鮮', '鸟' => '鳥', '鸣' => '鳴', '鸡' => '雞', '黄' => '黃',
         '黑' => '黑', '齐' => '齊', '齿' => '齒', '龄' => '齡', '龙' => '龍',
+        /* ---- T69：补齐高频简体字（机器繁化用）---- */
+        '体' => '體',
+        '与' => '與',
+        '发' => '發',
+        '后' => '後',
+        '东' => '東',
+        '丽' => '麗',
+        '诗' => '詩',
+        '么' => '麼',
+        '会' => '會',
+        '对' => '對',
+        '点' => '點',
+        '别' => '別',
+        '离' => '離',
+        '凤' => '鳳',
+        '学' => '學',
+        '张' => '張',
+        '汉' => '漢',
+        '声' => '聲',
+        '将' => '將',
+        '军' => '軍',
+        '农' => '農',
+        '产' => '產',
+        '业' => '業',
+        '园' => '園',
+        '区' => '區',
+        '县' => '縣',
+        '乡' => '鄉',
+        '镇' => '鎮',
+        '村' => '村',
+        '庄' => '莊',
+        '亲' => '親',
+        '爷' => '爺',
+        '奶' => '奶',
+        '儿' => '兒',
+        '买' => '買',
+        '卖' => '賣',
+        '贵' => '貴',
+        '贷' => '貸',
     ));
 }
 
 /**
  * 简体 → 繁体（先词后字）。
+ *
+ * ⚠️ 只适合**纯文本**（界面文案）。整篇正文请用 `ybh_zh_hant_html()` ——
+ * 这个函数是无差别 str_replace，套在 HTML 上会改坏标签属性与代码块。
  *
  * @param string $text
  * @return string
@@ -177,6 +219,137 @@ function ybh_zh_hant($text)
     $chars = ybh_zh_hant_chars();
     $text = strtr($text, $chars);
     return $text;
+}
+
+/* ===========================================================================
+ * T69 · 正文用的「HTML 安全」简→繁转换
+ *
+ * 站长要求：文章页选繁体时**不必人工翻译**，机器转换即可（只选地区字形）。
+ *
+ * 为什么不能直接用 ybh_zh_hant()：它是无差别 str_replace ——
+ *   · 会改到标签属性（`<a href=".../后.php">`、`title="发文"`）、
+ *   · 会改到代码块 `<code>/<pre>`、脚本样式、
+ *   · 也会改到 shortcode 参数与 CSS 类名。
+ * 所以这里**按 HTML 结构分段**：只转"标签之外的文本节点"，并跳过下列容器内部：
+ *   code / pre / kbd / samp / script / style / textarea / svg / math
+ *   （含 `<code>` 内联代码；公式与代码一旦被转换就毁了）
+ * ========================================================================= */
+
+/** 转换时要**整块跳过**的容器（标签名小写） */
+function ybh_zh_hant_skip_tags()
+{
+    return apply_filters('ybh_zh_hant_skip_tags', array(
+        'code', 'pre', 'kbd', 'samp', 'script', 'style', 'textarea', 'svg', 'math', 'mjx-container',
+    ));
+}
+
+/**
+ * 对一段 HTML 做简→繁，只动文本节点。
+ *
+ * 做法：用正则把字符串切成「标签」与「标签之间的文本」交替序列；
+ * 维护一个"当前处于跳过容器内部"的深度计数，深度为 0 时才转换文本。
+ *
+ * @param  string $html
+ * @return string
+ */
+function ybh_zh_hant_html($html)
+{
+    $html = (string) $html;
+    if ($html === '' || !preg_match('/[\x{4e00}-\x{9fff}]/u', $html)) {
+        return $html;   // 没有汉字就不必动（省掉大量无谓的字符串处理）
+    }
+    $skip = ybh_zh_hant_skip_tags();
+    $skip_re = implode('|', array_map('preg_quote', $skip));
+
+    // 切成 [标签, 文本, 标签, 文本, …]
+    $parts = preg_split('/(<[^>]*>)/u', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+    if (!is_array($parts)) {
+        return $html;
+    }
+    $depth = 0;
+    $out = '';
+    foreach ($parts as $i => $piece) {
+        if ($piece === '') {
+            continue;
+        }
+        if ($piece[0] === '<') {
+            // 标签：只据此维护跳过深度，**绝不改标签本身**
+            if (preg_match('~^<\s*(/)?\s*(' . $skip_re . ')\b~i', $piece, $m)) {
+                if ($m[1] === '/') {
+                    $depth = max(0, $depth - 1);
+                } elseif (substr(rtrim($piece), -2) !== '/>') {   // 自闭合不算一层
+                    $depth++;
+                }
+            }
+            $out .= $piece;
+            continue;
+        }
+        // 文本节点：深度为 0 且不在跳过容器内才转换
+        $out .= ($depth === 0) ? ybh_zh_hant($piece) : $piece;
+    }
+    return $out;
+}
+
+/**
+ * 文章的「机器繁化」回退（T69）。
+ *
+ * 站长要求：**文章页选繁体时不必人工翻译**，只需选地区字形 ——
+ * 于是当某篇文章在 zh-Hant 下**没有**人工批准/自动采用的译文时，
+ * 直接把**原文**做 HTML 安全的简→繁转换后交付。
+ *
+ * 生效条件（全部满足才转，避免误伤其它语言）：
+ *   · 目标语言是 zh-Hant；
+ *   · 源语言是简体中文（zh-Hans / 未标注 / 或 zh-HK 这类同样写简体的）；
+ *   · 站长没关掉这个回退（`ybh_zh_hant_auto_post` 过滤器）。
+ *
+ * 转换结果**不写库**：每次渲染现算，原文一个字都不动 —— 这样人工译文一旦
+ * 出现就自然接管，也不会污染 post_content。
+ *
+ * @param  string $text  原文（正文/标题）
+ * @param  string $lang  目标语言
+ * @param  string $part  'content'（按 HTML 处理）或 'title'（纯文本）
+ * @return string 转换后的文本；不该转时返回 ''
+ */
+function ybh_zh_hant_auto_post($text, $lang, $part = 'content')
+{
+    if ((string) $lang !== 'zh-Hant') {
+        return '';
+    }
+    if (!apply_filters('ybh_zh_hant_auto_post', true, $text, $lang, $part)) {
+        return '';
+    }
+    $text = (string) $text;
+    if ($text === '' || !preg_match('/[\x{4e00}-\x{9fff}]/u', $text)) {
+        return '';
+    }
+    // 已经是繁体（含大量繁体专有字）就不重复转换：粗判"繁"字表命中数
+    if (ybh_zh_hant_looks_traditional($text)) {
+        return '';
+    }
+    return ($part === 'content') ? ybh_zh_hant_html($text) : ybh_zh_hant($text);
+}
+
+/**
+ * 粗判一段文本是否**已经是繁体**（避免"英文本已是繁体却再转一次"）。
+ *
+ * 判据：字表里"简→繁"的繁体侧字符出现次数 vs 简体侧。
+ * 繁体侧明显占优就认为是繁体原文。
+ */
+function ybh_zh_hant_looks_traditional($text)
+{
+    $chars = ybh_zh_hant_chars();
+    $trad = 0;
+    $simp = 0;
+    // 只抽查前 400 个汉字，够判断且不拖慢渲染
+    $sample = mb_substr((string) $text, 0, 400);
+    foreach ($chars as $s => $t) {
+        if ($t === $s) {
+            continue;
+        }
+        $trad += mb_substr_count($sample, $t);
+        $simp += mb_substr_count($sample, $s);
+    }
+    return $trad > 0 && $trad >= $simp;
 }
 
 /**

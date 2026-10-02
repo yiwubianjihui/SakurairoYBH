@@ -41,6 +41,43 @@ function ybh_studio_url($args = array())
     return $args ? add_query_arg($args, $base) : $base;
 }
 
+/**
+ * 工作室的「目标语言」参数（T69）。
+ *
+ * ⚠️ 为什么不能继续用 `?lang=`（站长反馈的 bug 根因）：
+ *   `lang` 是**全站语言参数** —— `ybh_i18n_boot()` 会把它写进 cookie，
+ *   于是"在工作台把目标语言切成英文"会**连带把整站界面切成英文**；
+ *   回到主站再切回中文，cookie 变了，而工作台 URL 上的 `lang=en` 优先级更高，
+ *   一进工作台又变成英文 —— 表现就是"切语言后串站、来回来回跳"。
+ *
+ * 现在工作室用**私有参数 `tl`**（translation language）：
+ *   · 只决定"我在翻译哪种语言"，绝不改全站语言 / cookie；
+ *   · 旧的 `?lang=xx` 链接仍然接受（兼容已分享出去的地址与"帮助本地化"入口）。
+ */
+function ybh_studio_lang_param()
+{
+    return 'tl';
+}
+
+/**
+ * 取工作室当前的目标语言。
+ *
+ * 优先 `tl`（新），其次 `lang`（旧链接兼容），都合法时回落站点当前语言。
+ */
+function ybh_studio_current_lang()
+{
+    foreach (array(ybh_studio_lang_param(), 'lang') as $k) {
+        if (!isset($_GET[$k])) {
+            continue;
+        }
+        $v = sanitize_text_field(wp_unslash((string) $_GET[$k]));
+        if (ybh_language_valid($v)) {
+            return $v;
+        }
+    }
+    return function_exists('ybh_current_language') ? ybh_current_language() : 'zh-Hans';
+}
+
 /* ---------------------------------------------------------------------------
  * 表单处理（admin_post，带 nonce）—— 同源，不必绕 REST
  * ------------------------------------------------------------------------- */
@@ -192,10 +229,8 @@ function ybh_studio_current_slug()
 function ybh_studio_render()
 {
     $langs = ybh_languages();
-    $lang = isset($_GET['lang']) ? sanitize_text_field(wp_unslash((string) $_GET['lang'])) : '';
-    if (!ybh_language_valid($lang)) {
-        $lang = function_exists('ybh_current_language') ? ybh_current_language() : 'zh-Hans';
-    }
+    // T69：目标语言走私有参数 `tl`（旧的 `lang` 仍兼容），不再与全站语言互相干扰
+    $lang = ybh_studio_current_lang();
     $tab = isset($_GET['tab']) ? sanitize_key(wp_unslash((string) $_GET['tab'])) : 'strings';
     if (!in_array($tab, array('strings', 'articles', 'mine', 'review'), true)) { $tab = 'strings'; }
     $filter = isset($_GET['f']) ? sanitize_key(wp_unslash((string) $_GET['f'])) : 'todo';
@@ -255,7 +290,7 @@ function ybh_studio_render()
               <a class="ybh-st__btn ghost" href="<?php echo esc_url(admin_url('tools.php?page=ybh-i18n-proposals')); ?>">后台审核</a>
             <?php endif; ?>
           <?php else : ?>
-            <a class="ybh-st__btn primary" href="<?php echo esc_url(wp_login_url(ybh_studio_url(array('lang' => $lang)))); ?>">登录后参与</a>
+            <a class="ybh-st__btn primary" href="<?php echo esc_url(wp_login_url(ybh_studio_url(array('tl' => $lang)))); ?>">登录后参与</a>
           <?php endif; ?>
         </div>
       </header>
@@ -288,7 +323,7 @@ function ybh_studio_render()
             printf(
                 '<a class="ybh-st__tab%s" href="%s">%s%s</a>',
                 $tab === $k ? ' is-on' : '',
-                esc_url(ybh_studio_url(array('lang' => $lang, 'tab' => $k, 'f' => $filter, 'q' => $q))),
+                esc_url(ybh_studio_url(array('tl' => $lang, 'tab' => $k, 'f' => $filter, 'q' => $q))),
                 esc_html($v[0]),
                 $v[1] ? ' <b>' . (int) $v[1] . '</b>' : ''
             );
@@ -298,7 +333,7 @@ function ybh_studio_render()
         <span class="ybh-st__langs">
           <?php foreach ($langs as $code => $info) : ?>
             <a class="ybh-st__lang<?php echo $code === $lang ? ' is-on' : ''; ?>"
-               href="<?php echo esc_url(ybh_studio_url(array('lang' => $code, 'tab' => $tab, 'f' => $filter, 'q' => $q))); ?>"
+               href="<?php echo esc_url(ybh_studio_url(array('tl' => $code, 'tab' => $tab, 'f' => $filter, 'q' => $q))); ?>"
                lang="<?php echo esc_attr($code); ?>"><?php echo esc_html($info['native']); ?></a>
           <?php endforeach; ?>
         </span>
@@ -474,7 +509,7 @@ function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $fi
     $list = ybh_studio_string_list($entries, $approved, $auto, $by_mid, $lang, $filter, $q, $me);
     list($slice, $pages, $page, $sel) = ybh_studio_string_pick($list, $unit, $page, $per);
 
-    $base_args = array('lang' => $lang, 'tab' => 'strings', 'f' => $filter, 'q' => $q);
+    $base_args = array('tl' => $lang, 'tab' => 'strings', 'f' => $filter, 'q' => $q);
 
     ob_start();
     ?>
@@ -715,14 +750,11 @@ function ybh_studio_proposal_list($ps)
 
 /**
  * AJAX 片段：右栏（词条详情 + 全部提案 + 输入框）。
- * 参数与完整页一致：lang / f / q / p / unit（t68b）。
+ * 参数与完整页一致：tl（目标语言，旧 lang 兼容）/ f / q / p / unit。
  */
 function ybh_studio_partial_pane()
 {
-    $lang = isset($_GET['lang']) ? sanitize_text_field(wp_unslash((string) $_GET['lang'])) : '';
-    if (!ybh_language_valid($lang)) {
-        $lang = function_exists('ybh_current_language') ? ybh_current_language() : 'zh-Hans';
-    }
+    $lang = ybh_studio_current_lang();
     $filter = isset($_GET['f']) ? sanitize_key(wp_unslash((string) $_GET['f'])) : 'todo';
     if (!in_array($filter, array('todo', 'done', 'all', 'mine'), true)) { $filter = 'todo'; }
     $q = isset($_GET['q']) ? sanitize_text_field(wp_unslash((string) $_GET['q'])) : '';
@@ -802,7 +834,7 @@ function ybh_studio_view_articles($lang, $by_obj, $can_propose, $page, $q)
           </div>
           <?php endif; ?>
           <?php /* 入口链接**始终**给出：source-side 时进去也能看到提示并从那里切语言（T68 修） */ ?>
-          <a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('lang' => $lang, 'tab' => 'articles', 'post' => $p->ID))); ?>">按段落翻译 →</a>
+          <a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('tl' => $lang, 'tab' => 'articles', 'post' => $p->ID))); ?>">按段落翻译 →</a>
           <?php
           $title_props = $by_obj[$p->ID . '|title'] ?? array();
           $body_props = $by_obj[$p->ID . '|content'] ?? array();
@@ -829,8 +861,8 @@ function ybh_studio_view_articles($lang, $by_obj, $can_propose, $page, $q)
     </div>
     <?php if ($query->max_num_pages > 1) : ?>
       <nav class="ybh-st__pager">
-        <?php if ($page > 1) : ?><a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('lang' => $lang, 'tab' => 'articles', 'q' => $q, 'p' => $page - 1))); ?>">上一页</a><?php endif; ?>
-        <?php if ($page < $query->max_num_pages) : ?><a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('lang' => $lang, 'tab' => 'articles', 'q' => $q, 'p' => $page + 1))); ?>">下一页</a><?php endif; ?>
+        <?php if ($page > 1) : ?><a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('tl' => $lang, 'tab' => 'articles', 'q' => $q, 'p' => $page - 1))); ?>">上一页</a><?php endif; ?>
+        <?php if ($page < $query->max_num_pages) : ?><a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('tl' => $lang, 'tab' => 'articles', 'q' => $q, 'p' => $page + 1))); ?>">下一页</a><?php endif; ?>
       </nav>
     <?php endif; ?>
     <?php
@@ -854,7 +886,7 @@ function ybh_studio_view_article($post_id, $lang, $can_propose, $is_admin = fals
     $post_id = (int) $p->ID;
     $orig = function_exists('ybh_i18n_post_orig_lang') ? ybh_i18n_post_orig_lang($post_id) : '';
     $is_source_side = ($orig !== '' && $orig === $lang);
-    $back = ybh_studio_url(array('lang' => $lang, 'tab' => 'articles'));
+    $back = ybh_studio_url(array('tl' => $lang, 'tab' => 'articles'));
     $segments = function_exists('ybh_i18n_split_paragraphs') ? ybh_i18n_split_paragraphs((string) $p->post_content) : array();
     $props = ybh_studio_proposals($lang, 400, $post_id);
     $by_field = array();
@@ -891,7 +923,7 @@ function ybh_studio_view_article($post_id, $lang, $can_propose, $is_admin = fals
             $ybh_dis = ($orig !== '' && $ybh_c === $orig && $ybh_c !== $lang);
         ?>
           <a class="ybh-st__lang<?php echo $ybh_on ? ' is-on' : ''; ?>" aria-current="<?php echo $ybh_on ? 'true' : 'false'; ?>"
-             href="<?php echo esc_url(ybh_studio_url(array('lang' => $ybh_c, 'tab' => 'articles', 'post' => $post_id))); ?>"
+             href="<?php echo esc_url(ybh_studio_url(array('tl' => $ybh_c, 'tab' => 'articles', 'post' => $post_id))); ?>"
              <?php echo $ybh_dis ? ' style="opacity:.4;" title="这篇文章的原文就是它"' : ''; ?>><?php echo esc_html($ybh_i['native']); ?></a>
         <?php endforeach; ?>
       </p>

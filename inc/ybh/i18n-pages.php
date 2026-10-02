@@ -110,7 +110,27 @@ function ybh_i18n_page_translation($post_id, $lang, $part = 'content')
         return '';
     }
     $val = get_post_meta($post_id, ybh_i18n_meta_key($lang, $part), true);
-    return is_string($val) ? trim($val) : '';
+    if (is_string($val) && trim($val) !== '') {
+        return trim($val);
+    }
+    /*
+     * T69 · 机器繁化回退（优先级最低）：
+     *   目标语言是 zh-Hant、且**没有**任何人工/自动译文时，把原文做一次
+     *   HTML 安全的简→繁转换直接交付 —— 站长要求"文章页繁体不必专门翻译"。
+     *   它排在最后：一旦有人提交并批准了真正的译文，就自动接管（这个函数先返回 meta）。
+     *   转换结果不写库（原文零改动），也支持 `ybh_zh_hant_auto_post` 过滤器关停。
+     */
+    if ($lang === 'zh-Hant' && function_exists('ybh_zh_hant_auto_post')) {
+        $src = (string) get_post_field('post_content', $post_id);
+        if ($part === 'title') {
+            $src = (string) get_the_title($post_id);
+        }
+        $auto = ybh_zh_hant_auto_post($src, $lang, $part);
+        if ($auto !== '') {
+            return $auto;
+        }
+    }
+    return '';
 }
 
 /* ---------------------------------------------------------------------------
@@ -226,8 +246,9 @@ function ybh_i18n_langbar($pid, $cur = '', $is_trans = false, $eff = array())
     if ($missing) {
         // 目标语言 = 第一个还没有译文的语言；工作室里直接筛到这篇文章
         $target_lang = $missing[0];
+        // T69：工作室目标语言用私有参数 `tl`，避免把整站界面语言一起切走
         $help_url = add_query_arg(
-            array('lang' => $target_lang, 'tab' => 'articles', 'q' => get_the_title($pid)),
+            array('tl' => $target_lang, 'tab' => 'articles', 'q' => get_the_title($pid)),
             $studio
         );
         $out .= '<a class="ybh-article-lang__btn ybh-article-lang__btn--help"'
