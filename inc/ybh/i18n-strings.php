@@ -39,6 +39,16 @@ function ybh_i18n_strings()
     }
 
     $en = array(
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+        '主导航' => 'Main navigation',
+        '反馈' => 'Feedback',
+        '回主站' => 'Main site',
+        '请给我们钱' => 'Support us',
+        '加入YBH' => 'Join YBH',
+        '幸运摇人器' => 'Lucky Picker',
+        '教师节' => 'Teachers’ Day',
+        '广播站' => 'Campus Radio',
+        '试写作业插件' => 'Homework plugin (trial)',
         /* ---- Cookie 同意弹窗 ---- */
         'Cookie 同意'                   => 'Cookie consent',
         '我们使用 Cookie'               => 'We use cookies',
@@ -220,6 +230,16 @@ function ybh_i18n_strings()
     );
 
     $ja = array(
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+        '主导航' => 'メインナビ',
+        '反馈' => 'フィードバック',
+        '回主站' => 'メインサイトへ',
+        '请给我们钱' => '支援する',
+        '加入YBH' => 'YBH に参加',
+        '幸运摇人器' => 'ラッキーガチャ',
+        '教师节' => '教師の日',
+        '广播站' => '学内放送',
+        '试写作业插件' => '宿題プラグイン（試作）',
         /* ---- Cookie 同意弹窗 ---- */
         'Cookie 同意'                   => 'Cookie の同意',
         '我们使用 Cookie'               => 'Cookie を使用しています',
@@ -406,6 +426,16 @@ function ybh_i18n_strings()
      * 其余词条缺译回退中文，翻译工作室里补齐并批准后自动生效。
      */
     $es = array(
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+        '主导航' => 'Navegación principal',
+        '反馈' => 'Comentarios',
+        '回主站' => 'Sitio principal',
+        '请给我们钱' => 'Apóyanos',
+        '加入YBH' => 'Únete a YBH',
+        '幸运摇人器' => 'Selector de la suerte',
+        '教师节' => 'Día del docente',
+        '广播站' => 'Radio del colegio',
+        '试写作业插件' => 'Plugin de deberes (prueba)',
         /* ---- Cookie 同意弹窗 ---- */
         'Cookie 同意'                   => 'Consentimiento de cookies',
         '我们使用 Cookie'               => 'Usamos cookies',
@@ -591,6 +621,26 @@ function ybh_i18n_strings()
      * 其余词条留空 → 回退中文，等 i18n 工作台里翻译并批准后自动生效。
      */
     $fr = array(
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+        '翻译工作室' => 'Studio de traduction',
+        '主导航' => 'Navigation principale',
+        '反馈' => 'Vos retours',
+        '回主站' => 'Site principal',
+        '请给我们钱' => 'Nous soutenir',
+        '加入YBH' => 'Rejoindre YBH',
+        '幸运摇人器' => 'Tirage au sort',
+        '教师节' => 'Fête des enseignants',
+        '广播站' => 'Radio du lycée',
+        '试写作业插件' => 'Extension devoirs (essai)',
+        '首页' => 'Accueil',
+        '小游戏' => 'Jeux',
+        '项目' => 'Projets',
+        '友情链接' => 'Liens',
+        '客户端' => 'Application',
+        '更新日志' => 'Nouveautés',
+        '关于我们' => 'À propos',
         'Cookie 同意' => 'Consentement aux cookies',
         '我们使用 Cookie' => 'Nous utilisons des cookies',
         '必要的 Cookie 用于登录与评论；其余用于统计与推广，可由你决定是否允许。详见' => 'Les cookies nécessaires servent à la connexion et aux commentaires ; les autres servent aux statistiques et à la promotion, et c’est vous qui décidez de les autoriser. Voir',
@@ -662,6 +712,26 @@ function ybh_i18n_strings()
      * 俄文：同上，先覆盖最常看到的界面。
      */
     $ru = array(
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+
+        /* ---- 导航菜单 / 子站外壳（T68c） ---- */
+        '翻译工作室' => 'Студия перевода',
+        '主导航' => 'Главное меню',
+        '反馈' => 'Обратная связь',
+        '回主站' => 'На главный сайт',
+        '请给我们钱' => 'Поддержать нас',
+        '加入YBH' => 'Вступить в YBH',
+        '幸运摇人器' => 'Случайный выбор',
+        '教师节' => 'День учителя',
+        '广播站' => 'Школьное радио',
+        '试写作业插件' => 'Плагин домашки (тест)',
+        '首页' => 'Главная',
+        '小游戏' => 'Игры',
+        '项目' => 'Проекты',
+        '友情链接' => 'Ссылки',
+        '客户端' => 'Приложение',
+        '更新日志' => 'Обновления',
+        '关于我们' => 'О нас',
         'Cookie 同意' => 'Согласие на использование cookie',
         '我们使用 Cookie' => 'Мы используем cookie',
         '必要的 Cookie 用于登录与评论；其余用于统计与推广，可由你决定是否允许。详见' => 'Необходимые cookie нужны для входа и комментариев; остальные — для статистики и продвижения, и вы сами решаете, разрешать ли их. Подробнее:',
