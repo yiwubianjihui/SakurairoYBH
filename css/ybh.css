@@ -5287,62 +5287,63 @@ body.dark .ybh-guide__note {
    浮层不能放导航容器里（那是 overflow:hidden），所以用 position:fixed 挂在页脚。
    ============================================================================ */
 /* ===========================================================================
- * T70 · 顶部菜单居中
+ * T71 · 顶栏重新分层（站长定的布局）
  * ---------------------------------------------------------------------------
- * 站长要求：顶部菜单**居中**，反馈与多语言按钮放**页面右上方**，全站一致。
+ * 站长要求（原话）：
+ *   「下层铺一排毛玻璃，居左放 YBH logo，居右放语言、反馈和头像（不用胶囊），
+ *     上层胶囊菜单显示其他内容」
  *
- * 实测（CDP，1440×900）：
- *   改前导航中心 283px（视口中心 720px）⇒ 偏左 437px；
- *   只给导航加 `margin-inline:auto` 后是 510px ⇒ 仍偏左 210px。
- * 原因：header 里除导航外还有几个 `width:0` 的占位元素（`.mo-nav-button` /
- *   `.mobile-nav` / `.mo-toc-button` / `.mo_toc_panel`），加上 `gap: 20px`，
- *   会把左右两段**撑得不等宽**，`auto` 只能按"剩余空间"平分，导航并不真居中。
- *
- * 修法（桌面断点）：把导航**绝对定位**到视口正中 —— 它是唯一的"居中"参照物，
- *   绝对定位后不参与 flex 分配，左右两组（品牌 / 工具区+头像）互不影响。
- *   导航自身宽度由内容决定，`left:50% + translateX(-50%)` 保证几何中心 = 视口中心。
- *   ⚠️ 窄屏（≤1160px）**不**用绝对定位：那��导航是横向滚动条，需要占满剩余宽度。
+ * 实现：
+ *   · 下层 = .site-header 自身铺一条毛玻璃（只有轻微底色 + 横向渐变边界，不做深色），
+ *     尺寸拉通　→；里面居中。
+ *   · 层内子元素 = 站名 / 菜单胶囊 / 语言 / 反馈 / 头像。
+ *   · **去掉** .site-branding 与 .user-menu-wrapper 各自的胶囊外观（不再圆角白底），
+ *     这两组就是下层那条毛玻璃的一部分，看起来是平的、不堆三个圆块。
+ *   · .nav-search-wrapper（菜单）**保留**胶囊外观 —— 它就是上层那个胶囊菜单。
  * ========================================================================= */
-@media (min-width: 1161px) {
-  .site-header > .nav-search-wrapper {
-    /* T70 菜单居中：前三种做法都被本主题样式压住（已逐一实测）：
-       (1) margin-inline:auto  -> 偏左 210px（header 有 width:0 占位元素 + gap，左右不等宽）
-       (2) left:50% + translateX(-50%) -> translate 变成 matrix(1,0,0,1,0,0)，偏右 300px
-       (3) 铺满 + flex 居中 -> 上游给内部 nav 的 justify-content:flex-start 仍让菜单贴左
-       最终：铺满整条 + 覆盖 nav 为居中 + 右侧组（分割线/搜索/随机）绝对定位到最右。 */
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    /* 上游有 max-width: calc(100% - 400px)（实测把宽度卡在 1034px，居中就无从谈起）
-       与 width: auto —— 绝对定位下必须显式 width:100% 且清掉 max-width。 */
-    width: 100%;
-    max-width: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    /* 上游是 overflow:hidden；这里放开，居中不需要它，下拉菜单也才不会被裁 */
-    overflow: visible;
-  }
-  .site-header > .nav-search-wrapper > nav {
-    flex: 0 1 auto;
-    justify-content: center;
-  }
-  .site-header > .nav-search-wrapper > .nav-search-divider,
-  .site-header > .nav-search-wrapper > .searchbox,
-  .site-header > .nav-search-wrapper > .bg-switch {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .site-header > .nav-search-wrapper > .nav-search-divider { right: 172px; }
-  .site-header > .nav-search-wrapper > .searchbox { right: 128px; }
-  .site-header > .nav-search-wrapper > .bg-switch:nth-of-type(1) { right: 88px; }
-  .site-header > .nav-search-wrapper > .bg-switch:last-of-type { right: 48px; }
+body.dark .site-header,
+.site-header {
+  /* 权重实测记录（CDP CSS.getMatchedStylesForNode）：
+     上游 `body.dark .site-header` 同样声明了背景且带 !important，
+     权重比单写 `.site-header` 高，所以必须带 body.dark 前缀才能盖住。 */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(12px) !important;
+  backdrop-filter: saturate(180%) blur(12px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+/* 站名与头像：去胶囊，透出下层毛玻璃 */
+/* 去胶囊并透出下层毛玻璃。
+   ⚠️ 权重实测记录（CDP `CSS.getMatchedStylesForNode`，权威证据）：
+      上游有 `body.dark .site-branding, body.dark .nav-search-wrapper,
+      body.dark .user-menu-wrapper { background: … !important }`，
+      它比 `.site-header > .site-branding` **多一个 class 选择器** ⇒ 权重更高。
+      所以这里必须同样带 `body.dark` 前缀才盖得住，否则深色模式下仍是黑胶囊。 */
+body.dark .site-header > .site-branding,
+body.dark .site-header > .user-menu-wrapper,
+body.dark .site-header > .ybh-topbar-tools,
+body.dark .site-header > .site-branding:hover,
+body.dark .site-header > .user-menu-wrapper:hover,
+.site-header > .site-branding,
+.site-header > .user-menu-wrapper,
+.site-header > .ybh-topbar-tools {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.site-header > .site-branding:hover,
+.site-header > .user-menu-wrapper:hover {
+  background: transparent !important;
+}
+/* 右侧三组（语言 / 反馈 / 头像）保持同高并自身拓到最右 */
+.site-header > .ybh-topbar-tools {
+  margin-left: auto;
+}
+.site-header > .site-branding:hover .site-title,
+.site-header > .user-menu-wrapper:hover .header-user-name {
+  opacity: 1;
 }
 
 /* T70 事故修复：顶栏站名溢出
