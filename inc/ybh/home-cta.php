@@ -58,10 +58,12 @@ function ybh_cta_post_url($slug, $fallback)
  *
  * 用户 2026-09-22 要求：点「投稿」不再先去 `/submit/` 说明页转一圈，而是直接进写作界面。
  *
- * - 已登录且有投稿能力 → 新文章编辑页 `post-new.php`
+ * - 已登录且有写作能力 → **前台编辑器 `/write/`**（T64 起，投稿同学不再进后台）
+ *   ⚠️ 例外：能改他人文章的账号（编辑 / 管理员）仍走 `post-new.php` ——
+ *   他们需要分类、标签、封面这些字段，前台写作页刻意不做这些。
  * - **未登录** → WP 登录页，并把 `redirect_to` 指回编辑器
  *   ⇒ 登录后**一步到位**进编辑器，不需要登录完再找一次入口
- * - 已登录但没有投稿能力（例如订阅者）→ 退回 `/submit/` 说明页，
+ * - 已登录但没有写作能力（例如订阅者）→ 退回 `/submit/` 说明页，
  *   否则他们只会撞上「抱歉，您不能创建文章」这种没有出路的后台错误页
  *
  * 为什么判断 `edit_posts` 而不是角色名：本站 `default_role = contributor`，
@@ -73,15 +75,30 @@ function ybh_write_url()
 {
     $editor = admin_url('post-new.php');
 
+    /*
+     * T64：写作入口指**前台编辑器** `/write/`。
+     *
+     * T68：**所有有写作权限的用户统一走前台编辑器**（站长要求）——
+     * 以前编辑/管理员仍走 wp-admin（他们需要分类、标签、封面），现在前台编辑器
+     * 也有了分类与标签（且分类单选、标签可搜索），管理员会在编辑器下方看到
+     * "切换到后台编辑器"的链接，封面等少数后台专属操作从那里走。
+     *
+     * 判断用能力 `edit_posts`（比判断角色名更经得起以后改角色设置）。
+     */
+    $front = function_exists('ybh_front_editor_url') ? ybh_front_editor_url() : '';
+    if ('' === $front) {
+        $front = $editor;                       // 前台编辑器未启用时退回后台
+    }
+
     if (!is_user_logged_in()) {
-        return wp_login_url($editor);
+        return wp_login_url($front);            // 登录后直接落在写作页
     }
 
     if (!current_user_can('edit_posts')) {
         return ybh_cta_page_url('submit', '/submit/');
     }
 
-    return $editor;
+    return $front;
 }
 
 /**

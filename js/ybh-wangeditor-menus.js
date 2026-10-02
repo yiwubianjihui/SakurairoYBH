@@ -154,17 +154,52 @@
         return el ? el.value : '';
       },
       close: closeOverlay,
-      editor: editor
+      editor: editor,
+      /** 把焦点放到某个输入框（查找后用，让 Enter 能连续查找） */
+      focus: function (name) {
+        var el = box.querySelector('[data-ybh-wam="' + name + '"]');
+        if (el && el.focus) { el.focus(); }
+      },
+      /** 点某个按钮（不移动焦点；供 Enter 快捷触发） */
+      click: function (name) {
+        var b = btnByName[name];
+        if (b) { b.click(); }
+      }
     };
+    var btnByName = {};
     (opts.buttons || []).forEach(function (b) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'ybh-wam__btn' + (b.primary ? ' is-primary' : '');
       btn.textContent = b.text;
       btn.addEventListener('click', function () { b.onClick(api); });
+      btnByName[b.name] = btn;
       bar.appendChild(btn);
     });
     box.appendChild(bar);
+
+    /*
+     * 站长要求（T68b）：弹层里的输入框**敲回车即触发**指定按钮（默认第一个按钮），
+     * 且触发后焦点留在输入框 —— 这样"回车、回车"就能连续查找下一处，
+     * 不会一敲回车就把焦点还给正文、弄丢正在输入的位置。
+     */
+    if (opts.enterTo) {
+      (opts.fields || []).forEach(function (f) {
+        if (f.multiline) { return; }   // 多行框里回车就是换行
+        var el = box.querySelector('[data-ybh-wam="' + f.name + '"]');
+        if (!el) { return; }
+        el.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            api.click(opts.enterTo);
+            // 焦点留在输入框（触发方若把焦点拿走了，这里再拿回来）
+            var me = box.querySelector('[data-ybh-wam="' + f.name + '"]');
+            if (me) { me.focus(); }
+          }
+        });
+      });
+    }
 
     overlay.appendChild(box);
 
@@ -189,14 +224,26 @@
    * ================================================================ */
 
   function insertHtml(editor, html) {
+    /*
+     * T68b 修正：插入 HTML 必须用 `dangerouslyInsertHtml`。
+     * 原来写的 `insertText(html)`（注释还说"接受 HTML 片段"）是**错的** ——
+     * insertText 只插纯文本；而按钮点击让编辑区失焦后 slate 的 selection
+     * 一旦拿不回来，插入还会落到**文档末尾**（站长实测：无格式粘贴只能贴到
+     * 文章最底部）。dangerouslyInsertHtml 会按 WangEditor 保存的光标位置
+     * 解析并插入 HTML；末尾 focus(true) 把光标落到刚插入内容的结尾。
+     */
+    try { editor.restoreSelection(); } catch (e) { /* 失焦时 slate 自己保存着 range */ }
+    var ok = false;
     try {
-      editor.restoreSelection();
-      editor.insertText(html);   // insertText 接受 HTML 片段
-      editor.focus();
-    } catch (e) {
-      // 兜底：直接在光标处插入（极少数情况下 restoreSelection 会抛）
+      if (typeof editor.dangerouslyInsertHtml === 'function') {
+        editor.dangerouslyInsertHtml(html);
+        ok = true;
+      }
+    } catch (e) { /* 走兜底 */ }
+    if (!ok) {
       try { editor.insertText(html); } catch (e2) { /* 忽略 */ }
     }
+    try { editor.focus(true); } catch (e) { /* 忽略 */ }
   }
 
   function selectedText(editor) {
@@ -390,9 +437,10 @@
 
           openOverlay(editor, {
             title: '查找 / 替换',
-            desc: '「查找下一个」会滚动到并选中该处。替换只作用于当前选中项；「全部替换」会先问一次。',
+            desc: '输入后**直接敲回车**查找下一处（焦点会一直在输入框）；替换只作用于当前选中项；「全部替换」会先问一次。',
+            enterTo: 'find',
             fields: [
-              { name: 'find', label: '查找', placeholder: '要查找的文字' },
+              { name: 'find', label: '查找', placeholder: '要查找的文字（回车查找下一处）' },
               { name: 'repl', label: '替换为', placeholder: '留空表示只查找' }
             ],
             buttons: [
@@ -406,8 +454,12 @@
                   if (idx < 0) { idx = text.indexOf(needle); }
                   if (idx < 0) { window.alert('没有找到「' + needle + '」'); return; }
                   lastIndex = idx + needle.length;
-                  editor.focus();
-                  selectTextInEditor(editor, needle, idx);
+                  /*
+                   * 站长要求：查找时**焦点留在输入框**（这样才能连续回车查找下一处，
+                   * 不会一跳走就把正在输入的位置弄丢）。这里只设置编辑区里的
+                   * **选区**（视觉高亮 + 滚动到位），不调用 editor.focus()。
+                   */
+                  selectTextInEditor(editor, needle, idx, { keepFocus: true });
                 }
               },
               {
@@ -425,15 +477,17 @@
                       var text = editor.getText() || '';
                       var idx = text.indexOf(needle);
                       if (idx < 0) { window.alert('没有找到「' + needle + '」'); return; }
-                      editor.focus();
-                      selectTextInEditor(editor, needle, idx);
+                      selectTextInEditor(editor, needle, idx, { keepFocus: false });
                       setTimeout(function () {
                         editor.restoreSelection();
                         editor.insertText(repl);
                         editor.focus();
+                        a.focus('find');      // 替换完焦点回输入框，继续回车找下一处
                       }, 40);
+                      return;
                     }
                   } catch (e) { /* 忽略 */ }
+                  a.focus('find');
                 }
               },
               {
@@ -472,8 +526,13 @@
   /**
    * 在编辑面里按"纯文本第 idx 个字符"定位并选中。
    * **只用于给作者看见并选中**，不用于改数据（改数据一律走 editor.insertText）。
+   *
+   * opts.keepFocus = true 时不把焦点交给编辑区 —— 查找场景要焦点留在输入框
+   * （站长要求：光标一直在搜索框，回车连续查找，不打断输入位置）。
+   * 编辑区未聚焦时浏览器仍会显示灰色选区，滚动定位照常发生。
    */
-  function selectTextInEditor(editor, needle, idx) {
+  function selectTextInEditor(editor, needle, idx, opts) {
+    opts = opts || {};
     try {
       var root = editor.getEditableContainer();
       if (!root) { return; }
@@ -489,6 +548,9 @@
           var sel = window.getSelection();
           sel.removeAllRanges();
           sel.addRange(rng);
+          if (!opts.keepFocus) {
+            try { editor.focus(); } catch (e) { /* 保持原行为 */ }
+          }
           if (node.parentElement && node.parentElement.scrollIntoView) {
             node.parentElement.scrollIntoView({ block: 'center', behavior: 'smooth' });
           }

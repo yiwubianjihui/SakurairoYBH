@@ -59,7 +59,16 @@ header('X-Frame-Options: SAMEORIGIN');
 <head>
     <meta name="theme-color"  content="<?php echo iro_opt('theme_skin'); ?>">
     <meta charset="<?php bloginfo('charset'); ?>">
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <?php
+    /*
+     * T60：viewport 两处修正 ——
+     *   · 加 `viewport-fit=cover`：没有它，iOS 上 `env(safe-area-inset-*)` **恒为 0**，
+     *     全站所有"安全区"处理（吸底条、Cookie 横幅、PWA 条）实际都是失效的；
+     *   · 去掉 `maximum-scale=1.0, user-scalable=0`：禁用双指缩放不利于阅读
+     *     （WCAG 1.4.4 要求内容可放大到 200%）。
+     */
+    ?>
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
 
     <!-- 优化资源加载 -->
     <meta http-equiv="x-dns-prefetch-control" content="on">
@@ -271,6 +280,24 @@ header('X-Frame-Options: SAMEORIGIN');
         <?php get_template_part('layouts/mo_toc_menu');?> 
 
         <!-- User Menu Section -->
+        <?php
+        /*
+         * T69：右上角工具区（**只放图标**，站长要求）
+         *   · 语言切换：33×33 圆钮（fa-language），下拉浮层由页脚输出、JS 锚定在按钮下方；
+         *   · 反馈：33×33 圆钮（fa-comment-dots），不再占顶部菜单的一项；
+         *   两个钮与用户头像排成一行，盒模型与 `.searchbox i` / `.bg-switch i` 一致。
+         */
+        $ybh_top_btns = '';
+        if (function_exists('ybh_lang_pill_button')) {
+            $ybh_top_btns .= ybh_lang_pill_button();
+        }
+        if (function_exists('ybh_feedback_icon_button')) {
+            $ybh_top_btns .= ybh_feedback_icon_button();
+        }
+        if ($ybh_top_btns !== '') {
+            echo '<div class="ybh-topbar-tools">' . $ybh_top_btns . '</div>';
+        }
+        ?>
         <?php if ($show_user_avatar): ?>
             <div class="user-menu-wrapper">
                 <?php header_user_menu(); ?>

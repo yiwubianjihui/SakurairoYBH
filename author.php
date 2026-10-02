@@ -2,44 +2,23 @@
 
 get_header();
 
+/*
+ * T62b：作者个人信息卡。
+ *
+ * 数据源：`inc/ybh/author-profile.php`（与前台资料页、搜索「搜人」共用同一份，
+ * 一处查询三处读，避免字段漂移）。渲染：`tpl/author-card.php`。
+ *
+ * ⚠️ 这里原先还有一段内联 <style>（给头像右下角画「作品数」胶囊，
+ * 选择器 `.author_info .avatar::after`）。它已被删除，原因有二：
+ *   1. 它由模板输出，pjax 每次换页都会**重复注入**一次；
+ *   2. 全站样式应当集中在一处 —— 那段规则与原样保留的观感都已经并入
+ *      `css/ybh.css` 的 T62 段（含深色模式）。
+ */
+require_once get_template_directory() . '/inc/ybh/author-profile.php';
+require_once get_template_directory() . '/tpl/author-card.php';
+
+echo ybh_render_author_card((int) get_the_author_meta('ID'));
 ?>
-<div class="author_info">
-    <div class="avatar" data-post-count="<?php echo count_user_posts(get_the_author_meta('ID'), 'post'); ?>">
-        <?php echo get_avatar(get_the_author_meta('ID')); ?>
-    </div>
-    <div class="author-center">
-        <h3><?php the_author(); ?></h3>
-        <div class="description">
-            <?php 
-            $description = get_the_author_meta('description');
-            echo $description ? wp_kses_post(nl2br($description)) : esc_html__("No personal profile set yet", "sakurairo"); 
-            ?>
-        </div>
-    </div>
-</div>
-<style>
-	.author_info .avatar::after {
-        content: attr(data-post-count) " \f044"; /* 添加字体图标 */
-        font-family: 'FontAwesome'; /* 确保使用FontAwesome字体 */
-        position: absolute;
-        right: -8px;
-        bottom: 16px;
-        background-color: #fff;
-        padding: 5px;
-        border-radius: 5px;
-        font-size: 12px;
-        color: var(--theme-skin-matching, #505050);
-        box-shadow: 0 1px 30px -4px #e8e8e8;
-        background: rgba(255, 255, 255, 0.7);
-        padding: 2px 8px;
-        -webkit-transition: all 0.6s ease-in-out;
-        transition: all 0.6s ease-in-out;
-        border-radius: 16px;
-        border: 1px solid #FFFFFF;
-		backdrop-filter: saturate(180%) blur(10px);
-		webkit-backdrop-filter: saturate(180%) blur(10px);
-    }
-</style>
 <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
 
@@ -55,18 +34,22 @@ get_header();
         <div id="pagination"><?php next_posts_link(__(' Previous', 'sakurairo')); ?></div>
         <div id="add_post"><span id="add_post_time" style="visibility: hidden;" title="<?php echo esc_attr(iro_opt('page_auto_load', '')); ?>"></span></div>
     <?php else : ?>
-        <nav class="navigator">
-	    <?php 
-	    echo paginate_links(array(
-	        'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))), // 设置分页的基础链接
-	        'format' => '?paged=%#%', // 分页格式
-	        'current' => max(1, get_query_var('paged')), // 当前页码
-	        'total' => $wp_query->max_num_pages, // 总页数
-	        'prev_text' => '<i class="fa-solid fa-angle-left"></i>', // 自定义上一页按钮
-	        'next_text' => '<i class="fa-solid fa-angle-right"></i>' // 自定义下一页按钮
-	    ));
-	    ?>
-	</nav>
+        <?php
+        /*
+         * T62：作者页原来用 nav.navigator + 自己一份 paginate_links（与主页不是一套，
+         * 用户反馈「卡片大小与分页器都跟主页不一样」）。现在统一到
+         * ybh_render_pagination()（实现见 tpl/pagination.php）。
+         *
+         * 作者页 URL 形如 /author/system/page/2/ —— 由 get_pagenum_link() 按当前
+         * 上下文自动处理，所以 base 留空走默认；锚点保持默认 #main，落在作品列表开头。
+         */
+        echo ybh_render_pagination(array(
+            'total'   => (int) $wp_query->max_num_pages,
+            'current' => max(1, (int) get_query_var('paged')),
+            'label'   => sprintf(__('%s 的作品分页', 'sakurairo'), get_the_author()),
+            'context' => 'author',
+        ));
+        ?>
     <?php endif; ?>
 </div><!-- #primary -->
 
