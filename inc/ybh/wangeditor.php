@@ -190,6 +190,17 @@ add_action('wp_ajax_ybh_wangeditor_upload', function () {
     require_once ABSPATH . 'wp-admin/includes/media.php';
 
     $post_id = isset($_POST['post_id']) ? (int) $_POST['post_id'] : 0;
+
+    /*
+     * T64：附件会被挂到这篇文章上（`media_handle_upload()` 的第二个参数），
+     * 所以必须校验**归属** —— 否则任何有 upload_files 的账号都能把附件
+     * 挂进别人的文章里（改 post_id 即可）。post_id = 0 表示"还没有文章"
+     * （前台编辑器第一次保存之前），此时不挂靠，交给 WP 的默认行为。
+     */
+    if ($post_id > 0 && !current_user_can('edit_post', $post_id)) {
+        wp_send_json(array('errno' => 1, 'message' => '没有把图片挂到这篇文章的权限。'));
+    }
+
     $id = media_handle_upload('wangeditor', $post_id);
 
     if (is_wp_error($id)) {

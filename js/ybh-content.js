@@ -117,19 +117,16 @@
     // ① 换行统一（CRLF / CR → LF）
     s = s.replace(/\r\n?/g, '\n');
 
-    // ② 若是**纯文本**（不含任何标签），按行拆段：
-    //    非空行 → 一个 <p>；空行 → 一个 <p>&nbsp;</p>（**保留空行**）。
+    // ② 若是**纯文本**（不含任何标签），按 **WordPress 的段落模型**拆段：
+    //    空行 = 段落边界、块内单个换行 = <br>、整块只有空白/&nbsp; = 空行。
+    //
+    //    ⚠️ 这里**不能**用"每行一段"（见 plainTextToParagraphs 的说明：
+    //       本函数面对的是编辑器序列化出来的文本，不是人类手敲的文档，
+    //       按行拆会与 removep() 的输出冲突，导致每段后多一个空段）。
     //
     //    ⚠️ 包完**不能直接 return** —— 后面还有"去掉块间裸换行"要跑。
     if (!/<[a-zA-Z!/][^>]*>/.test(s)) {
-      var lines = s.split('\n');
-      while (lines.length && isBlankText(lines[0])) { lines.shift(); }
-      while (lines.length && isBlankText(lines[lines.length - 1])) { lines.pop(); }
-      s = lines.map(function (line) {
-        var t = line.replace(/^[ \t\u3000]+|[ \t\u3000]+$/g, '');
-        if (isBlankText(t)) { return CANON_EMPTY; }
-        return '<p>' + t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>';
-      }).join('\n');
+      s = plainTextToParagraphs(s);
       // 继续往下走 DOM 清理（不 return）
     }
 
@@ -247,11 +244,56 @@
   }
 
   /**
-   * 纯文本 → 段落 HTML（新规范）。
+   * 纯文本 → 段落，**按 WordPress 自己的段落模型**：
+   * 空行（2 个及以上换行）= 段落边界；块内单个换行 = `<br>`；
+   * 整块只有空白 / `&nbsp;` = 空行（保留成 `<p>&nbsp;</p>`）；正文首尾空行丢掉。
+   *
+   * ⚠️⚠️ **绝对不要**把它改成"每行一段"，也**不要**与下面的 `textToParagraphs()` 合并。
+   *     两者面对的是完全不同的输入，规则必须不同：
+   *
+   *       · 本函数（plainTextToParagraphs）—— 用于 **normalize()**，输入是
+   *         **编辑器自己序列化出来的文本**。TinyMCE 保存时 WordPress 核心会跑
+   *         `wp.editor.removep()`（wp-admin/js/editor.js）：**删掉所有 `<p>`，
+   *         每个 `</p>` 换成两个换行**。所以"段落"在这里就是空行分隔的形态：
+   *             <p>甲</p><p>乙</p>  →  "甲\n\n乙"
+   *         这在 WP 语义里是无损的（前台 wpautop 还原成同样两段）。
+   *         若按"每行一段"拆，removep 留在每个段落后的空行会被当成作者敲的空行
+   *         ⇒ 每段后多一个 `<p>&nbsp;</p>`，段数 3 → 5 → 9 → 17 …（2026-09-25 的真实事故）。
+   *
+   *       · `textToParagraphs()` —— 用于**粘贴**，输入是**用户从别处copy来的文档**，
+   *         用户明确要求「1 个回车 = 分段、2 个回车 = 空行」（T50 规范），保持不变。
+   *
+   * @param {string} text 纯文本
+   * @returns {string} 段落 HTML
+   */
+  function plainTextToParagraphs(text) {
+    var t = String(text == null ? '' : text).replace(/\r\n?/g, '\n');
+    var blocks = t.split(/\n{2,}/);
+    while (blocks.length && isBlankText(blocks[0])) { blocks.shift(); }
+    while (blocks.length && isBlankText(blocks[blocks.length - 1])) { blocks.pop(); }
+    return blocks.map(function (block) {
+      if (isBlankText(block)) { return CANON_EMPTY; }
+      // 块内单个换行 = 行内 <br>（与 removep() 的编码方式对应）
+      var esc = function (s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      };
+      var lines = block.split('\n').map(function (l) {
+        return esc(l.replace(/^[ \t\u3000]+|[ \t\u3000]+$/g, ''));
+      });
+      return '<p>' + lines.join('<br>') + '</p>';
+    }).join('\n');
+  }
+
+  /**
+   * 纯文本 → 段落 HTML（**粘贴**用的新规范）。
    *
    * **1 个回车 = 一个分段（`<p>`）；空行 = 一个空行（`<p>&nbsp;</p>`）** ——
    * 粘贴时「文档里的一个回车变一个分段、两个回车变一个空行」就是这条。
    * 两端多余的空行丢掉。
+   *
+   * ⚠️ 本函数只服务**粘贴**（输入是用户从别处复制来的文档）。
+   *     `normalize()` 走的是 plainTextToParagraphs()，两者规则不同、不要合并 ——
+   *     原因见 plainTextToParagraphs 的注释。
    *
    * @param {string} text 剪贴板里的纯文本
    * @returns {string} HTML
@@ -270,7 +312,11 @@
   window.YBH_Content = {
     normalize: normalize,
     isEmpty: isEmpty,
+    // 粘贴用（1 回车 = 分段）：输入是用户从别处复制来的文档
     textToParagraphs: textToParagraphs,
+    // normalize 内部用（空行 = 分段）：输入是编辑器序列化出来的文本
+    // 导出只为便于自测，业务代码请用 normalize()
+    plainTextToParagraphs: plainTextToParagraphs,
     CANON_EMPTY: CANON_EMPTY,
     STRIP_STYLE_PROPS: STRIP_STYLE_PROPS
   };

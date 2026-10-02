@@ -59,7 +59,16 @@ header('X-Frame-Options: SAMEORIGIN');
 <head>
     <meta name="theme-color"  content="<?php echo iro_opt('theme_skin'); ?>">
     <meta charset="<?php bloginfo('charset'); ?>">
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <?php
+    /*
+     * T60：viewport 两处修正 ——
+     *   · 加 `viewport-fit=cover`：没有它，iOS 上 `env(safe-area-inset-*)` **恒为 0**，
+     *     全站所有"安全区"处理（吸底条、Cookie 横幅、PWA 条）实际都是失效的；
+     *   · 去掉 `maximum-scale=1.0, user-scalable=0`：禁用双指缩放不利于阅读
+     *     （WCAG 1.4.4 要求内容可放大到 200%）。
+     */
+    ?>
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
 
     <!-- 优化资源加载 -->
     <meta http-equiv="x-dns-prefetch-control" content="on">
@@ -271,6 +280,16 @@ header('X-Frame-Options: SAMEORIGIN');
         <?php get_template_part('layouts/mo_toc_menu');?> 
 
         <!-- User Menu Section -->
+        <?php
+        /*
+         * T68b：语言切换按钮放到**右上角**（用户头像旁）—— 站长要求。
+         * 胶囊按钮仍是 33×33 的独立圆钮（与头像 35px 视觉对齐）；
+         * 浮层由页脚输出、js/ybh-lang.js 按按钮位置锚定（放哪都能对上）。
+         */
+        if (function_exists('ybh_lang_pill_button')) {
+            echo '<span class="ybh-lang-corner">' . ybh_lang_pill_button() . '</span>';
+        }
+        ?>
         <?php if ($show_user_avatar): ?>
             <div class="user-menu-wrapper">
                 <?php header_user_menu(); ?>

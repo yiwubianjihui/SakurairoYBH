@@ -60,6 +60,36 @@ body.mce-content-body,
   font-family: 'Sarasa UI SC', 'PingFang SC', 'Microsoft YaHei', 'YBH Emoji', 'TH-Tshyn', sans-serif;
 }
 
+/* ---------- T65 · 编辑区按文章语言显示地区字形 ----------
+   上面那条带 ID 的规则（特指度 (1,0,1)）会压过前台 `:lang()` 那组（(0,8,0)），
+   于是编辑区**永远**是简体字形 —— 前台按文章语言切了字体，编辑时却看不到。
+   下面几条用 `body#tinymce.ybh-lang-xxx`（(1,1,1)）把它们压回去；
+   class 由 inc/ybh/editor.php 的 tiny_mce_before_init 注入。
+   字体选择与前台一致：**优先系统地区字体**，不加载未切片的更纱 TC/HC/J/K（7.7–8.5 MB）。 */
+body#tinymce.ybh-lang-zhhant,
+body.mce-content-body.ybh-lang-zhhant,
+.editor-styles-wrapper.ybh-lang-zhhant {
+  font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans CJK TC', 'YBH Emoji', 'TH-Tshyn', sans-serif;
+}
+
+body#tinymce.ybh-lang-zhhk,
+body.mce-content-body.ybh-lang-zhhk,
+.editor-styles-wrapper.ybh-lang-zhhk {
+  font-family: 'PingFang HK', 'Microsoft JhengHei', 'Noto Sans CJK HK', 'YBH Emoji', 'TH-Tshyn', sans-serif;
+}
+
+body#tinymce.ybh-lang-ja,
+body.mce-content-body.ybh-lang-ja,
+.editor-styles-wrapper.ybh-lang-ja {
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', 'YBH Emoji', 'TH-Tshyn', sans-serif;
+}
+
+body#tinymce.ybh-lang-ko,
+body.mce-content-body.ybh-lang-ko,
+.editor-styles-wrapper.ybh-lang-ko {
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR', 'YBH Emoji', 'TH-Tshyn', sans-serif;
+}
+
 /* ---------- 角标（<sup> / <sub>）----------
    与脚注徽章刻意区分：脚注在编辑区是「带底色的圆形编号徽章」（见下面的 .ybh-fn-chip），
    角标只是**普通的升降小字**，没有底色也没有边框。

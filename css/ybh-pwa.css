@@ -76,6 +76,15 @@
   transition: opacity 0.2s ease;
 }
 
+/* T67c：提示条里的「查看详情」是个 <a>（普通导航，可中键/新标签打开），
+   这里把它对齐成同一颗胶囊按钮的样子 */
+a.ybh-pwa-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
 .ybh-pwa-bar__btn:hover {
   opacity: 0.88;
 }

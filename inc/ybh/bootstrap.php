@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.31');
+define('YBH_VERSION', '1.3.60');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -1094,3 +1094,216 @@ require_once get_template_directory() . '/inc/ybh/avatar.php';
  * 页面本身**强制不缓存**（登录用户专属内容，缓存会把别人的资料露出去）。
  */
 require_once get_template_directory() . '/inc/ybh/profile.php';
+
+/* ---------------------------------------------------------------------------
+ * 13) 分页统一 + 搜索「搜人」（T62 / T63）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 全站唯一分页器 `ybh_render_pagination()`（实现见 `tpl/pagination.php`）。
+ *
+ * 背景：本站原本有**四套**分页器 —— 主页 `nav.traditional-pagination`、
+ * 作者页 `nav.navigator`、归档页只有上下页箭头、搜索页 `the_posts_pagination()`，
+ * 同一件事四种观感（用户反馈「作者页用了另一种分页器」）。现在
+ * `index.php` / `author.php` / `archive.php` / `search.php` 共用这一份，
+ * 也就是主场那套「页码条 + 跳页框」。
+ *
+ * ⚠️ 跳页框的交互（事件委托、URL 由 `data-pattern` 生成）仍写在
+ * `inc/ybh/pagejump.php`（第 8 节更早加载），两者是同一件事的两半。
+ */
+require_once get_template_directory() . '/tpl/pagination.php';
+
+/**
+ * 作者信息的**唯一数据源**：`ybh_author_profile($uid)` 返回
+ * 显示名 / 昵称 / 简介 / 个人网站 / 头像 / 作品数 / 角色 / 社交链接（过滤器）。
+ *
+ * 作者页卡片（`tpl/author-card.php`）与搜索「搜人」（`inc/ybh/user-search.php`）
+ * 都读它 —— 一处查询、多处展示，避免字段漂移。**只读**：写仍然只发生在
+ * `inc/ybh/profile.php` 的表单处理器里。
+ */
+require_once get_template_directory() . '/inc/ybh/author-profile.php';
+
+/**
+ * 作者个人信息卡渲染（`ybh_render_author_card()`）：作者归档页头部。
+ * 把原来 `author.php` 里的内联 `<style>` 一并收进了 `css/ybh.css` 的 T62 段
+ * —— 内联样式在 pjax 下会被反复注入。
+ */
+require_once get_template_directory() . '/tpl/author-card.php';
+
+/**
+ * 个人资料字段注册表（T61）：社交账号清单 + 值清洗 + `ybh_author_social_links`
+ * 过滤器的提供方（作者页信息卡与搜人卡片都在消费这条过滤器）；
+ * 同时负责在 wp-admin 的「个人资料 / 添加用户 / 编辑用户」表单里隐藏
+ * 姓 / 名两行（本站只用昵称与显示名）。
+ */
+require_once get_template_directory() . '/inc/ybh/profile-fields.php';
+
+/* ---------------------------------------------------------------------------
+ * 15) 前台编辑器（T64）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 把写作界面搬到前台：`/write/`（不建页面、不改 rewrite，见文件头说明）。
+ *
+ *   · 投稿同学（`edit_posts` 但无 `publish_posts`）→ 按钮是「保存草稿 / 提交审核」，
+ *     服务端也强制只允许 `draft|pending`；
+ *   · 编辑 / 管理员 → 「保存草稿 / 发布」，且首页与资料页的写作入口仍指向 wp-admin
+ *     （他们需要分类、标签、封面这些字段）；
+ *   · 保存端点 `ybh_front_save` 在 `inc/ybh/quick-save.php` 里；
+ *   · 编辑器产物 1.3 MB **只在真的要显示编辑器时入队**。
+ */
+require_once get_template_directory() . '/inc/ybh/frontend-editor.php';
+
+/* ---------------------------------------------------------------------------
+ * 16) 文章语言 / 地区字形（T65）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 文章级语言：`post_meta._ybh_lang`（白名单 zh-Hans / zh-Hant / zh-HK / ja / ko）。
+ *
+ *   · 输出：文章页的 `.entry-content` 带 `lang="…"`（`css/ybh.css` 里那组 `:lang()`
+ *     规则据此选地区字形；**不动 `<html lang>`**，导航与页脚仍是站点语言）；
+ *   · 编辑：前台写作页有语言下拉；后台「发布」框也有一份（经典与区块编辑器共用）；
+ *   · ⚠️ 字体成本：非简体语言**不加载**未切片的更纱 TC/HC/J/K（7.7–8.5 MB），
+ *     改用系统地区字体 —— 详见 `inc/ybh/post-language.php` 文件头。
+ */
+require_once get_template_directory() . '/inc/ybh/post-language.php';
+
+/* ---------------------------------------------------------------------------
+ * 17) 多余空行守卫（发布时检查 + 一键清理）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 保存时检查正文里「被两个真实段落包夹的空段」——这类空段是**保存链路带进来的**，
+ * 不是作者敲的（历史文章最严重的一篇 165 段里 82 段是空的）。
+ *
+ *   · **只提醒，不自动改**（站长明确要求）：前台写作页给一条提示 + 「一键清理」按钮；
+ *     后台编辑页给一条带按钮的提示；
+ *   · 判据与 T58 数据清理脚本**完全一致**：只删被真实段包夹的空段；
+ *     连续空档、`[fn]…[/fn]` 内、`<pre>/<code>/<table>/<ul>` 等容器内一律不动。
+ *
+ * 模块说明见 `inc/ybh/blank-line-guard.php`。
+ */
+require_once get_template_directory() . '/inc/ybh/blank-line-guard.php';
+
+/* ---------------------------------------------------------------------------
+ * 18) 评论区：注册用户指向作者页 + 显示当前昵称（C 批）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 实测的两个现象：点评论里的用户进不去他的页面（注册用户的 `comment_author_url`
+ * 基本是空的）、以及用户改了显示名之后评论里还是旧名字。
+ *
+ * 做法是挂 `get_comment_author_url` / `get_comment_author` 两个**自带过滤器**：
+ * 注册用户的评论一律指向 `get_author_posts_url()` 与当前 `display_name`；
+ * **访客评论一律原样保留**（他自己填的网址与昵称仍然算数）。
+ * 另在 `profile_update` 时清一次页面缓存，否则"改了名字但页面是缓存"的老名字还在。
+ *
+ * 见 `inc/ybh/comment-author.php`；想临时关掉：`add_filter('ybh_comment_author_link', '__return_false');`
+ */
+require_once get_template_directory() . '/inc/ybh/comment-author.php';
+
+/* ---------------------------------------------------------------------------
+ * 19) Web 应用教程页 `/pwa-guide/`（C 批 · 站长要求）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 吸底那条「把本站装到主屏幕」的提示，原来只有「以后再说」——想弄清楚的人没有出口。
+ * 这里提供：
+ *   · 短代码 `[ybh_pwa_guide]`（排版与文案随主题版本走，和更新日志页同一套路）；
+ *   · `/pwa-guide/` 页面由 `admin_init` **幂等自动创建**（slug 已存在就不动）；
+ *   · 提示条里的「查看详情」与客户端下载页都指向它。
+ *
+ * 见 `inc/ybh/pwa-guide.php`。
+ */
+require_once get_template_directory() . '/inc/ybh/pwa-guide.php';
+
+/* ---------------------------------------------------------------------------
+ * 20) 多语言（T66）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 英文 + 日文两套界面语言（**文章正文不在范围内**，站长已定 L3 暂缓）。
+ *
+ *   · 语言放 URL（`?lang=en`）+ cookie 记住选择；`<html lang>` 与 `hreflang` 跟着变；
+ *   · 默认语言（简体中文）**保持被页面缓存**；非默认语言**不走缓存**（`DONOTCACHEPAGE`
+ *     + `Vary: Cookie`），否则缓存会把英文页面喂给中文访客；
+ *   · 界面文案走 `ybh_t()`（key 就是中文原文，缺译回退中文）；
+ *     主题与核心文案走 WordPress 自己的 `locale`（只在前台切，后台保持站长设置）。
+ *
+ * 见 `inc/ybh/i18n.php` 与 `inc/ybh/i18n-strings.php`。
+ */
+require_once get_template_directory() . '/inc/ybh/i18n.php';
+/**
+ * 简体 → 繁体转换：`zh-Hant` 下没有人工译文时把中文原文转成繁体（含地区用词），
+ * 主题自身 gettext 文案也走同一套转换。人工校订的译文（工作台批准）优先级更高。
+ */
+require_once get_template_directory() . '/inc/ybh/i18n-zh-hant.php';
+require_once get_template_directory() . '/inc/ybh/i18n-strings.php';
+/**
+ * 固定页面的译文（L2）：正文存在库里的页面（隐私政策 / Cookie 政策 / 用户协议…）
+ * 用 post meta 存英文/日文版本，前台按当前语言替换 —— 不必为每种语言建一个页面。
+ * 编辑页面时下方会多一个「多语言译文」框；留空即回退中文。
+ */
+require_once get_template_directory() . '/inc/ybh/i18n-pages.php';
+/**
+ * 多语言提案系统（T66d）：类 Crowdin 的"多提案 + 管理员批准"。
+ *   账号复用主站（JWT 换 token）→ 提案存自建表 → 批准后写 uploads 覆盖层
+ *   + 重建 `languages/sakurairo-*.l10n.php`，并可撤销。后台在「工具 → 翻译提案」。
+ *   REST 命名空间 `ybh-i18n/v1`（供 i18n.yibianhui.cn 工作台调用）。
+ */
+require_once get_template_directory() . '/inc/ybh/i18n-proposals.php';
+/**
+ * 翻译工作室（T66j）：**主站内的**翻译工作台页面 `/i18n/`。
+ * 取代原来放在 i18n.yibianhui.cn 的静态站（同源、服务端渲染，不再有跨域/共用 cookie 的麻烦）。
+ */
+require_once get_template_directory() . '/inc/ybh/i18n-studio.php';
+
+/* ---------------------------------------------------------------------------
+ * 14) 底部浮层仲裁（T60）
+ * ------------------------------------------------------------------------- */
+
+/**
+ * 首访时贴底元素可能同时出现四个（Cookie 横幅 / PWA 安装条 / 控制台引导气泡 /
+ * 手机吸底操作条），z-index 高者压住低者 —— 实测最严重一处重叠 46,620 px²，
+ * 低优先级的按钮根本点不到。
+ *
+ * 本模块是**判定层**：只写 `<html>` 上的 `ybh-ov-*` 状态类与 `--ybh-bottom-lift`
+ * 变量，位置与显隐全部交给 `css/ybh.css` 的 T60 段（JS 没跑时还有 `:has()` 兜底）。
+ * 优先级：Cookie 横幅 > PWA 条 > 控制台气泡 > 吸底操作条；吸底条**不隐藏**，
+ * 而是抬到上面那条之上（它承载"我要投稿"，藏掉等于丢转化）。
+ */
+require_once get_template_directory() . '/inc/ybh/bottom-overlays.php';
+
+/**
+ * 搜索页「搜人」（T63）：结果区自建 `WP_User_Query`。
+ *
+ * 为什么不用主查询：`functions.php` 的 `customize_query_functions()` 挂在
+ * `pre_get_posts` 上，**无条件覆写**搜索页的 `post_type` 并追加 `tax_query`
+ * —— 任何"把用户塞进主查询"的写法都会被静默吃掉；而 `author` 也不是注册的
+ * post type（它是保留查询变量）。所以用户结果自成一路。
+ *
+ * ⚠️ 隐私红线：`search_columns` 必须显式排除 `user_email`。
+ * WordPress 在关键词命中 `@` 时会**默认只搜 `user_email`**，不改这一项
+ * 等于开放邮箱枚举；详见 `inc/ybh/user-search.php` 文件头。
+ */
+require_once get_template_directory() . '/inc/ybh/user-search.php';
+
+/**
+ * 用户卡渲染（`ybh_render_user_card()`）。渲染函数放在 tpl 目录里是为了
+ * 与 `tpl/content-*.php` 的既有惯例一致，故两个文件要一起加载。
+ */
+require_once get_template_directory() . '/tpl/user-card.php';
+
+/**
+ * MathJax 的 pjax 补课（T68）：主题上游只在**页面初始加载**时检测公式并排版，
+ * pjax 换页后不重跑 —— 实测从别的页面点进数学文章，公式以原始 TeX 文本显示。
+ * 本模块只在主题选项开着时挂一支很小的脚本：换页后重新排版；库不在场时懒加载。
+ */
+require_once get_template_directory() . '/inc/ybh/mathjax.php';
+
+/**
+ * 反馈功能（T68b）：`/feedback/` 前台反馈页 + 后台「反馈」文章类型 + 顶部导航入口。
+ * 游客可提交（nonce + Honeypot + 10 分钟一条的频率限制），内容只进后台不上前台。
+ */
+require_once get_template_directory() . '/inc/ybh/feedback.php';

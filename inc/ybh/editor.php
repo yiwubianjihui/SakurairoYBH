@@ -132,30 +132,72 @@ function ybh_normalize_paragraphs($content)
 }
 
 /**
- * 纯文本 → 段落：**1 个回车 = 一个段落，空行 = 一个空行**。
- * 两端多余的空行丢掉（开头/结尾的空行没有意义）。
+ * 纯文本 → 段落。**按 WordPress 自己的段落模型**，不是"每行一段"：
+ *
+ *   · **空行（2 个及以上换行）= 段落边界**；
+ *   · 段落**内部**的单个换行 = 行内 `<br>`（与 `wpautop()` 一致）；
+ *   · 整块只有空白 / `&nbsp;` = 空行，保留成 `<p>&nbsp;</p>`；
+ *   · 正文首尾的空段丢掉。
+ *
+ * ⚠️⚠️ 为什么**不能**写成"1 个回车 = 1 个段落"（这是 2026-09-25 修掉的一个真事故）：
+ *
+ *   本函数面对的是**编辑器自己序列化出来的文本**，而不是"人类手敲的纯文本"。
+ *   TinyMCE 保存时，WordPress 核心会用 `wp.editor.removep()`
+ *   （`wp-admin/js/editor.js`，由 `wp-includes/js/tinymce/plugins/wordpress/plugin.js`
+ *   的 `SaveContent` 处理器调用）把编辑器内容写回 textarea —— 它**删掉所有 `<p>` 标签，
+ *   并把每个 `</p>` 换成两个换行**。于是"段落"在文本里就是「空行分隔」的形态：
+ *
+ *       DOM  <p>甲</p><p>乙</p><p>丙</p>
+ *       →    "甲\n\n乙\n\n丙"        ← removep() 的真实输出
+ *
+ *   这在 WordPress 的语义里是**无损**的：前台 `wpautop()` 会还原成一模一样的 3 段。
+ *   但如果这里按"每行一段"去拆，`removep()` 留在**每个段落后面**的那个空行
+ *   就被读成了"作者敲的空行"⇒ **每段后面被塞进一个 `<p>&nbsp;</p>`**，
+ *   段数 N 变 2N−1，而且每保存一次就再翻一倍（3 → 5 → 9 → 17 → 33…）。
+ *
+ *   历史：T50（1.3.25）之前这里只**删**空段落，所以误读无害；T50 改成"保留 + 规范化"
+ *   之后，误读就从"删掉"变成了"插入"，于是线上出现「发布后一个换行变两个」——
+ *   141 篇里 29 篇被写脏、560 个多余空段。
+ *
+ *   判据：**只有"用户从别处粘进来的文档"才用「1 回车 = 分段」那套规则**
+ *   （见 `js/ybh-editor-para.js` / `js/ybh-content.js::textToParagraphs` 的粘贴路径）。
+ *   本函数在保存侧，必须服从 WordPress 的存储格式。两者**不要合并**。
  *
  * @param string $text 纯文本（已统一成 \n）
  * @return string
  */
 function ybh_text_to_paragraphs($text)
 {
-    $lines = explode("\n", $text);
-    while ($lines && '' === trim($lines[0])) {
-        array_shift($lines);
+    $blocks = preg_split('/\n{2,}/', $text);
+    if (!is_array($blocks)) {
+        return $text;   // 正则出问题时原样返回，宁可不动也不要弄坏
     }
-    while ($lines && '' === trim($lines[count($lines) - 1])) {
-        array_pop($lines);
+
+    /** 这一块是不是"空行"（去掉空白与 &nbsp; 实体后什么都不剩） */
+    $is_blank = function ($block) {
+        $t = str_replace(array('&nbsp;', '&#160;', '&#xa0;'), '', $block);
+        return '' === trim($t);
+    };
+
+    // 正文首尾的空段没有意义，丢掉
+    while ($blocks && $is_blank($blocks[0])) {
+        array_shift($blocks);
     }
+    while ($blocks && $is_blank($blocks[count($blocks) - 1])) {
+        array_pop($blocks);
+    }
+
     $out = array();
-    foreach ($lines as $line) {
-        $t = trim($line);
-        if ('' === $t || '&nbsp;' === $t || '&#160;' === $t) {
-            $out[] = YBH_CANON_EMPTY_P;
-        } else {
-            $out[] = '<p>' . $t . '</p>';
+    foreach ($blocks as $block) {
+        if ($is_blank($block)) {
+            $out[] = YBH_CANON_EMPTY_P;   // 作者敲的空行：保留
+            continue;
         }
+        // 块内单个换行 = 行内 <br>（removep 对 <br> 就是这么编码的）
+        $lines = array_map('trim', explode("\n", $block));
+        $out[] = '<p>' . implode('<br>', $lines) . '</p>';
     }
+
     return implode("\n", $out);
 }
 
@@ -300,6 +342,24 @@ add_filter('tiny_mce_before_init', function ($init) {
     // 回车生成真正的 <p> 段落（而不是 <br>），保存后由 wpautop 一致处理
     $init['forced_root_block'] = 'p';
     $init['wpautop'] = true;
+
+    /*
+     * T65：把文章语言作为 body class 带进编辑区。
+     *
+     * 为什么必须这么做：`css/editor-style.css` 里那条
+     * `body#tinymce { font-family: 'Sarasa UI SC', … }` 带上 ID 后特指度是 (1,0,1)，
+     * 会**压过**前台那组 `:lang(zh-Hant)` 规则（(0,8,0)）—— 也就是说编辑区字形被锁死在简体。
+     * 这里把语言带成 class（`ybh-lang-hant` 等），editor-style.css 用
+     * `body#tinymce.ybh-lang-hant`（(1,1,1)）再压回去，编辑区就与前台一致了。
+     */
+    if (function_exists('ybh_post_language') && function_exists('ybh_editor_current_post_id')) {
+        $pid  = ybh_editor_current_post_id();
+        $lang = $pid ? ybh_post_language($pid) : '';
+        if ('' !== $lang) {
+            $cls = 'ybh-lang-' . strtolower(str_replace('-', '', $lang));
+            $init['body_class'] = trim((string) (isset($init['body_class']) ? $init['body_class'] : '') . ' ' . $cls);
+        }
+    }
 
     // ⚠️ 粘贴的换行→段落是在 js/ybh-editor-para.js 里做的，**不靠这个配置**：
     //    本机 TinyMCE 版本里 `paste_text_linebreaktype` 已不存在（源码里 0 命中），
