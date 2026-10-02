@@ -1307,3 +1307,9 @@ require_once get_template_directory() . '/inc/ybh/mathjax.php';
  * 游客可提交（nonce + Honeypot + 10 分钟一条的频率限制），内容只进后台不上前台。
  */
 require_once get_template_directory() . '/inc/ybh/feedback.php';
+
+/**
+ * 中文斜体用霞鹜文楷（T71）：渲染层给含中文的斜体片段加 class="ybh-kai-italic"，
+ * 由 css/ybh.css 里的独立字体族 'YBH Kai' 接管。详见该文件与 kai-italic.php 的说明。
+ */
+require_once get_template_directory() . '/inc/ybh/kai-italic.php';
