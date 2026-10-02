@@ -40,6 +40,33 @@ if ( is_customize_preview() ) { use_customize_data(); } //预览模式将临时�
 
 $core_lib_basepath = iro_opt('core_library_basepath') ? get_template_directory_uri() : (iro_opt('lib_cdn_path', 'https://fastly.jsdelivr.net/gh/mirai-mamori/Sakurairo@') . IRO_VERSION);
 $nav_text_logo = iro_opt('nav_text_logo');
+
+/**
+ * T70 事故修复：顶栏「YBH」站名消失。
+ *
+ * 背景：自定义器里「站名文字」存的是 `text_logo`（见 inc/customizer.php:429-431），
+ *   而 header.php 判断是否输出站名块用的是 `nav_text_logo` —— 两者是**不同的键**。
+ *   本站 `text_logo.text = 'YBH'`、`nav_text_logo.text = ''`，
+ *   于是 `if (iro_opt('iro_logo') || !empty($nav_text_logo['text']))` 恒为假，
+ *   整块 `.site-branding` 连同 `.site-title` 都不输出（顶栏就少了站名）。
+ *
+ * 这里让站名块优先用自定义器真正写入的 `text_logo`，其次才回退 `nav_text_logo`，
+ * 且两者的字体/字号/颜色都能带上。原先的判断与输出逻辑保持不变。
+ */
+$ybh_text_logo = iro_opt('text_logo');
+if (is_array($ybh_text_logo) && !empty($ybh_text_logo['text'])
+    && (empty($nav_text_logo['text']) || iro_opt('text_logo_options'))) {
+    $nav_text_logo = array_merge(
+        is_array($nav_text_logo) ? $nav_text_logo : array(),
+        array_filter(array(
+            'text'      => $ybh_text_logo['text'],
+            'font_name' => !empty($ybh_text_logo['font']) ? $ybh_text_logo['font'] : null,
+            'size'      => !empty($ybh_text_logo['size']) ? $ybh_text_logo['size'] : null,
+            'color'     => !empty($ybh_text_logo['color']) ? $ybh_text_logo['color'] : null,
+        ), function ($v) { return $v !== null; })
+    );
+}
+
 $vision_resource_basepath = iro_opt('vision_resource_basepath');
 header('X-Frame-Options: SAMEORIGIN');
 ?>
@@ -210,9 +237,19 @@ header('X-Frame-Options: SAMEORIGIN');
                     <?php endif; ?>
                     <?php if (!empty($nav_text_logo['text'])): ?>
                         <div class="site-title"<?php
-                        if(!empty($nav_text_logo['font_name'])) {
-                            echo ' style="font-family:' . esc_attr($nav_text_logo['font_name']) . '!important;"';
-                        } ?>>
+                        // T70：自定义器的「站名字号」是给独立标题块用的（站长填的是 100px），
+                        // 直接内联进 45px 高的顶栏胶囊会把它撑爆、挤掉右侧按钮。
+                        // 这里不内联字号，改由 CSS 按顶栏高度等比收敛（见 ybh.css）。
+                        // 字体与颜色仍尊重自定义器的设置。
+                        $ybh_title_style = '';
+                        if (!empty($nav_text_logo['font_name'])) {
+                            $ybh_title_style .= 'font-family:' . esc_attr($nav_text_logo['font_name']) . '!important;';
+                        }
+                        if (!empty($nav_text_logo['color'])) {
+                            $ybh_title_style .= 'color:' . esc_attr($nav_text_logo['color']) . '!important;';
+                        }
+                        echo $ybh_title_style !== '' ? ' style="' . $ybh_title_style . '"' : '';
+                        ?>>
                             <?php echo esc_html($nav_text_logo['text']); ?>
                         </div>
                     <?php endif; ?>

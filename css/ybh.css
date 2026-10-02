@@ -5345,6 +5345,21 @@ body.dark .ybh-guide__note {
   .site-header > .nav-search-wrapper > .bg-switch:last-of-type { right: 48px; }
 }
 
+/* T70 事故修复：顶栏站名溢出
+   自定义器「站名字号」填的是 100px，那是给独立标题块用的；
+   直接写进 .site-title 会把 45px 高的顶栏胶囊撑爆、挤掉旁边的按钮。
+   这里让字号随顶栏高度等比收敛（100px -> 26px），且仍允许站长用
+   --ybh-title-scale 微调；颜色/字体保持自定义器的设置不变。 */
+.site-header .site-branding .site-title {
+  font-size: 26px !important;
+  line-height: 1 !important;
+  max-height: 34px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 /* T66b2 顶栏语言胶囊：现在包在 .ybh-lang-corner 里（T68b 移到右上角，与用户头像同排）。
    外壳做成和 .user-menu-wrapper 一致的 45px 毛玻璃胶囊，内里按钮保持 33×33。 */
 .ybh-lang-corner {
