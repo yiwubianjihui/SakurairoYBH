@@ -451,10 +451,13 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  /* T69：删掉了 U+1000-D7FB（原样覆盖全部常用汉字，导致整包 5.7 MB 被预载）。
-     现在只声明它真正负责的区段：基本拉丁、标点、货币、CJK 符号与标点、
-     兼容汉字、全角、以及私用区/表意文字补充。 */
-  unicode-range: U+0000-0E5B,U+0E81-0EDF,U+0F00-0FDA,U+E000-E1EC,U+E295,U+E37E,U+E400-E4DA,U+E500-E6CE,U+E815-E864,U+ED2B-ED43,U+ED73-ED8C,U+EDC9-EE0B,U+EE2F-EE68,U+EE8C-EE9A,U+F000-F414,U+F4EE-F4FF,U+F900-FAD9,U+FB00-FDCF,U+FDF0-FFFD,U+16FF0-16FF1,U+E0001-E007F,U+E0100-E01EF;
+  /* T69（最终收紧）：本片只剩**真正的生僻字兜底**。
+     实测（CDP 扫全页文本）主页上命中本范围的只有 8 个排版符号：
+     `—` `…` `·` `→` `“”` `•` 与不换行空格 —— 而这些前面的 PingFang /
+     微软雅黑 / 更纱**本来就能正常渲染**，留着就等于每页白拉 5.7 MB。
+     于是连排版符号也一并移出，只保留 CJK 兼容汉字、表意文字补充与私用区
+     （真正没有别的字体可用的场景）。 */
+  unicode-range: U+F900-FAD9,U+FB00-FDCF,U+FEFF,U+FFF9-FFFD;
 }
 /* T69 删除了这里一条**语法损坏**的声明（原第 441 行）：
      `@font-face {U+0000-007E,U+3099-309A,U+10000-1005D,…,U+30000-33479}`
@@ -466,7 +469,8 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0000-007E,U+16FF0-16FF1,U+20000-2A6DF,U+2A700-2EE5D,U+2F800-2FA1D;
+  /* T69：同 P0，去掉基本拉丁（U+0000-007E），只留 CJK 扩展 B 及以后的生僻汉字 */
+  unicode-range: U+16FF0-16FF1,U+20000-2A6DF,U+2A700-2EE5D,U+2F800-2FA1D;
 }
 @font-face {
   font-family: 'TH-Tshyn';
@@ -474,7 +478,8 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0000-007E,U+100000-101AFF,U+102000-10437B,U+105000-10C7B7;
+  /* T69：同 P0/P2，去掉基本拉丁，只留扩展区生僻字 */
+  unicode-range: U+100000-101AFF,U+102000-10437B,U+105000-10C7B7;
 }
 
 /* ---------- 字体：霞鹜文楷（子集优先，全量兜底） ----------

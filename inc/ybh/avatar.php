@@ -114,6 +114,19 @@ function ybh_avatar_resolve($id_or_email): array
         }
     } elseif (is_string($id_or_email) && strpos($id_or_email, '@') !== false) {
         $email = $id_or_email;
+    } elseif (is_string($id_or_email) && preg_match('/^[a-f0-9]{32}$/i', $id_or_email)) {
+        /*
+         * ⚠️ 兼容分支：**已经是 md5 的哈希值**，不是邮箱。
+         *
+         * 这里的入参来自 `get_avatar` 家族，正常形态是「用户 ID / 用户对象 / 评论对象 /
+         * 邮箱字符串」。但历史上也有调用方直接传 32 位 md5（因为端点 URL 里用的就是它）。
+         * 若不接住这种入参，它会掉到最后的 `$hash = ''`，URL 退化成 `?s=<size>`
+         * —— 也就是**静默返回默认头像**，且不带 h/v，看起来像"头像不更新"。
+         *
+         * （实测：线上**目前没有任何调用方**真的传裸 md5 —— 全站调用点传的都是
+         *   邮箱或用户 ID。所以这条纯属防御性兼容，不必写进更新日志。）
+         */
+        return array(0, 'md5:' . strtolower($id_or_email));
     }
 
     // 有 user_id 却缺邮箱时补一次查询（hash 需要邮箱）
@@ -169,7 +182,14 @@ function ybh_avatar_cache_file(int $user_id, string $hash): ?string
 function ybh_avatar_build_url($id_or_email, int $size = 96): string
 {
     list($user_id, $email) = ybh_avatar_resolve($id_or_email);
-    $hash = ($email !== '') ? md5($email) : '';
+
+    // 兼容分支传上来的「已经是 md5」标记：直接当 hash 用，别再对它做 md5()
+    $pre_hash = '';
+    if (strpos($email, 'md5:') === 0) {
+        $pre_hash = substr($email, 4);
+        $email = '';
+    }
+    $hash = ($pre_hash !== '') ? $pre_hash : (($email !== '') ? md5($email) : '');
 
     if ($user_id <= 0 && $hash === '') {
         return ybh_avatar_default_url($size);
@@ -301,16 +321,64 @@ function ybh_avatar_html($avatar, $id_or_email, $size = 96, $default = '', $alt 
     }
 
     // 站点多处用 <i>/<em> 做图标宿主，头像一律用 <img>，避免被图标字体规则波及
-    $srcset = ' srcset="' . esc_url(add_query_arg('s', $size * 2, $src)) . ' 2x"';
+    $src2x = add_query_arg('s', $size * 2, $src);
 
+    /*
+     * T69-1：srcset 必须**与 src 同一个带 `v=` 的 URL 基准**。
+     *   旧写法直接 `add_query_arg('s', $size*2, $src)`，看起来对，但当 `$src` 是
+     *   默认图（`?s=96`，没有 h/v）时 2x 会变成另一个尺寸的默认图；而当调用方
+     *   （functions.php:692 的 str_replace 技巧）把 src 换成占位图时，srcset 仍指向
+     *   真图 —— 浏览器会**绕过 src 直接按 srcset 取 2x**，于是页面上出现
+     *   "src 是占位图、实际加载的是另一张图"的错位。现在两者共用同一基准 URL，
+     *   且都带 v=，换头像后两者一起变。
+     */
+    $srcset = ' srcset="' . esc_url($src2x) . ' 2x"'
+            . ' data-srcset="' . esc_url($src2x) . ' 2x"';
+
+    /*
+     * T69-2：**剥掉 lazyload class**。
+     *   根因（真实浏览器实测）：主题把评论头像渲染成
+     *     <img class="lazyload" src="占位.svg" data-src="真地址">，
+     *   而主题打包产物 app.js 的懒加载模块只在**初始化时取一次**
+     *   `document.querySelectorAll('.lazyload')`，之后靠 IntersectionObserver 换 src。
+     *   评论区的这些元素没被接管 ⇒ 实测 `{lazyload_total:2, swapped:1, stuck:1}`
+     *   —— 头像永远停在占位图上，**头像端点一次都没被请求**。
+     *   手动把 data-src 赋给 src 则立刻加载成功（naturalWidth=256），证明图与端点都正常。
+     *
+     *   头像只有几百字节、且与本站同源，懒加载对它**没有收益**，只带来"永不加载"的风险，
+     *   所以这里直接在渲染时去掉 lazyload，让 src 直接就是真地址。
+     *   ⚠️ 只影响 class，**不改动调用方**（theme-plus.php / functions.php 的
+     *      get_avatar(...) 调用保持原样），主题升级不会冲突。
+     */
+    $classes = array_values(array_filter($classes, function ($c) {
+        return strtolower((string) $c) !== 'lazyload';
+    }));
+
+    /*
+     * ⚠️ 属性名必须**不含 `src=` 这个子串**。
+     *
+     * 主题评论模板（functions.php:692）用的是一个粗暴的字符串替换：
+     *     str_replace('src=', 'src="<占位图>" onerror="…" data-src=', get_avatar(…))
+     * 它替换的是**所有**出现位置。第一版我把真地址放在 `data-ybh-src` 里，
+     * 结果 `data-ybh-src="…"` 里的 `src=` 也被命中，真地址被就地改成占位图，
+     * 实测线上标签变成：
+     *     data-ybh-src="…/puff-load.svg"   ← 值被污染成占位图
+     *     onerror="imgError(this,1)"      ← 重复出现，证明命中多次
+     *     data-src="…/ybh-avatar.php?…"   ← 重复出现
+     * 于是还原逻辑读到的是占位图地址，等于什么都没还原。
+     *
+     * 所以改用不含 `src=` 的属性名（`data-ybh-avatar-url`），永远不会被那次替换碰到。
+     */
     return sprintf(
-        '<img%1$s src="%2$s"%3$s class="%4$s" height="%5$d" width="%5$d" loading="lazy" decoding="async" data-ybh-avatar="1"%6$s />',
+        '<img%1$s src="%2$s"%3$s class="%4$s" height="%5$d" width="%5$d" loading="lazy" decoding="async" data-ybh-avatar="1" data-ybh-avatar-url="%7$s" data-ybh-avatar-srcset="%8$s"%6$s />',
         $altAttr,
         esc_url($src),
         $srcset,
         esc_attr(implode(' ', $classes)),
         $size,
-        $extraAttr
+        $extraAttr,
+        esc_url($src),
+        esc_url($src2x) . ' 2x'
     );
 }
 
@@ -791,8 +859,40 @@ function ybh_avatar_front_script()
       /* —— 2) 兜底：把第三方预览图归一到本站端点 —— */
       var RE = /(gravatar|cravatar|weavatar)\./i;
 
+      /*
+       * T69-2：修复「评论头像永远停在占位图」。
+       *
+       * 主题 functions.php 的评论模板用了一个字符串技巧来加懒加载占位：
+       *     str_replace('src=', 'src="<占位图>" onerror="…" data-src=', get_avatar(…))
+       * 它会把我们输出的 `src="真地址"` 改成 `src="占位图" data-src="真地址"`，
+       * 再指望打包产物里的 IntersectionObserver 把 data-src 换回来。
+       * 实测（真实浏览器）：那个观察器只在自己初始化时取一次 .lazyload，
+       * 评论区的头像元素没被接管 ⇒ 实测 lazyload_total=2 / swapped=1 / stuck=1，
+       * 头像端点一次都没被请求，图永远停在占位图上（手动赋 src 则立刻正常）。
+       *
+       * 现在我们在标签上带 `data-ybh-src`（原始真地址，不受那次 str_replace 影响），
+       * 由本脚本负责把 src 还原 —— 不依赖主题的观察器，也不用改主题模板。
+       */
+      function restoreOwn(img) {
+        if (!img || !img.getAttribute) return false;
+        /*
+         * 属性名用 `data-ybh-avatar-url`（不是 `data-ybh-src`）：主题评论模板的
+         * str_replace('src=', …) 会把所有 `src=` 都替换掉，属性名里带 `src=` 的话
+         * 连属性值都会被污染（实测线上 data-ybh-src 的值被换成了占位图）。
+         */
+        if (!img.hasAttribute('data-ybh-avatar-url')) return false;
+        var want = img.getAttribute('data-ybh-avatar-url');
+        var cur = img.getAttribute('src') || '';
+        if (!want || cur === want) return false;
+        img.setAttribute('src', want);
+        var ws = img.getAttribute('data-ybh-avatar-srcset');
+        if (ws && img.getAttribute('srcset') !== ws) { img.setAttribute('srcset', ws); }
+        return true;
+      }
+
       function fix(img) {
         if (!img || !img.getAttribute) return;
+        if (restoreOwn(img)) return;          // 本站头像：优先按 data-ybh-src 还原
         var s = img.getAttribute('src') || '';
         if (s.indexOf(EP) === 0) return;
         if (!RE.test(s)) return;
@@ -805,8 +905,14 @@ function ybh_avatar_front_script()
         if (!root) return;
         if (root.nodeType === 1 && root.tagName === 'IMG') { fix(root); return; }
         if (!root.querySelectorAll) return;
-        var list = root.querySelectorAll('div.comment-user-avatar img');
-        for (var i = 0; i < list.length; i++) fix(list[i]);
+        /*
+         * T69-2：选择器从 `div.comment-user-avatar img` 放宽。
+         *   本站评论头像实际渲染在 `.profile` / `.comment-user-avatar` 等多种容器里
+         *   （主题有两套评论区布局，见 functions.php:692 与 inc/theme-plus.php:237），
+         *   原选择器漏掉了其中一套 —— 而被漏掉的恰好就是出问题的那套。
+         *   判据改成"我们自己打的标记"：带 data-ybh-avatar / data-ybh-src 的一律处理。
+         */
+        var list = root.querySelectorAll('div.comment-user-avatar img, .profile img, img[data-ybh-avatar]');        for (var i = 0; i < list.length; i++) fix(list[i]);
       }
 
       if (document.readyState === 'loading') {
