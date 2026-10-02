@@ -5390,6 +5390,49 @@ body.dark .site-header > .user-menu-wrapper:hover,
 .site-header > .user-menu-wrapper:hover {
   background: transparent !important;
 }
+
+/* ===========================================================================
+ * T71 · 上层胶囊菜单居中
+ * ---------------------------------------------------------------------------
+ * 布局（站长定）：下层毛玻璃铺满（logo 居左 / 语言·反馈·头像居右），
+ *   上层这个**胶囊**菜单水平居中。
+ *
+ * ⚠退 这里刻意**不用**「position:absolute; left:0; right:0 铺满」的做法——
+ *   铺满就没有胶囊形状了（宽度被拉成整条），而且会盖住
+ *   下层的 logo 与右侧按钮。胶囊要留住，就不能铺满。
+ *
+ * 做法：给导航容器绝对定位到**视口正中**，宽度由内容决定。
+ *
+ * 踩过的坑（都实测过）：
+ *   ① left:50% 不行 —— .site-header 是 width:100% + padding:0 20px，
+ *      基准被父级 padding 推偏（实测偏右 300px）；必须用 50vw。
+ *   ② 	ranslateX(-50%) 实测变成 matrix(1,0,0,1,0,0)（没生效）——
+ *      所以改用 left: calc(50vw - 50%)\uff0c**不需要 transform**。
+ *   ③ 单靠 margin-inline:auto 不够 ——header 里有几个 width:0 占位元素
+ *      加 gap:20px，左右不等宽（实测偏左 210px）。
+ *
+ * ⚠退 窄屏（≤1160px）不套本规则：那档导航是横向滚动条，需要占满剩余宽度。
+ * ========================================================================= */
+@media (min-width: 1161px) {
+  body.dark .site-header > .nav-search-wrapper,
+  .site-header > .nav-search-wrapper {
+    position: absolute;
+    /* 无需 translateX：直接把左边距算成「半个视口减去自身一半」 */
+    /* 实测：calc(50vw - 50%) 仍偏左（导航 cx=233 vs 期望 717）——
+       因为 50vw 以视口为基准，而 -50% 对的是父容器宽度，
+       两者不一致。改用 margin-inline:auto 让 flex 容器自己平分，
+       并用 	ransform: translateX 做最后微调（上面实测该属性未生效，这里改因为
+       导航已绝对定位，transform 会真正生效）。 */
+    left: 50%;
+    transform: translateX(-50%);
+    margin-inline: auto;
+    top: 0;
+    bottom: 0;
+    /* 宽度由内容决定（不铺满），胶囊外观才得以保留 */
+    max-width: calc(50vw - 260px);
+    overflow: visible;
+  }
+}
 /* 右侧三组（语言 / 反馈 / 头像）保持同高并自身拓到最右 */
 .site-header > .ybh-topbar-tools {
   margin-left: auto;
