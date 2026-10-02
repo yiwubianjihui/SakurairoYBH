@@ -40,4 +40,7 @@ add_action('wp_enqueue_scripts', function () {
         defined('YBH_VERSION') ? YBH_VERSION : null,
         true
     );
+    // 字体目录给 JS（本地化公式字体用，见 js/ybh-mathjax.js 的说明）
+    wp_localize_script('ybh-mathjax', 'YBH_MJ_FONT_URL',
+        esc_url_raw(get_template_directory_uri() . '/fonts/mathjax/woff-v2'));
 }, 20);

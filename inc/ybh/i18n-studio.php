@@ -159,6 +159,19 @@ function ybh_studio_route()
     wp_enqueue_script('ybh-studio', get_template_directory_uri() . '/js/ybh-studio.js',
         array(), defined('YBH_VERSION') ? YBH_VERSION : null, true);
 
+    /*
+     * T68b：AJAX 片段端点 —— `?partial=pane` 只输出右栏 HTML（词条详情 + 提案）。
+     * 前端（js/ybh-studio.js）拦截左栏词条点击，fetch 这个片段就地替换，
+     * 词条切换不再整页刷新；URL 照旧 pushState（刷新/分享语义不变）。
+     */
+    if (isset($_GET['partial']) && sanitize_key(wp_unslash((string) $_GET['partial'])) === 'pane') {
+        status_header(200);
+        nocache_headers();
+        header('Content-Type: text/html; charset=utf-8');
+        echo ybh_studio_partial_pane();
+        exit;
+    }
+
     get_header();
     echo '<main id="main" class="site-main ybh-st-main" role="main">' . ybh_studio_render() . '</main>';
     get_footer();
@@ -415,7 +428,8 @@ function ybh_studio_article_count()
  *         以及输入框（提交提案）与管理员的批准/驳回/撤销
  * 全部走 URL 参数 + 表单，**不依赖 JS**；小屏时右栏落到下面。
  */
-function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $filter, $q, $page, $per, $can_propose, $me, $unit = '', $is_admin = false)
+/** 词条筛选后的列表（T68b 抽出：完整视图与 AJAX partial 共用） */
+function ybh_studio_string_list($entries, $approved, $auto, $by_mid, $lang, $filter, $q, $me)
 {
     $list = array();
     foreach ($entries as $e) {
@@ -436,11 +450,15 @@ function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $fi
         }
         $list[] = array('e' => $e, 'cur' => $cur, 'auto' => $auto_text, 'eff' => $eff, 'ps' => $ps);
     }
+    return $list;
+}
+
+/** 从列表挑出选中项：unit hash 优先，否则第一条（T68b 抽出，partial 共用） */
+function ybh_studio_string_pick($list, $unit, $page, $per)
+{
     $pages = max(1, (int) ceil(count($list) / $per));
     $page = min($page, $pages);
     $slice = array_slice($list, ($page - 1) * $per, $per);
-
-    // 选中项：URL 指定，否则默认第一条
     $sel = null;
     foreach ($list as $row) {
         if ($unit !== '' && md5($row['e']['msgid']) === $unit) { $sel = $row; break; }
@@ -448,6 +466,13 @@ function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $fi
     if (!$sel) {
         foreach ($slice as $row) { $sel = $row; break; }
     }
+    return array($slice, $pages, $page, $sel);
+}
+
+function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $filter, $q, $page, $per, $can_propose, $me, $unit = '', $is_admin = false)
+{
+    $list = ybh_studio_string_list($entries, $approved, $auto, $by_mid, $lang, $filter, $q, $me);
+    list($slice, $pages, $page, $sel) = ybh_studio_string_pick($list, $unit, $page, $per);
 
     $base_args = array('lang' => $lang, 'tab' => 'strings', 'f' => $filter, 'q' => $q);
 
@@ -515,6 +540,21 @@ function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $fi
 
       <!-- 右：选中词条的详情与提案 -->
       <section class="ybh-st__pane-right" id="unit">
+        <?php echo ybh_studio_string_pane($sel, $lang, $can_propose, $is_admin); ?>
+      </section>
+    </div>
+    <?php
+    return (string) ob_get_clean();
+}
+
+/**
+ * 右栏：选中词条的原文、当前生效译文、全部提案、输入框（T68b 抽出）。
+ * 完整视图与 AJAX partial（?partial=pane）共用 —— 词条切换从此不用整页刷新。
+ */
+function ybh_studio_string_pane($sel, $lang, $can_propose, $is_admin)
+{
+    ob_start();
+    ?>
         <?php if (!$sel) : ?>
           <p class="ybh-st__empty">左边选一条词条。</p>
         <?php else :
@@ -619,8 +659,6 @@ function ybh_studio_view_strings($entries, $approved, $auto, $by_mid, $lang, $fi
             <p class="ybh-st__hint">登录后即可提交提案。</p>
           <?php endif; ?>
         <?php endif; ?>
-      </section>
-    </div>
     <?php
     return (string) ob_get_clean();
 }
@@ -675,6 +713,43 @@ function ybh_studio_proposal_list($ps)
     return (string) ob_get_clean();
 }
 
+/**
+ * AJAX 片段：右栏（词条详情 + 全部提案 + 输入框）。
+ * 参数与完整页一致：lang / f / q / p / unit（t68b）。
+ */
+function ybh_studio_partial_pane()
+{
+    $lang = isset($_GET['lang']) ? sanitize_text_field(wp_unslash((string) $_GET['lang'])) : '';
+    if (!ybh_language_valid($lang)) {
+        $lang = function_exists('ybh_current_language') ? ybh_current_language() : 'zh-Hans';
+    }
+    $filter = isset($_GET['f']) ? sanitize_key(wp_unslash((string) $_GET['f'])) : 'todo';
+    if (!in_array($filter, array('todo', 'done', 'all', 'mine'), true)) { $filter = 'todo'; }
+    $q = isset($_GET['q']) ? sanitize_text_field(wp_unslash((string) $_GET['q'])) : '';
+    $page = max(1, (int) ($_GET['p'] ?? 1));
+    $unit = isset($_GET['unit']) ? preg_replace('~[^a-f0-9]~i', '', (string) wp_unslash($_GET['unit'])) : '';
+    $per = 30;
+    $is_admin = current_user_can('manage_options');
+    $can_propose = is_user_logged_in() && current_user_can('edit_posts');
+    $me = is_user_logged_in() ? (string) wp_get_current_user()->display_name : '';
+
+    $approved = ybh_i18n_overlay_get($lang);
+    $auto = function_exists('ybh_i18n_auto_adopted') ? ybh_i18n_auto_adopted($lang) : array();
+    $entries = ybh_studio_string_entries();
+    $props = ybh_studio_proposals($lang, 600);
+    $by_mid = array();
+    foreach ($props as $p) {
+        if ($p['obj_type'] !== 'post') {
+            $by_mid[$p['msgid']][] = $p;
+        }
+    }
+
+    $list = ybh_studio_string_list($entries, $approved, $auto, $by_mid, $lang, $filter, $q, $me);
+    list($slice, $pages, $page, $sel) = ybh_studio_string_pick($list, $unit, $page, $per);
+
+    return (string) ybh_studio_string_pane($sel, $lang, $can_propose, $is_admin);
+}
+
 /** 视图：文章 */
 function ybh_studio_view_articles($lang, $by_obj, $can_propose, $page, $q)
 {
@@ -724,8 +799,10 @@ function ybh_studio_view_articles($lang, $by_obj, $can_propose, $page, $q)
             标题：<?php echo $t_title !== '' ? '<span class="ok">' . esc_html($t_title) . '</span>' : '<span class="none">未翻译</span>'; ?>
             　正文：<?php echo $t_body !== '' ? '<span class="ok">已翻译（' . (int) mb_strlen(wp_strip_all_tags($t_body)) . ' 字）</span>' : '<span class="none">未翻译</span>'; ?>
             <?php if ($who !== '') : ?><span class="who">译者：<?php echo esc_html($who); ?></span><?php endif; ?>
-            <a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('lang' => $lang, 'tab' => 'articles', 'post' => $p->ID))); ?>">按段落翻译 →</a>
           </div>
+          <?php endif; ?>
+          <?php /* 入口链接**始终**给出：source-side 时进去也能看到提示并从那里切语言（T68 修） */ ?>
+          <a class="ybh-st__btn" href="<?php echo esc_url(ybh_studio_url(array('lang' => $lang, 'tab' => 'articles', 'post' => $p->ID))); ?>">按段落翻译 →</a>
           <?php
           $title_props = $by_obj[$p->ID . '|title'] ?? array();
           $body_props = $by_obj[$p->ID . '|content'] ?? array();
@@ -747,7 +824,6 @@ function ybh_studio_view_articles($lang, $by_obj, $can_propose, $page, $q)
               </form>
             <?php endforeach; ?>
           <?php endif; ?>
-          <?php endif; /* is_source_side */ ?>
         </article>
       <?php endforeach; ?>
     </div>
@@ -808,11 +884,22 @@ function ybh_studio_view_article($post_id, $lang, $can_propose, $is_admin = fals
         <div class="ybh-st__bar"><span style="width:<?php echo (int) $pct; ?>%"></span></div>
       </div>
       <p class="ybh-st__hint">每段批准后先存着；**全部段落都批准**时才会拼成整篇译文对外生效。列表、图片、脚注等结构永远保持原样。</p>
+      <p class="ybh-st__langs">
+        <?php foreach (ybh_languages() as $ybh_c => $ybh_i) :
+            $ybh_on = ($ybh_c === $lang);
+            // 源语言不可作为目标（原文就是它），标成禁用态
+            $ybh_dis = ($orig !== '' && $ybh_c === $orig && $ybh_c !== $lang);
+        ?>
+          <a class="ybh-st__lang<?php echo $ybh_on ? ' is-on' : ''; ?>" aria-current="<?php echo $ybh_on ? 'true' : 'false'; ?>"
+             href="<?php echo esc_url(ybh_studio_url(array('lang' => $ybh_c, 'tab' => 'articles', 'post' => $post_id))); ?>"
+             <?php echo $ybh_dis ? ' style="opacity:.4;" title="这篇文章的原文就是它"' : ''; ?>><?php echo esc_html($ybh_i['native']); ?></a>
+        <?php endforeach; ?>
+      </p>
     </header>
 
     <?php if ($is_source_side) : ?>
-      <p class="ybh-st__empty">这篇文章的原文就是 <?php echo esc_html(ybh_language_label($orig)); ?> —— 请选其它语言来翻译它。</p>
-    <?php else : ?>
+      <p class="ybh-st__empty">这篇文章的原文就是 <?php echo esc_html(ybh_language_label($orig)); ?> —— 用上面的语言胶囊切换目标语言即可翻译（段落预览照常显示）。</p>
+    <?php endif; ?>
     <div class="ybh-st__paras">
       <?php foreach ($segments as $i => $seg) :
           $approved_para = (string) get_post_meta($post_id, ybh_i18n_para_meta_key($lang, $i), true);
@@ -829,7 +916,7 @@ function ybh_studio_view_article($post_id, $lang, $can_propose, $is_admin = fals
             <div class="ybh-st__cur"><span class="ok">当前译文：</span><?php echo wp_kses_post($approved_para); ?></div>
           <?php endif; ?>
           <?php echo ybh_studio_proposal_list($para_props); ?>
-          <?php if ($can_propose) : ?>
+          <?php if ($can_propose && !$is_source_side) : ?>
             <form class="ybh-st__act col" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
               <input type="hidden" name="action" value="ybh_studio" />
               <input type="hidden" name="ybh_act" value="propose" />
@@ -867,7 +954,7 @@ function ybh_studio_view_article($post_id, $lang, $can_propose, $is_admin = fals
         <?php if ($who !== '') : ?><span class="who">译者：<?php echo esc_html($who); ?></span><?php endif; ?>
       </div>
       <?php echo ybh_studio_proposal_list(array_merge($by_field['title'] ?? array(), $by_field['content'] ?? array())); ?>
-      <?php if ($can_propose) : ?>
+      <?php if ($can_propose && !$is_source_side) : ?>
         <?php foreach (array(array('title', '翻译标题…', 1, get_the_title($p)), array('content', '翻译正文（可写 HTML）…', 3, mb_substr(trim(preg_replace('/\s+/u', ' ', wp_strip_all_tags(strip_shortcodes($p->post_content)))), 0, 200))) as $f) : ?>
           <form class="ybh-st__act col" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <input type="hidden" name="action" value="ybh_studio" />
@@ -884,7 +971,6 @@ function ybh_studio_view_article($post_id, $lang, $can_propose, $is_admin = fals
         <?php endforeach; ?>
       <?php endif; ?>
     </article>
-    <?php endif; /* is_source_side */ ?>
     <?php
     return (string) ob_get_clean();
 }

@@ -243,22 +243,6 @@ header('X-Frame-Options: SAMEORIGIN');
                 <div class="nav-search-divider"></div>
             <?php endif; ?>
 
-            <?php
-            /*
-             * T66b2：语言切换做成**与搜索/随机并列的独立胶囊图标**。
-             * T68：移到分割线**右面**（与搜索/随机图标同一侧）—— 站长反馈。
-             *
-             * 为什么不塞进菜单列表：`.nav-search-wrapper` 是 height:45px 的胶囊容器，
-             * 里面每个图标都是 33×33、radius 50px 的圆钮；把语言做成 `<li>` 会跟着菜单的
-             * 行高与间距走，和这些圆钮**对不齐**（站长反馈）。
-             * 注意 `overflow: hidden`：下拉浮层不能放在这里面（会被裁掉），
-             * 浮层由 YBH 层在页脚输出、用 JS 开关（见 inc/ybh/i18n.php 与 js/ybh-lang.js）。
-             */
-            if (function_exists('ybh_lang_pill_button')) {
-                echo ybh_lang_pill_button();   // 已自行转义
-            }
-            ?>
-
             <?php if ($show_search): ?>
                 <div class="searchbox js-toggle-search">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
@@ -296,6 +280,16 @@ header('X-Frame-Options: SAMEORIGIN');
         <?php get_template_part('layouts/mo_toc_menu');?> 
 
         <!-- User Menu Section -->
+        <?php
+        /*
+         * T68b：语言切换按钮放到**右上角**（用户头像旁）—— 站长要求。
+         * 胶囊按钮仍是 33×33 的独立圆钮（与头像 35px 视觉对齐）；
+         * 浮层由页脚输出、js/ybh-lang.js 按按钮位置锚定（放哪都能对上）。
+         */
+        if (function_exists('ybh_lang_pill_button')) {
+            echo '<span class="ybh-lang-corner">' . ybh_lang_pill_button() . '</span>';
+        }
+        ?>
         <?php if ($show_user_avatar): ?>
             <div class="user-menu-wrapper">
                 <?php header_user_menu(); ?>

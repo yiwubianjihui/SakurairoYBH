@@ -53,6 +53,47 @@
       });
     }
     bindFmtButtons();
+    bindPaneNav();
+  }
+
+  /*
+   * T68b · 词条切换不刷页：拦截左栏词条链接，fetch `?partial=pane` 片段
+   * 就地替换右栏，URL 照旧 pushState（刷新/分享语义不变）。
+   * 翻页/筛选/搜索仍走整页加载（它们会改左栏本身）。
+   */
+  function bindPaneNav() {
+    var links = document.querySelectorAll('.ybh-st__slist a[href]');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      if (a.getAttribute('data-pane-bound') === '1') { continue; }
+      a.setAttribute('data-pane-bound', '1');
+      a.addEventListener('click', function (e) {
+        var a = e.currentTarget;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { return; }
+        e.preventDefault();
+        var pane = document.querySelector('.ybh-st__pane-right');
+        if (!pane) { location.href = a.href; return; }
+        var url;
+        try { url = new URL(a.href, location.href); } catch (err) { location.href = a.href; return; }
+        url.searchParams.set('partial', 'pane');
+        pane.classList.add('is-loading');
+        fetch(url.toString(), { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.text() : Promise.reject(new Error(String(r.status))); })
+          .then(function (html) {
+            try {
+              history.pushState({}, '', a.pathname + a.search + (a.hash || ''));
+            } catch (e2) {}
+            pane.innerHTML = html;
+            pane.classList.remove('is-loading');
+            if (pane.scrollIntoView) { pane.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+            mark();                       // 新右栏里的表单标记/格式按钮重绑
+          })
+          .catch(function () {
+            pane.classList.remove('is-loading');
+            location.href = a.href;       // 片段失败就整页走
+          });
+      });
+    }
   }
 
   /*

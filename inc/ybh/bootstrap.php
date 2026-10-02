@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('YBH_FONT_CDN', 'https://www.yibianhui.cn/wp-content/uploads/ybh-fonts');
-define('YBH_VERSION', '1.3.58');
+define('YBH_VERSION', '1.3.59');
 
 /**
  * 主题自有资源的缓存标识：**用文件修改时间**，不再用 YBH_VERSION。
@@ -1301,3 +1301,9 @@ require_once get_template_directory() . '/tpl/user-card.php';
  * 本模块只在主题选项开着时挂一支很小的脚本：换页后重新排版；库不在场时懒加载。
  */
 require_once get_template_directory() . '/inc/ybh/mathjax.php';
+
+/**
+ * 反馈功能（T68b）：`/feedback/` 前台反馈页 + 后台「反馈」文章类型 + 顶部导航入口。
+ * 游客可提交（nonce + Honeypot + 10 分钟一条的频率限制），内容只进后台不上前台。
+ */
+require_once get_template_directory() . '/inc/ybh/feedback.php';

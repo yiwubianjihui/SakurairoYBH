@@ -482,34 +482,78 @@ function ybh_lang_nav_menu_item($items, $args = null)
 }
 
 /**
- * 把「翻译工作室」加进主导航（站长要求）。
+ * 「翻译工作室」进主导航 —— T68b 改为挂在「YBH」下拉子菜单里（站长要求），
+ * 不再是顶级项。找到标题为 YBH（slug `关于-ybh`）的顶级菜单项，把工作室
+ * 追加为它的最后一个子项；找不到就退回顶级追加。
  *
  * 桌面与移动端共用同一个 `primary` 菜单，所以注入一次两端都有。
  * 游客也能看（工作室对游客是只读的）；不想要就 `add_filter('ybh_studio_in_nav', '__return_false')`。
  */
-add_filter('wp_nav_menu_items', 'ybh_studio_nav_menu_item', 30, 2);
-function ybh_studio_nav_menu_item($items, $args = null)
+add_filter('wp_nav_menu_objects', 'ybh_studio_nav_submenu_item', 30, 2);
+function ybh_studio_nav_submenu_item($items, $args = null)
 {
     if (is_admin() || !function_exists('ybh_studio_url')) {
         return $items;
     }
     $loc = is_object($args) && isset($args->theme_location) ? (string) $args->theme_location : '';
-    if ($loc !== 'primary') {
+    if ($loc !== '' && $loc !== 'primary') {
         return $items;
     }
     if (!apply_filters('ybh_studio_in_nav', true)) {
         return $items;
     }
-    $label = function_exists('ybh_t') ? ybh_t('翻译工作室') : '翻译工作室';
-    // 已经手动加过就不重复
-    if (strpos((string) $items, 'ybh-studio-link') !== false) {
-        return $items;
+    foreach ((array) $items as $it) {
+        if (!empty($it->ybh_is_studio)) {
+            return $items;                     // 已注入过（幂等）
+        }
     }
-    $item = '<li class="menu-item ybh-studio-link">'
-        . '<a href="' . esc_url(ybh_studio_url()) . '" data-no-pjax>'
-        . '<i class="fa-solid fa-language" aria-hidden="true"></i> '
-        . esc_html($label) . '</a></li>';
-    return $items . $item;
+    $label = function_exists('ybh_t') ? ybh_t('翻译工作室') : '翻译工作室';
+
+    $new = new stdClass();
+    $new->ID = 0;
+    $new->menu_item_parent = 0;                // 找不到 YBH 项就放顶级
+    $new->title = $label;
+    $new->url = ybh_studio_url();
+    $new->type = 'custom';
+    $new->object = 'custom';
+    $new->db_id = 0;
+    $new->classes = array('ybh-studio-link');
+    $new->menu_order = PHP_INT_MAX;
+    $new->current = false;
+    $new->current_item_ancestor = false;
+    $new->current_item_parent = false;
+    $new->ybh_is_studio = true;
+    // 找「YBH」顶级项（标题或 slug 命中），把工作室挂为它的子项
+    foreach ((array) $items as $it) {
+        $slug_ok = strtolower((string) $it->post_name) === strtolower(rawurlencode('关于-ybh'));
+        if ((int) $it->menu_item_parent === 0
+            && ((string) $it->title === 'YBH' || $slug_ok)) {
+            $new->menu_item_parent = (int) $it->ID;
+            break;
+        }
+    }
+    // 排在 YBH 子菜单的最后：子项链结束处插入（wp_nav_menu_objects 按数组序渲染）
+    if ($new->menu_item_parent) {
+        $out = array();
+        $pending = false;
+        foreach ((array) $items as $it) {
+            $out[] = $it;
+            if ((int) $it->ID === (int) $new->menu_item_parent) {
+                $pending = true;               // 父项之后跟着它的子项
+                continue;
+            }
+            if ($pending && (int) $it->menu_item_parent !== (int) $new->menu_item_parent) {
+                array_pop($out);               // 子项链结束：插在最后一条子项之后
+                $out[] = $new;
+                $out[] = $it;
+                $pending = false;
+            }
+        }
+        if ($pending) { $out[] = $new; }       // 子项链一直排到末尾
+        return $out;
+    }
+    $items[] = $new;                           // 顶级兜底：放最后
+    return $items;
 }
 
 /**

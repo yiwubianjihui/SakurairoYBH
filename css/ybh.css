@@ -2074,6 +2074,15 @@ html.ybh-compact body .post-list-thumb .post-topbar > .post-meta {
   padding: 1px 4px;
   border-radius: 5px;
 }
+
+/* T68b：脚注跳转落点**上偏** —— 本站顶部导航是 fixed/sticky，
+   原生锚点跳转把目标对到视口最顶端，第一行正好被导航盖住（站长反馈）。
+   scroll-margin-top 只影响锚点定位，不影响正常排版；
+   「上标引用 ↔ 文末注释」两个方向的锚点目标都算上。 */
+.ybh-fnref,
+.ybh-fn-item {
+  scroll-margin-top: 96px;
+}
 .ybh-footnotes .ybh-fn-item::marker {
   opacity: 0.7;
 }
@@ -5251,6 +5260,36 @@ body.dark .ybh-guide__note {
    aspect-ratio 1:1 / radius 50px / 悬停用主题 skin 色），自然对齐。
    浮层不能放导航容器里（那是 overflow:hidden），所以用 position:fixed 挂在页脚。
    ============================================================================ */
+/* T66b2 顶栏语言胶囊：现在包在 .ybh-lang-corner 里（T68b 移到右上角，与用户头像同排）。
+   外壳做成和 .user-menu-wrapper 一致的 45px 毛玻璃胶囊，内里按钮保持 33×33。 */
+.ybh-lang-corner {
+  position: relative;
+  flex: 0 0 45px;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50px;
+  border: 1px solid #f7f7f7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  backdrop-filter: saturate(180%) blur(10px);
+  transition: background 0.4s ease-in-out;
+}
+
+.ybh-lang-corner:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 860px) {
+  /* 移动端导航胶囊隐藏（同 .user-menu-wrapper 的处理），语言走抽屉菜单注入 */
+  .ybh-lang-corner {
+    display: none;
+  }
+}
+
 .ybh-lang-pill {
   flex: 0 0 auto;
   display: flex;
@@ -5700,6 +5739,13 @@ body.dark .ybh-article-lang {
 
 .ybh-st__btn:hover {
   background: rgba(128, 128, 128, 0.12);
+}
+
+/* T68b：词条切换 AJAX 加载态 */
+.ybh-st__pane-right.is-loading {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .ybh-st__btn.primary {
@@ -6424,4 +6470,103 @@ body.dark .ybh-st__chip.is-on {
     width: 100%;
     order: 2;
   }
+}
+
+/* ===========================================================================
+ * T68b · 反馈页 /feedback/
+ * ========================================================================= */
+.ybh-fb {
+  max-width: 720px;
+  margin: 30px auto;
+  padding: 24px 26px;
+  border: 1px solid var(--ybh-glass-edge, rgba(255, 255, 255, 0.65));
+  border-radius: var(--ybh-radius-md, 16px);
+  background: var(--ybh-glass-bg, rgba(255, 255, 255, 0.84));
+  box-shadow: var(--ybh-shadow-1, 0 10px 30px -16px rgba(24, 32, 42, 0.2));
+}
+
+.ybh-fb__title {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.ybh-fb__desc {
+  margin: 0 0 16px;
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+.ybh-fb__msg {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.ybh-fb__msg.ok {
+  background: rgba(26, 127, 55, 0.12);
+  color: #1a7f37;
+}
+
+.ybh-fb__msg.err {
+  background: rgba(214, 54, 56, 0.1);
+  color: #b32d2e;
+}
+
+.ybh-fb__row {
+  margin: 0 0 14px;
+}
+
+.ybh-fb__row label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.ybh-fb__row input,
+.ybh-fb__row select,
+.ybh-fb__row textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.05);
+  color: inherit;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.7;
+}
+
+.ybh-fb__row textarea {
+  resize: vertical;
+}
+
+.ybh-fb__row input:focus,
+.ybh-fb__row select:focus,
+.ybh-fb__row textarea:focus {
+  outline: 2px solid var(--article-theme-highlight, var(--theme-skin-matching, #6a7ba8));
+  outline-offset: 1px;
+}
+
+.ybh-fb__hint {
+  margin: -4px 0 14px;
+  font-size: 12.5px;
+  opacity: 0.7;
+  word-break: break-all;
+}
+
+.ybh-fb__btn {
+  padding: 10px 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--article-theme-highlight, var(--theme-skin-matching, #6a7ba8));
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ybh-fb__btn:hover {
+  filter: brightness(1.08);
 }
