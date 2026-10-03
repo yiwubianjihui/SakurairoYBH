@@ -5512,19 +5512,24 @@ body.dark .site-header > .nav-search-wrapper:hover,
     align-items: center;
     justify-content: center;
     pointer-events: auto;
-    /* 容器两侧各凸出 20px 后，容器中心已对齐视口；
-       但 nav 宽度由内容决定、容器 flex 居中，实测仍偏左 65px。
-       直接用 margin 把 nav 推到容器中心：容器宽 1474 → 必须加 65px。 */
-    /* 容器 flex 居中实测不生效（nav 偏左 65px），
-       改用 nav 自身绝对定位居中——不依赖父容器的 flex 分配。
-       left 用 50vw（视口基准），而非 50%（父容器有 padding，会偏）。 */
+    /* T72 修复：文章页滚动标题胶囊被打破。
+     *
+     * 根因：上游用
+     *   `.site-header:not(:hover) .nav-search-wrapper:not(:hover)[data-scrollswap] nav
+     *      { transform: translateY(-100%); opacity: 0 }`
+     *   以及
+     *   `.nav-search-wrapper[data-scrollswap] .nav-article-title { transform: translateY(0) }`
+     * 实现「下滑时菜单上移、标题胶囊滑入」的切换。
+     * 而我上一版用 `transform: translateX(-50%)` 做居中 —— **两者同为 transform，
+     * 后者把前者覆盖了**：实测滚动后 nav 停在 `t=-33 / opacity:0`，
+     * 而标题胶囊因为收不到 translateY(0) 而永远不出现。
+     *
+     * 修法：**绝不再占用 transform**。水平居中改用 `left: calc(50vw - 50%)`
+     *   （左边距 = 半个视口 − 自身一半宽，百分比可用，宽度随内容变化也不会偏），
+     *   把 transform 完整留给上游的滚动切换动画。 */
     position: absolute;
-    left: 50vw;
-    /* 用 translateX 做“自身一半”而非硬编码半宽（菜单项数变动时不会再偏）。
-       注意：本主题的 transform 在布层上被算成 matrix(1,0,0,1,0,0)，
-       但那是**顶层 header**上的声明覆盖；这里是 nav 自身，实测可用。 */
-    transform: translateX(-50%);
-    will-change: transform;
+    left: calc(50vw - 50%);
+    top: 0;
     top: 0;
     max-width: min(46vw, 620px);
     overflow-x: auto;
