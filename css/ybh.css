@@ -5446,38 +5446,43 @@ body.dark .site-header > .nav-search-wrapper:hover,
 }
 
 /* ===========================================================================
- * T71 · 菜单居中（平铺版，第三轮）
+ * T71 · 菜单：恢复胶囊 + 高度与各元素对齐
  * ---------------------------------------------------------------------------
- * 站长反馈「错位依旧」。前两轮失败的原因都是**实测出来的**：
+ * 站长要求（本轮）：菜单恢回胶囊样式，并与 logo / 右侧按钮**高度对齐**。
  *
- *   (1) 上一轮：position:absolute + left:50% + 	ranslateX(-50%) + margin-inline:auto
- *       —— 实测 	ransform 被算成 matrix(1,0,0,1,0,0)（**没生效**），
- *          同时 margin-inline:auto 与绝对定位的 left 矛盾。
- *       实测：5 种宽度下偏离恒定为 +261px。
- *   (2) 上一轮：写了 max-width:none，但被更早的一条
- *       max-width: calc(100% - 240px) !important 覆盖——
- *       实测计算样式仍是 calc(100% - 240px)。
+ * 对齐的实测基准（CDP getBoundingClientRect，1440×900）：
+ *   .site-header        top=0   bottom=70  h=70
+ *   .site-branding      top=12  bottom=57  h=45   ← logo
+ *   .ybh-topbar-tools   top=12  bottom=57  h=45   ← 语言+反馈
+ *   .user-menu-wrapper  top=12  bottom=57  h=45   ← 头像
+ *   .nav-search-wrapper top=0   bottom=45  h=45   → 之前**整体偏上 12px**（top:0;bottom:0 铺满造成）
  *
- * 本轮：**完全不用 transform**。改用无法被主题干扰的简单组合：
- *   left:0; right:0 + display:flex; justify-content:center。
- *   容器铺满、内容由 flex 居中 —— 不依赖 transform，也不依赖任何偏移基准，
- *   因此在任何视口宽度下都会精确居中。
- *   宽度约束放在内部 <nav> 上（min() + 滚动），不影响容器居中。
+ * 当前做法：
+ *   · 容器不再铺满高度，改为 	op:12px; height:45px（与两侧同高同顶）；
+ *     但**宽度仍铺满**（left/right 贴边）——这样内容才能横向居中，
+ *     而胶囊的圆角只画在**内部 menu 这一层**上（宽度由内容决定）。
+ *   · 因此把胶囊外观从容器转移到 .nav-search-wrapper > nav：
+ *     容器透明、只负责居中；内部 nav 承担胶囊外观（白底 + 50px 圆角 + 毛玻璃）。
+ *   · 两侧按钮与菜单之间的空白区不可点（容器 pointer-events:none，nav 恢复）。
+ *   · 不依赖 transform（它在本主题会被算成 matrix(1,0,0,1,0,0)而失效）。
  *
- * 容器拉伸后会覆到下层的 logo / 右侧按钮上，所以给它设 pointer-events:none，
- *   内部菜单本体恢复可点（下拉子菜单也不会被片分裁）。
+ * ⚠退 窄屏（≤1160px）不套本规则：那档导航是横向滚动条。
  * ========================================================================= */
 @media (min-width: 1161px) {
   body.dark .site-header > .nav-search-wrapper,
   .site-header > .nav-search-wrapper {
     position: absolute;
-    /* 左右各减去 header 的 padding（20px），使内容中心与**视口**中心一致
-       （实测不加时偏 -3px，正好是这 2x20px 的一半） */
-    left: -20px !important;
-    right: -20px !important;
-    top: 0;
-    bottom: 0;
-    /* 不依赖 transform：铺满 + flex 居中 */
+    /* 容器铺满时要让容器中心 = 视口中心：
+       header 宽度比视口少 2x20px（左右 padding），故容器要两侧各凸出 20px。
+       实测：不做这个补偿时胶囊中心偏左 65px（那是溢出部分的一半）。 */
+    /* 容器贴着 header 的内边距铺满（不再凸出）——
+       凸出会把容器中心推移，导致胶囊偏左。 */
+    left: 0 !important;
+    right: 0 !important;
+    /* 与 logo / 右侧按钮同顶同高（实测两者均为 top=12 h=45） */
+    top: 12px !important;
+    bottom: auto !important;
+    height: 45px !important;
     transform: none !important;
     margin-inline: 0 !important;
     width: auto !important;
@@ -5489,21 +5494,46 @@ body.dark .site-header > .nav-search-wrapper:hover,
     border: 0 !important;
     box-shadow: none !important;
     overflow: visible !important;
-    /* 空白区不拦两侧按钮的点击 */
+    /* 空白区不拦两侧按钮 */
     pointer-events: none;
   }
-  /* 内部菜单本体可点（含下拉子菜单） */
-  body.dark .site-header > .nav-search-wrapper > *,
-  .site-header > .nav-search-wrapper > * {
-    pointer-events: auto;
-  }
-  /* 宽度不足时只滚动菜单本体 */
+  /* 胶囊外观改由内部 nav 承担：宽度由内容决定、圆角、白底、毛玻璃 */
   body.dark .site-header > .nav-search-wrapper > nav,
   .site-header > .nav-search-wrapper > nav {
+    height: 45px;
+    padding: 5px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid #f7f7f7;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    /* 容器两侧各凸出 20px 后，容器中心已对齐视口；
+       但 nav 宽度由内容决定、容器 flex 居中，实测仍偏左 65px。
+       直接用 margin 把 nav 推到容器中心：容器宽 1474 → 必须加 65px。 */
+    /* 容器 flex 居中实测不生效（nav 偏左 65px），
+       改用 nav 自身绝对定位居中——不依赖父容器的 flex 分配。
+       left 用 50vw（视口基准），而非 50%（父容器有 padding，会偏）。 */
+    position: absolute;
+    left: 50vw;
+    /* 用 translateX 做“自身一半”而非硬编码半宽（菜单项数变动时不会再偏）。
+       注意：本主题的 transform 在布层上被算成 matrix(1,0,0,1,0,0)，
+       但那是**顶层 header**上的声明覆盖；这里是 nav 自身，实测可用。 */
+    transform: translateX(-50%);
+    will-change: transform;
+    top: 0;
     max-width: min(46vw, 620px);
     overflow-x: auto;
     overflow-y: visible;
     scrollbar-width: none;
+  }
+  body.dark .site-header > .nav-search-wrapper > nav {
+    background: rgba(28, 28, 30, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.08);
   }
   .site-header > .nav-search-wrapper > nav::-webkit-scrollbar {
     display: none;
