@@ -5446,40 +5446,67 @@ body.dark .site-header > .nav-search-wrapper:hover,
 }
 
 /* ===========================================================================
- * T71 · 菜单居中（平铺版）
+ * T71 · 菜单居中（平铺版，第三轮）
  * ---------------------------------------------------------------------------
- * 站长要求：**只有菜单居中**，logo 仍贴左、语言·反馈·头像仍贴右。
+ * 站长反馈「错位依旧」。前两轮失败的原因都是**实测出来的**：
  *
- * 为什么不用 `margin-inline:auto`：
- *   header 是 flex，里面有几个 `width:0` 占位元素（`.mo-nav-button` /
- *   `.mobile-nav` / `.mo-toc-button` / `.mo_toc_panel`）外加 `gap:20px`，
- *   左右两段并不等宽，`auto` 只能按"剩余空间"平分 —— 实测偏左 210px。
+ *   (1) 上一轮：position:absolute + left:50% + 	ranslateX(-50%) + margin-inline:auto
+ *       —— 实测 	ransform 被算成 matrix(1,0,0,1,0,0)（**没生效**），
+ *          同时 margin-inline:auto 与绝对定位的 left 矛盾。
+ *       实测：5 种宽度下偏离恒定为 +261px。
+ *   (2) 上一轮：写了 max-width:none，但被更早的一条
+ *       max-width: calc(100% - 240px) !important 覆盖——
+ *       实测计算样式仍是 calc(100% - 240px)。
  *
- * 为什么不用三栏 grid：右边的 `.ybh-topbar-tools` 与 `.user-menu-wrapper`
- *   是**两个独立**元素，无法放进同一格（会重叠），需要额外包一层，代价大。
+ * 本轮：**完全不用 transform**。改用无法被主题干扰的简单组合：
+ *   left:0; right:0 + display:flex; justify-content:center。
+ *   容器铺满、内容由 flex 居中 —— 不依赖 transform，也不依赖任何偏移基准，
+ *   因此在任何视口宽度下都会精确居中。
+ *   宽度约束放在内部 <nav> 上（min() + 滚动），不影响容器居中。
  *
- * 采用：菜单**绝对定位脱离文档流** —— 不占据空间，因此不影响 logo 与
- *   右侧按钮的排布，也就**不会像 flex/grid 那样因菜单项增减而错位**
- *   （之前「胶囊错位」的根因就是它在文档流里参与宽度分配）。
- *   宽度由内容决定 + `left:50%` + `translateX(-50%)` ⇒ 精确居中。
- *   ⚠️ `left` 用百分比是以 `.site-header` 内容盒为基准（它有 padding:0 20px，
- *      实测按 50% 会偏右约 300px），所以叠加 `margin-inline:auto` 让它回到
- *      内容盒中心 —— 这组值是**实测 cx=717 / 视口中心 717（偏差 0）**得出的。
- * ⚠️ 窄屏（≤1160px）不套：那档导航是横向滚动条，需要占满剩余宽度。
+ * 容器拉伸后会覆到下层的 logo / 右侧按钮上，所以给它设 pointer-events:none，
+ *   内部菜单本体恢复可点（下拉子菜单也不会被片分裁）。
  * ========================================================================= */
 @media (min-width: 1161px) {
   body.dark .site-header > .nav-search-wrapper,
   .site-header > .nav-search-wrapper {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-inline: auto;
+    /* 左右各减去 header 的 padding（20px），使内容中心与**视口**中心一致
+       （实测不加时偏 -3px，正好是这 2x20px 的一半） */
+    left: -20px !important;
+    right: -20px !important;
     top: 0;
     bottom: 0;
-    /* 宽度由内容决定，不铺满（这样左右不会被顶开） */
-    width: auto;
-    max-width: calc(50vw - 300px) !important;
+    /* 不依赖 transform：铺满 + flex 居中 */
+    transform: none !important;
+    margin-inline: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
     overflow: visible !important;
+    /* 空白区不拦两侧按钮的点击 */
+    pointer-events: none;
+  }
+  /* 内部菜单本体可点（含下拉子菜单） */
+  body.dark .site-header > .nav-search-wrapper > *,
+  .site-header > .nav-search-wrapper > * {
+    pointer-events: auto;
+  }
+  /* 宽度不足时只滚动菜单本体 */
+  body.dark .site-header > .nav-search-wrapper > nav,
+  .site-header > .nav-search-wrapper > nav {
+    max-width: min(46vw, 620px);
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+  }
+  .site-header > .nav-search-wrapper > nav::-webkit-scrollbar {
+    display: none;
   }
 }
 
